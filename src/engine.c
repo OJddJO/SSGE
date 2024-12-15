@@ -80,6 +80,7 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
         }
 
         update(game);
+        SDL_RenderClear(engine->renderer);
         draw(game);
 
         SDL_RenderPresent(engine->renderer);
@@ -89,6 +90,18 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
             SDL_Delay((1000 / engine->fps) - frameTime);
         }
     }
+}
+
+/***********************************************
+ * Window functions
+ ************************************************/
+
+/**
+ * Sets the window as resizable
+ * \param resizable True if the window should be resizable, false otherwise
+ */
+void window_resizable(bool resizable) {
+    SDL_SetWindowResizable(engine->window, resizable ? SDL_TRUE : SDL_FALSE);
 }
 
 /***********************************************
