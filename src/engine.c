@@ -4,6 +4,7 @@ Engine *engine;
 int object_id = 0;
 ObjectList *object_list;
 ObjectTemplateList *object_template_list;
+TextureList *texture_list;
 
 /***********************************************
  * Engine functions
@@ -19,25 +20,30 @@ ObjectTemplateList *object_template_list;
 void engine_init(const char *title, int width, int height, int fps) {
     if (engine != NULL) {
         fprintf(stderr, "Engine already initialized\n");
+        exit(1);
     }
 
     engine = (Engine *)malloc(sizeof(Engine));
     if (engine == NULL) {
         fprintf(stderr, "Failed to allocate memory for engine\n");
+        exit(1);
     }
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
         fprintf(stderr, "Failed to initialize SDL: %s\n", SDL_GetError());
+        exit(1);
     }
 
     engine->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     if (engine->window == NULL) {
         fprintf(stderr, "Failed to create window: %s\n", SDL_GetError());
+        exit(1);
     }
 
     engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED);
     if (engine->renderer == NULL) {
         fprintf(stderr, "Failed to create renderer: %s\n", SDL_GetError());
+        exit(1);
     }
 
     engine->isRunning = true;
@@ -118,7 +124,24 @@ SDL_Texture *load_texture(char *texture_path) {
     SDL_Texture *texture = IMG_LoadTexture(engine->renderer, texture_path);
     if (texture == NULL) {
         fprintf(stderr, "Failed to load image: %s\n", IMG_GetError());
-        return NULL;
+        exit(1);
+    }
+
+    TextureList *texture_list_item = (TextureList *)malloc(sizeof(TextureList));
+    if (texture_list_item == NULL) {
+        fprintf(stderr, "Failed to allocate memory for texture list item\n");
+        exit(1);
+    }
+    texture_list_item->texture = texture;
+
+    if (texture_list == NULL) {
+        texture_list = texture_list_item;
+    } else {
+        TextureList *current = texture_list;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = texture_list_item;
     }
 
     return texture;
@@ -162,12 +185,20 @@ void draw_texture_from_path(char *texture_path, int x, int y, int width, int hei
  * Adds an object to the object list
  * \param object The object to add
  */
-static void _add_object_to_list(Object *object) {
+static void _add_object_to_list(Object *object, char *name) {
     ObjectList *object_list_item = (ObjectList *)malloc(sizeof(ObjectList));
     if (object_list_item == NULL) {
         fprintf(stderr, "Failed to allocate memory for object list item\n");
-        return;
+        exit(1);
     }
+
+    object_list_item->object = object;
+    object_list_item->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (object_list_item->name == NULL) {
+        fprintf(stderr, "Failed to allocate memory for object name\n");
+        exit(1);
+    }
+    strcpy(object_list_item->name, name);
 
     if (object_list == NULL) {
         object_list = object_list_item;
@@ -177,28 +208,6 @@ static void _add_object_to_list(Object *object) {
             current = current->next;
         }
         current->next = object_list_item;
-    }
-}
-
-/**
- * Adds an object template to the object template list
- * \param object_template The object template to add
- */
-static void _add_object_template_to_list(ObjectTemplate *object_template) {
-    ObjectTemplateList *object_template_list_item = (ObjectTemplateList *)malloc(sizeof(ObjectTemplateList));
-    if (object_template_list_item == NULL) {
-        fprintf(stderr, "Failed to allocate memory for object template list item\n");
-        return;
-    }
-
-    if (object_template_list == NULL) {
-        object_template_list = object_template_list_item;
-    } else {
-        ObjectTemplateList *current = object_template_list;
-        while (current->next != NULL) {
-            current = current->next;
-        }
-        current->next = object_template_list_item;
     }
 }
 
@@ -216,15 +225,14 @@ Object *object_create(char *name, char *texture, int x, int y, int width, int he
     Object *object = (Object *)malloc(sizeof(Object));
     if (object == NULL) {
         fprintf(stderr, "Failed to allocate memory for object\n");
-        return NULL;
+        exit(1);
     }
 
     object->id = object_id++;
-    object->name = name;
     object->texture = IMG_LoadTexture(engine->renderer, texture);
     if (object->texture == NULL) {
         fprintf(stderr, "Failed to load texture: %s\n", IMG_GetError());
-        return NULL;
+        exit(1);
     }
     object->x = x;
     object->y = y;
@@ -232,7 +240,7 @@ Object *object_create(char *name, char *texture, int x, int y, int width, int he
     object->height = height;
 
     // Add object to object list
-    _add_object_to_list(object);
+    _add_object_to_list(object, name);
 
     return object;
 }
@@ -256,6 +264,37 @@ void object_destroy(Object *object) {
 }
 
 /**
+ * Adds an object template to the object template list
+ * \param template The object template to add
+ * \param name The name of the object template
+ */
+static void _add_object_template_to_list(ObjectTemplate *template, char *name) {
+    ObjectTemplateList *object_template_list_item = (ObjectTemplateList *)malloc(sizeof(ObjectTemplateList));
+    if (object_template_list_item == NULL) {
+        fprintf(stderr, "Failed to allocate memory for object template list item\n");
+        exit(1);
+    }
+
+    object_template_list_item->object_template = template;
+    object_template_list_item->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (object_template_list_item->name == NULL) {
+        fprintf(stderr, "Failed to allocate memory for object template name\n");
+        exit(1);
+    }
+    strcpy(object_template_list_item->name, name);
+
+    if (object_template_list == NULL) {
+        object_template_list = object_template_list_item;
+    } else {
+        ObjectTemplateList *current = object_template_list;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = object_template_list_item;
+    }
+}
+
+/**
  * Creates an object template
  * \param name The name of the object template
  * \param texture The texture of the object template
@@ -267,13 +306,14 @@ ObjectTemplate *object_template_create(char *name, char *texture, int width, int
     ObjectTemplate *object_template = (ObjectTemplate *)malloc(sizeof(ObjectTemplate));
     if (object_template == NULL) {
         fprintf(stderr, "Failed to allocate memory for object template\n");
-        return NULL;
+        exit(1);
     }
-
-    object_template->name = name;
     object_template->texture = texture;
     object_template->width = width;
     object_template->height = height;
+
+    // Add object template to object template list
+    _add_object_template_to_list(object_template, name);
 
     return object_template;
 }
@@ -286,7 +326,7 @@ ObjectTemplate *object_template_create(char *name, char *texture, int width, int
 ObjectTemplate *get_template_by_name(char *name) {
     ObjectTemplateList *current = object_template_list;
     while (current != NULL) {
-        if (strcmp(current->object_template->name, name) == 0) {
+        if (strcmp(current->name, name) == 0) {
             return current->object_template;
         }
         current = current->next;
@@ -299,10 +339,7 @@ ObjectTemplate *get_template_by_name(char *name) {
  * \param object_template The object template to destroy
  */
 void object_template_destroy(ObjectTemplate *object_template) {
-    if (object_template->name != NULL) {
-        free(object_template->name);
-    }
-    if (object_template->texture)
+    if (object_template->texture) free(object_template->texture);
     free(object_template);
 }
 
@@ -313,8 +350,8 @@ void object_template_destroy(ObjectTemplate *object_template) {
  * \param y The y position of the object
  * \return The object
  */
-Object *object_instantiate(ObjectTemplate *object_template, int x, int y) {
-    return object_create(object_template->name, object_template->texture, x, y, object_template->width, object_template->height);
+Object *object_instantiate(ObjectTemplate *object_template, char *name, int x, int y) {
+    return object_create(name, object_template->texture, x, y, object_template->width, object_template->height);
 }
 
 /**

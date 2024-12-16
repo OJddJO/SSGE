@@ -7,6 +7,13 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+void init_object_templates() {
+    object_template_create("grass_0", "assets/tile_0000.png", 32, 32);
+    object_template_create("grass_1", "assets/tile_0001.png", 32, 32);
+    object_template_create("grass_2", "assets/tile_0002.png", 32, 32);
+    object_template_create("grass_3", "assets/tile_0003.png", 32, 32);
+}
+
 void update(void *game) {
 }
 

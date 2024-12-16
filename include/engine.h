@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <pthread.h>
 #include <stdbool.h>
 #include <SDL2/SDL.h>
@@ -18,20 +19,13 @@ typedef struct _Engine {
 } Engine;
 
 typedef struct _ObjectTemplate {
-    char *name;
     char *texture;
     int width;
     int height;
 } ObjectTemplate;
 
-typedef struct _ObjectTemplateList {
-    ObjectTemplate *object_template;
-    struct _ObjectTemplateList *next;
-} ObjectTemplateList;
-
 typedef struct _Object {
     int id;
-    char *name;
     SDL_Texture *texture;
     int x;
     int y;
@@ -39,10 +33,23 @@ typedef struct _Object {
     int height;
 } Object;
 
+typedef struct _ObjectTemplateList {
+    char *name;
+    ObjectTemplate *object_template;
+    struct _ObjectTemplateList *next;
+} ObjectTemplateList;
+
 typedef struct _ObjectList {
+    char *name;
     Object *object;
     struct _ObjectList *next;
 } ObjectList;
+
+typedef struct _TextureList {
+    char *name;
+    SDL_Texture *texture;
+    struct _Texture *next;
+} TextureList;
 
 extern Engine *engine;
 
@@ -61,6 +68,7 @@ void window_resizable(bool resizable);
 SDL_Texture *load_texture(char *texture_path);
 void draw_texture(SDL_Texture *texture, int x, int y, int width, int height);
 void draw_texture_from_path(char *texture_path, int x, int y, int width, int height);
+void destroy_all_textures();
 
 // Object functions
 
