@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <pthread.h>
 #include <stdbool.h>
+#include <time.h>
+#include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
@@ -31,6 +32,7 @@ typedef struct _Object {
     int y;
     int width;
     int height;
+    void *data;
 } Object;
 
 typedef struct _ObjectTemplateList {
@@ -48,10 +50,8 @@ typedef struct _ObjectList {
 typedef struct _TextureList {
     char *name;
     SDL_Texture *texture;
-    struct _Texture *next;
+    struct _TextureList *next;
 } TextureList;
-
-extern Engine *engine;
 
 // Engine functions
 
@@ -62,24 +62,36 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
 // Window functions
 
 void window_resizable(bool resizable);
+void window_fullscreen(bool fullscreen);
 
 // Drawing functions
 
-SDL_Texture *load_texture(char *texture_path);
+SDL_Texture *load_texture(char *filename, char *name);
+SDL_Texture *get_texture_by_name(char *name);
 void draw_texture(SDL_Texture *texture, int x, int y, int width, int height);
-void draw_texture_from_path(char *texture_path, int x, int y, int width, int height);
+void draw_texture_from_path(char *filename, int x, int y, int width, int height);
 void destroy_all_textures();
+
+// Tilemap functions
+
+
 
 // Object functions
 
-Object *object_create(char *name, char *texture, int x, int y, int width, int height);
-void object_draw(Object *object);
-void object_destroy(Object *object);
-ObjectTemplate *object_template_create(char *name, char *texture, int width, int height);
-void object_template_destroy(ObjectTemplate *object_template);
-ObjectTemplate *get_template_by_name(char *name);
-Object *object_instantiate(ObjectTemplate *object_template, int x, int y);
+Object *create_object(char *name, char *texture, int x, int y, int width, int height, void *data);
+Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data);
+void draw_object(Object *object);
+Object *get_object_by_id(int id);
+void destroy_object_by_id(int id);
+void destroy_object_by_name(char *name);
 void destroy_all_objects();
+
+// Object template functions
+
+ObjectTemplate *create_object_template(char *name, char *texture, int width, int height);
+ObjectTemplate *get_template_by_name(char *name);
+void destroy_object_template(char *name);
+void destroy_all_templates();
 
 // Event handling functions
 

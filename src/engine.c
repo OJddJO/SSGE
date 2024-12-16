@@ -1,10 +1,10 @@
 #include "engine.h"
 
-Engine *engine;
-int object_id = 0;
-ObjectList *object_list;
-ObjectTemplateList *object_template_list;
-TextureList *texture_list;
+Engine *_engine;
+int _object_id = 0;
+ObjectList *_object_list;
+ObjectTemplateList *_object_template_list;
+TextureList *_texture_list;
 
 /***********************************************
  * Engine functions
@@ -18,13 +18,13 @@ TextureList *texture_list;
  * \param fps The frames per second
  */
 void engine_init(const char *title, int width, int height, int fps) {
-    if (engine != NULL) {
+    if (_engine != NULL) {
         fprintf(stderr, "Engine already initialized\n");
         exit(1);
     }
 
-    engine = (Engine *)malloc(sizeof(Engine));
-    if (engine == NULL) {
+    _engine = (Engine *)malloc(sizeof(Engine));
+    if (_engine == NULL) {
         fprintf(stderr, "Failed to allocate memory for engine\n");
         exit(1);
     }
@@ -34,32 +34,34 @@ void engine_init(const char *title, int width, int height, int fps) {
         exit(1);
     }
 
-    engine->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if (engine->window == NULL) {
+    _engine->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
+    if (_engine->window == NULL) {
         fprintf(stderr, "Failed to create window: %s\n", SDL_GetError());
         exit(1);
     }
 
-    engine->renderer = SDL_CreateRenderer(engine->window, -1, SDL_RENDERER_ACCELERATED);
-    if (engine->renderer == NULL) {
+    _engine->renderer = SDL_CreateRenderer(_engine->window, -1, SDL_RENDERER_ACCELERATED);
+    if (_engine->renderer == NULL) {
         fprintf(stderr, "Failed to create renderer: %s\n", SDL_GetError());
         exit(1);
     }
 
-    engine->isRunning = true;
-    engine->width = width;
-    engine->height = height;
-    engine->fps = fps;
+    _engine->isRunning = true;
+    _engine->width = width;
+    _engine->height = height;
+    _engine->fps = fps;
 }
 
 /**
  * Quits the engine
+ * \note This function must be called at the end of the program
+ * \warning This function DOES NOT free the memory allocated for objects, object templates, and textures
  */
 void engine_quit() {
-    SDL_DestroyRenderer(engine->renderer);
-    SDL_DestroyWindow(engine->window);
+    SDL_DestroyRenderer(_engine->renderer);
+    SDL_DestroyWindow(_engine->window);
     SDL_Quit();
-    free(engine);
+    free(_engine);
 }
 
 /**
@@ -73,27 +75,27 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
     Uint32 frameStart;
     int frameTime;
 
-    while (engine->isRunning) {
+    while (_engine->isRunning) {
         frameStart = SDL_GetTicks();
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
-                engine->isRunning = 0;
+                _engine->isRunning = 0;
             } else {
                 event_handler(event, game);
             }
         }
 
         update(game);
-        SDL_RenderClear(engine->renderer);
+        SDL_RenderClear(_engine->renderer);
         draw(game);
 
-        SDL_RenderPresent(engine->renderer);
+        SDL_RenderPresent(_engine->renderer);
 
         frameTime = SDL_GetTicks() - frameStart;
-        if (frameTime < 1000 / engine->fps) {
-            SDL_Delay((1000 / engine->fps) - frameTime);
+        if (frameTime < 1000 / _engine->fps) {
+            SDL_Delay((1000 / _engine->fps) - frameTime);
         }
     }
 }
@@ -107,7 +109,15 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
  * \param resizable True if the window should be resizable, false otherwise
  */
 void window_resizable(bool resizable) {
-    SDL_SetWindowResizable(engine->window, resizable ? SDL_TRUE : SDL_FALSE);
+    SDL_SetWindowResizable(_engine->window, resizable ? SDL_TRUE : SDL_FALSE);
+}
+
+/**
+ * Sets the window as fullscreen
+ * \param fullscreen True if the window should be fullscreen, false otherwise
+ */
+void window_fullscreen(bool fullscreen) {
+    SDL_SetWindowFullscreen(_engine->window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
 /***********************************************
@@ -116,12 +126,13 @@ void window_resizable(bool resizable) {
 
 /**
  * Loads a texture
- * \param texture_path The path to the texture
+ * \param filename The path to the texture
+ * \param name The name of the texture
  * \return The texture
  * \note The texture must be destroyed after use
  */
-SDL_Texture *load_texture(char *texture_path) {
-    SDL_Texture *texture = IMG_LoadTexture(engine->renderer, texture_path);
+SDL_Texture *load_texture(char *filename, char *name) {
+    SDL_Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
     if (texture == NULL) {
         fprintf(stderr, "Failed to load image: %s\n", IMG_GetError());
         exit(1);
@@ -133,11 +144,17 @@ SDL_Texture *load_texture(char *texture_path) {
         exit(1);
     }
     texture_list_item->texture = texture;
+    texture_list_item->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (texture_list_item->name == NULL) {
+        fprintf(stderr, "Failed to allocate memory for texture name\n");
+        exit(1);
+    }
+    strcpy(texture_list_item->name, name);
 
-    if (texture_list == NULL) {
-        texture_list = texture_list_item;
+    if (_texture_list == NULL) {
+        _texture_list = texture_list_item;
     } else {
-        TextureList *current = texture_list;
+        TextureList *current = _texture_list;
         while (current->next != NULL) {
             current = current->next;
         }
@@ -145,6 +162,23 @@ SDL_Texture *load_texture(char *texture_path) {
     }
 
     return texture;
+}
+
+/**
+ * Gets a texture by name
+ * \param name The name of the texture
+ * \return The texture
+ */
+SDL_Texture *get_texture_by_name(char *name) {
+    TextureList *current = _texture_list;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            return current->texture;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "Texture not found: %s\n", name);
+    exit(1);
 }
 
 /**
@@ -157,24 +191,40 @@ SDL_Texture *load_texture(char *texture_path) {
  */
 void draw_texture(SDL_Texture *texture, int x, int y, int width, int height) {
     SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopy(engine->renderer, texture, NULL, &rect);
+    SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
 }
 
 /**
  * Draws a texture
- * \param texture_path The texture to draw
+ * \param filename The texture to draw
  * \param x The x position to draw the texture
  * \param y The y position to draw the texture
  * \param width The width of the texture
  * \param height The height of the texture
  */
-void draw_texture_from_path(char *texture_path, int x, int y, int width, int height) {
-    SDL_Texture *texture = load_texture(texture_path);
+void draw_texture_from_path(char *filename, int x, int y, int width, int height) {
+    SDL_Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
 
     SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopy(engine->renderer, texture, NULL, &rect);
+    SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
 
     SDL_DestroyTexture(texture);
+}
+
+/**
+ * Destroys a texture
+ * \param texture The texture to destroy
+ */
+void destroy_all_textures() {
+    TextureList *current = _texture_list;
+    while (current != NULL) {
+        TextureList *next = current->next;
+        SDL_DestroyTexture(current->texture);
+        free(current->name);
+        free(current);
+        current = next;
+    }
+    _texture_list = NULL;
 }
 
 /***********************************************
@@ -200,10 +250,10 @@ static void _add_object_to_list(Object *object, char *name) {
     }
     strcpy(object_list_item->name, name);
 
-    if (object_list == NULL) {
-        object_list = object_list_item;
+    if (_object_list == NULL) {
+        _object_list = object_list_item;
     } else {
-        ObjectList *current = object_list;
+        ObjectList *current = _object_list;
         while (current->next != NULL) {
             current = current->next;
         }
@@ -219,17 +269,18 @@ static void _add_object_to_list(Object *object, char *name) {
  * \param y The y position of the object
  * \param width The width of the object
  * \param height The height of the object
+ * \param data The data of the object
  * \return The object
  */
-Object *object_create(char *name, char *texture, int x, int y, int width, int height) {
+Object *create_object(char *name, char *texture, int x, int y, int width, int height, void *data) {
     Object *object = (Object *)malloc(sizeof(Object));
     if (object == NULL) {
         fprintf(stderr, "Failed to allocate memory for object\n");
         exit(1);
     }
 
-    object->id = object_id++;
-    object->texture = IMG_LoadTexture(engine->renderer, texture);
+    object->id = _object_id++;
+    object->texture = IMG_LoadTexture(_engine->renderer, texture);
     if (object->texture == NULL) {
         fprintf(stderr, "Failed to load texture: %s\n", IMG_GetError());
         exit(1);
@@ -238,6 +289,7 @@ Object *object_create(char *name, char *texture, int x, int y, int width, int he
     object->y = y;
     object->width = width;
     object->height = height;
+    object->data = data;
 
     // Add object to object list
     _add_object_to_list(object, name);
@@ -246,22 +298,108 @@ Object *object_create(char *name, char *texture, int x, int y, int width, int he
 }
 
 /**
- * Draws an object
- * \param object The object to draw
+ * Instantiates an object from an object template
+ * \param object_template The object template to instantiate
+ * \param x The x position of the object
+ * \param y The y position of the object
+ * \param data The data of the object
+ * \return The object
  */
-void object_draw(Object *object) {
-    SDL_Rect rect = {object->x, object->y, object->width, object->height};
-    SDL_RenderCopy(engine->renderer, object->texture, NULL, &rect);
+Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data) {
+    return create_object(name, object_template->texture, x, y, object_template->width, object_template->height, data);
 }
 
 /**
- * Destroys an object
- * \param object The object to destroy
+ * Draws an object
+ * \param object The object to draw
  */
-void object_destroy(Object *object) {
-    SDL_DestroyTexture(object->texture);
-    free(object);
+void draw_object(Object *object) {
+    SDL_Rect rect = {object->x, object->y, object->width, object->height};
+    SDL_RenderCopy(_engine->renderer, object->texture, NULL, &rect);
 }
+
+/**
+ * Gets an object by id
+ * \param id The id of the object
+ * \return The object
+ */
+Object *get_object_by_id(int id) {
+    ObjectList *current = _object_list;
+    while (current != NULL) {
+        if (current->object->id == id) {
+            return current->object;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "Object with id %d not found\n", id);
+    exit(1);
+}
+
+/**
+ * Destroys an object by name
+ * \param id The id of the object
+ */
+void destroy_object_by_id(int id) {
+    ObjectList *current = _object_list;
+    ObjectList *prev = NULL;
+    while (current != NULL) {
+        if (current->object->id == id) {
+            if (prev == NULL) {
+                _object_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            free(current->object);
+            free(current->name);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+/**
+ * Destroys all objects with a given name
+ * \param name The name of the object
+ */
+void destroy_object_by_name(char *name) {
+    ObjectList *current = _object_list;
+    ObjectList *prev = NULL;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            if (prev == NULL) {
+                _object_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            free(current->object);
+            free(current->name);
+            free(current);
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+/**
+ * Destroys all objects
+ */
+void destroy_all_objects() {
+    ObjectList *current = _object_list;
+    while (current != NULL) {
+        ObjectList *next = current->next;
+        free(current->object);
+        free(current->name);
+        free(current);
+        current = next;
+    }
+    _object_list = NULL;
+}
+
+/***********************************************
+ * Object template functions
+ ***********************************************/
 
 /**
  * Adds an object template to the object template list
@@ -283,10 +421,10 @@ static void _add_object_template_to_list(ObjectTemplate *template, char *name) {
     }
     strcpy(object_template_list_item->name, name);
 
-    if (object_template_list == NULL) {
-        object_template_list = object_template_list_item;
+    if (_object_template_list == NULL) {
+        _object_template_list = object_template_list_item;
     } else {
-        ObjectTemplateList *current = object_template_list;
+        ObjectTemplateList *current = _object_template_list;
         while (current->next != NULL) {
             current = current->next;
         }
@@ -302,7 +440,7 @@ static void _add_object_template_to_list(ObjectTemplate *template, char *name) {
  * \param height The height of the object template
  * \return The object template
  */
-ObjectTemplate *object_template_create(char *name, char *texture, int width, int height) {
+ObjectTemplate *create_object_template(char *name, char *texture, int width, int height) {
     ObjectTemplate *object_template = (ObjectTemplate *)malloc(sizeof(ObjectTemplate));
     if (object_template == NULL) {
         fprintf(stderr, "Failed to allocate memory for object template\n");
@@ -324,48 +462,54 @@ ObjectTemplate *object_template_create(char *name, char *texture, int width, int
  * \return The object template
  */
 ObjectTemplate *get_template_by_name(char *name) {
-    ObjectTemplateList *current = object_template_list;
+    ObjectTemplateList *current = _object_template_list;
     while (current != NULL) {
         if (strcmp(current->name, name) == 0) {
             return current->object_template;
         }
         current = current->next;
     }
-    return NULL;
+    fprintf(stderr, "Object template not found: %s\n", name);
+    exit(1);
 }
 
 /**
- * Destroys an object template
- * \param object_template The object template to destroy
+ * Destroys an object template by name
+ * \param name The name of the object template
  */
-void object_template_destroy(ObjectTemplate *object_template) {
-    if (object_template->texture) free(object_template->texture);
-    free(object_template);
-}
-
-/**
- * Instantiates an object from an object template
- * \param object_template The object template to instantiate
- * \param x The x position of the object
- * \param y The y position of the object
- * \return The object
- */
-Object *object_instantiate(ObjectTemplate *object_template, char *name, int x, int y) {
-    return object_create(name, object_template->texture, x, y, object_template->width, object_template->height);
-}
-
-/**
- * Destroys all objects
- */
-void destroy_all_objects() {
-    ObjectList *current = object_list;
+void destroy_object_template(char *name) {
+    ObjectTemplateList *current = _object_template_list;
+    ObjectTemplateList *prev = NULL;
     while (current != NULL) {
-        ObjectList *next = current->next;
-        object_destroy(current->object);
+        if (strcmp(current->name, name) == 0) {
+            if (prev == NULL) {
+                _object_template_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            free(current->object_template);
+            free(current->name);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+/**
+ * Destroys all object templates
+ */
+void destroy_all_templates() {
+    ObjectTemplateList *current = _object_template_list;
+    while (current != NULL) {
+        ObjectTemplateList *next = current->next;
+        free(current->object_template);
+        free(current->name);
         free(current);
         current = next;
     }
-    object_list = NULL;
+    _object_template_list = NULL;
 }
 
 /***********************************************
@@ -390,7 +534,7 @@ bool object_is_hovered(Object *object) {
  * \return True if the object is hovered, false otherwise (or if the object does not exist)
  */
 bool object_is_hovered_by_id(int id) {
-    ObjectList *current = object_list;
+    ObjectList *current = _object_list;
     while (current != NULL) {
         if (current->object->id == id) {
             return object_is_hovered(current->object);
