@@ -76,7 +76,7 @@ typedef struct _TextureList {
 
 void engine_init(const char *title, int width, int height, int fps);
 void engine_quit();
-void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *game);
+void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(Event, void *), void *game);
 
 // Window functions
 
