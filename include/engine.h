@@ -10,6 +10,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
+#define Texture SDL_Texture
+#define Event SDL_Event
+
 typedef struct _Engine {
     SDL_Window *window;
     SDL_Renderer *renderer;
@@ -27,13 +30,28 @@ typedef struct _ObjectTemplate {
 
 typedef struct _Object {
     int id;
-    SDL_Texture *texture;
+    Texture *texture;
     int x;
     int y;
     int width;
     int height;
     void *data;
 } Object;
+
+typedef struct _Tilemap {
+    Texture *texture;
+    int tile_width;
+    int tile_height;
+    int spacing;
+    int nb_rows;
+    int nb_cols;
+} Tilemap;
+
+typedef struct _Tile {
+    Tilemap *tilemap;
+    int row;
+    int col;
+} Tile;
 
 typedef struct _ObjectTemplateList {
     char *name;
@@ -49,9 +67,10 @@ typedef struct _ObjectList {
 
 typedef struct _TextureList {
     char *name;
-    SDL_Texture *texture;
+    Texture *texture;
     struct _TextureList *next;
 } TextureList;
+
 
 // Engine functions
 
@@ -61,20 +80,26 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
 
 // Window functions
 
+void set_window_icon(char *filename);
 void window_resizable(bool resizable);
 void window_fullscreen(bool fullscreen);
 
-// Drawing functions
+// Texture functions
 
-SDL_Texture *load_texture(char *filename, char *name);
-SDL_Texture *get_texture_by_name(char *name);
-void draw_texture(SDL_Texture *texture, int x, int y, int width, int height);
+Texture *load_texture(char *filename, char *name);
+Texture *get_texture_by_name(char *name);
+void draw_texture(Texture *texture, int x, int y, int width, int height);
 void draw_texture_from_path(char *filename, int x, int y, int width, int height);
 void destroy_all_textures();
 
 // Tilemap functions
 
-
+Tilemap *create_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols);
+Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col);
+void draw_tile(Tile *tile, int x, int y);
+void draw_tile_with_size(Tile *tile, int x, int y, int width, int height);
+void draw_tile_from_tilemap(Tilemap *tilemap, int tile_row, int tile_col, int x, int y);
+void destroy_tilemap(Tilemap *tilemap);
 
 // Object functions
 

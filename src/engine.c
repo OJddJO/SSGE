@@ -1,10 +1,17 @@
 #include "engine.h"
 
-Engine *_engine;
-int _object_id = 0;
-ObjectList *_object_list;
-ObjectTemplateList *_object_template_list;
-TextureList *_texture_list;
+static Engine *_engine = NULL;
+static int _object_id = 0;
+static ObjectList *_object_list = NULL;
+static ObjectTemplateList *_object_template_list = NULL;
+static TextureList *_texture_list = NULL;
+
+static void _assert_engine_init() {
+    if (_engine == NULL) {
+        fprintf(stderr, "[ENGINE] Engine not initialized\n");
+        exit(1);
+    }
+}
 
 /***********************************************
  * Engine functions
@@ -19,30 +26,30 @@ TextureList *_texture_list;
  */
 void engine_init(const char *title, int width, int height, int fps) {
     if (_engine != NULL) {
-        fprintf(stderr, "Engine already initialized\n");
+        fprintf(stderr, "[ENGINE] Engine already initialized\n");
         exit(1);
     }
 
     _engine = (Engine *)malloc(sizeof(Engine));
     if (_engine == NULL) {
-        fprintf(stderr, "Failed to allocate memory for engine\n");
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for engine\n");
         exit(1);
     }
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        fprintf(stderr, "Failed to initialize SDL: %s\n", SDL_GetError());
+        fprintf(stderr, "[ENGINE] Failed to initialize SDL: %s\n", SDL_GetError());
         exit(1);
     }
 
     _engine->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     if (_engine->window == NULL) {
-        fprintf(stderr, "Failed to create window: %s\n", SDL_GetError());
+        fprintf(stderr, "[ENGINE] Failed to create window: %s\n", SDL_GetError());
         exit(1);
     }
 
     _engine->renderer = SDL_CreateRenderer(_engine->window, -1, SDL_RENDERER_ACCELERATED);
     if (_engine->renderer == NULL) {
-        fprintf(stderr, "Failed to create renderer: %s\n", SDL_GetError());
+        fprintf(stderr, "[ENGINE] Failed to create renderer: %s\n", SDL_GetError());
         exit(1);
     }
 
@@ -58,6 +65,7 @@ void engine_init(const char *title, int width, int height, int fps) {
  * \warning This function DOES NOT free the memory allocated for objects, object templates, and textures
  */
 void engine_quit() {
+    _assert_engine_init();
     SDL_DestroyRenderer(_engine->renderer);
     SDL_DestroyWindow(_engine->window);
     SDL_Quit();
@@ -71,14 +79,16 @@ void engine_quit() {
  * \param event_handler The event handler function
  * \param game The game data to pass to the functions (update, draw, event_handler)
  */
-void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *game) {
+void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(Event, void *), void *game) {
+    _assert_engine_init();
+
     Uint32 frameStart;
     int frameTime;
 
     while (_engine->isRunning) {
         frameStart = SDL_GetTicks();
 
-        SDL_Event event;
+        Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 _engine->isRunning = 0;
@@ -105,10 +115,26 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
  ************************************************/
 
 /**
+ * Sets the window icon
+ * \param filename The path to the icon
+ */
+void set_window_icon(char *filename) {
+    _assert_engine_init();
+    SDL_Surface *icon = IMG_Load(filename);
+    if (icon == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to load icon: %s\n", IMG_GetError());
+        exit(1);
+    }
+    SDL_SetWindowIcon(_engine->window, icon);
+    SDL_FreeSurface(icon);
+}
+
+/**
  * Sets the window as resizable
  * \param resizable True if the window should be resizable, false otherwise
  */
 void window_resizable(bool resizable) {
+    _assert_engine_init();
     SDL_SetWindowResizable(_engine->window, resizable ? SDL_TRUE : SDL_FALSE);
 }
 
@@ -117,6 +143,7 @@ void window_resizable(bool resizable) {
  * \param fullscreen True if the window should be fullscreen, false otherwise
  */
 void window_fullscreen(bool fullscreen) {
+    _assert_engine_init();
     SDL_SetWindowFullscreen(_engine->window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
@@ -125,31 +152,26 @@ void window_fullscreen(bool fullscreen) {
  ***********************************************/
 
 /**
- * Loads a texture
- * \param filename The path to the texture
+ * Adds a texture to the texture list
+ * \param texture The texture to add
  * \param name The name of the texture
- * \return The texture
- * \note The texture must be destroyed after use
  */
-SDL_Texture *load_texture(char *filename, char *name) {
-    SDL_Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
-    if (texture == NULL) {
-        fprintf(stderr, "Failed to load image: %s\n", IMG_GetError());
+static void _add_to_texture_list(Texture *texture, char *name) {
+    char *texture_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (texture_name == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for texture name\n");
         exit(1);
     }
+    strcpy(texture_name, name);
 
     TextureList *texture_list_item = (TextureList *)malloc(sizeof(TextureList));
     if (texture_list_item == NULL) {
-        fprintf(stderr, "Failed to allocate memory for texture list item\n");
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for texture list item\n");
         exit(1);
     }
     texture_list_item->texture = texture;
-    texture_list_item->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
-    if (texture_list_item->name == NULL) {
-        fprintf(stderr, "Failed to allocate memory for texture name\n");
-        exit(1);
-    }
-    strcpy(texture_list_item->name, name);
+    texture_list_item->name = texture_name;
+    texture_list_item->next = NULL;
 
     if (_texture_list == NULL) {
         _texture_list = texture_list_item;
@@ -160,6 +182,27 @@ SDL_Texture *load_texture(char *filename, char *name) {
         }
         current->next = texture_list_item;
     }
+}
+
+/**
+ * Loads a texture
+ * \param filename The path to the texture
+ * \param name The name of the texture
+ * \return The texture
+ * \note The texture must be destroyed after use
+ */
+Texture *load_texture(char *filename, char *name) {
+    _assert_engine_init();
+
+    // Load texture
+    Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
+    if (texture == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to load image: %s\n", IMG_GetError());
+        exit(1);
+    }
+
+    // Add texture to texture list
+    _add_to_texture_list(texture, name);
 
     return texture;
 }
@@ -169,7 +212,8 @@ SDL_Texture *load_texture(char *filename, char *name) {
  * \param name The name of the texture
  * \return The texture
  */
-SDL_Texture *get_texture_by_name(char *name) {
+Texture *get_texture_by_name(char *name) {
+    _assert_engine_init();
     TextureList *current = _texture_list;
     while (current != NULL) {
         if (strcmp(current->name, name) == 0) {
@@ -177,7 +221,7 @@ SDL_Texture *get_texture_by_name(char *name) {
         }
         current = current->next;
     }
-    fprintf(stderr, "Texture not found: %s\n", name);
+    fprintf(stderr, "[ENGINE] Texture not found: %s\n", name);
     exit(1);
 }
 
@@ -189,7 +233,8 @@ SDL_Texture *get_texture_by_name(char *name) {
  * \param width The width of the texture
  * \param height The height of the texture
  */
-void draw_texture(SDL_Texture *texture, int x, int y, int width, int height) {
+void draw_texture(Texture *texture, int x, int y, int width, int height) {
+    _assert_engine_init();
     SDL_Rect rect = {x, y, width, height};
     SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
 }
@@ -203,7 +248,8 @@ void draw_texture(SDL_Texture *texture, int x, int y, int width, int height) {
  * \param height The height of the texture
  */
 void draw_texture_from_path(char *filename, int x, int y, int width, int height) {
-    SDL_Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
+    _assert_engine_init();
+    Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
 
     SDL_Rect rect = {x, y, width, height};
     SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
@@ -216,6 +262,7 @@ void draw_texture_from_path(char *filename, int x, int y, int width, int height)
  * \param texture The texture to destroy
  */
 void destroy_all_textures() {
+    _assert_engine_init();
     TextureList *current = _texture_list;
     while (current != NULL) {
         TextureList *next = current->next;
@@ -228,27 +275,152 @@ void destroy_all_textures() {
 }
 
 /***********************************************
+ * Tilemap functions
+ ***********************************************/
+
+/**
+ * Creates a tilemap
+ * \param filename The path to the tilemap
+ * \param tile_width The width of the tile
+ * \param tile_height The height of the tile
+ * \param spacing The spacing between tiles
+ * \param nb_rows The number of rows in the tilemap
+ * \param nb_cols The number of columns in the tilemap
+ * \return The tilemap
+ */
+Tilemap *create_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols) {
+    _assert_engine_init();
+    Tilemap *tilemap = (Tilemap *)malloc(sizeof(Tilemap));
+    if (tilemap == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for tilemap\n");
+        exit(1);
+    }
+
+    tilemap->texture = IMG_LoadTexture(_engine->renderer, filename);
+    if (tilemap->texture == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to load tilemap: %s\n", IMG_GetError());
+        exit(1);
+    }
+
+    tilemap->tile_width = tile_width;
+    tilemap->tile_height = tile_height;
+    tilemap->spacing = spacing;
+    tilemap->nb_rows = nb_rows;
+    tilemap->nb_cols = nb_cols;
+
+    return tilemap;
+}
+
+/**
+ * Gets a tile from a tilemap
+ * \param tilemap The tilemap to use
+ * \param tile_row The row of the tile
+ * \param tile_col The column of the tile
+ * \return The tile
+ */
+Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col) {
+    _assert_engine_init();
+    if (tile_row >= tilemap->nb_rows || tile_col >= tilemap->nb_cols) {
+        fprintf(stderr, "[ENGINE] Tile out of bounds\n");
+        exit(1);
+    }
+
+    Tile *tile = (Tile *)malloc(sizeof(Tile));
+    if (tile == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for tile\n");
+        exit(1);
+    }
+
+    tile->tilemap = tilemap;
+    tile->row = tile_row;
+    tile->col = tile_col;
+
+    return tile;
+}
+
+/**
+ * Draws a tile
+ * \param tile The tile to draw
+ * \param x The x position to draw the tile
+ * \param y The y position to draw the tile
+ */
+void draw_tile(Tile *tile, int x, int y) {
+    _assert_engine_init();
+    SDL_Rect src = {tile->col * (tile->tilemap->tile_width + tile->tilemap->spacing), tile->row * (tile->tilemap->tile_height + tile->tilemap->spacing), tile->tilemap->tile_width, tile->tilemap->tile_height};
+    SDL_Rect dest = {x, y, tile->tilemap->tile_width, tile->tilemap->tile_height};
+    SDL_RenderCopy(_engine->renderer, tile->tilemap->texture, &src, &dest);
+}
+
+/**
+ * Draws a tile with the specified width and height
+ * \param tile The tile to draw
+ * \param x The x position to draw the tile
+ * \param y The y position to draw the tile
+ * \param width The width of the tile
+ * \param height The height of the tile
+ */
+void draw_tile_with_size(Tile *tile, int x, int y, int width, int height) {
+    _assert_engine_init();
+    SDL_Rect src = {tile->col * (tile->tilemap->tile_width + tile->tilemap->spacing), tile->row * (tile->tilemap->tile_height + tile->tilemap->spacing), tile->tilemap->tile_width, tile->tilemap->tile_height};
+    SDL_Rect dest = {x, y, width, height};
+    SDL_RenderCopy(_engine->renderer, tile->tilemap->texture, &src, &dest);
+}
+
+/**
+ * Draws a tile from a tilemap
+ * \param tilemap The tilemap to use
+ * \param tile_row The row of the tile
+ * \param tile_col The column of the tile
+ * \param x The x position to draw the tile
+ * \param y The y position to draw the tile
+ */
+void draw_tile_from_tilemap(Tilemap *tilemap, int tile_row, int tile_col, int x, int y) {
+    _assert_engine_init();
+    if (tile_row >= tilemap->nb_rows || tile_col >= tilemap->nb_cols) {
+        fprintf(stderr, "[ENGINE] Tile out of bounds\n");
+        exit(1);
+    }
+    
+    SDL_Rect src = {tile_col * (tilemap->tile_width + tilemap->spacing), tile_row * (tilemap->tile_height + tilemap->spacing), tilemap->tile_width, tilemap->tile_height};
+    SDL_Rect dest = {x, y, tilemap->tile_width, tilemap->tile_height};
+    SDL_RenderCopy(_engine->renderer, tilemap->texture, &src, &dest);
+}
+
+/**
+ * Destroys a tilemap
+ * \param tilemap The tilemap to destroy
+ */
+void destroy_tilemap(Tilemap *tilemap) {
+    _assert_engine_init();
+    SDL_DestroyTexture(tilemap->texture);
+    free(tilemap);
+}
+
+/***********************************************
  * Object functions
  ***********************************************/
 
 /**
  * Adds an object to the object list
  * \param object The object to add
+ * \param name The name of the object
  */
 static void _add_object_to_list(Object *object, char *name) {
+    char *obj_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (obj_name == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for object name\n");
+        exit(1);
+    }
+    strcpy(obj_name, name);
+
     ObjectList *object_list_item = (ObjectList *)malloc(sizeof(ObjectList));
     if (object_list_item == NULL) {
-        fprintf(stderr, "Failed to allocate memory for object list item\n");
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for object list item\n");
         exit(1);
     }
-
     object_list_item->object = object;
-    object_list_item->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
-    if (object_list_item->name == NULL) {
-        fprintf(stderr, "Failed to allocate memory for object name\n");
-        exit(1);
-    }
-    strcpy(object_list_item->name, name);
+    object_list_item->name = obj_name;
+    object_list_item->next = NULL;
 
     if (_object_list == NULL) {
         _object_list = object_list_item;
@@ -273,16 +445,17 @@ static void _add_object_to_list(Object *object, char *name) {
  * \return The object
  */
 Object *create_object(char *name, char *texture, int x, int y, int width, int height, void *data) {
+    _assert_engine_init();
     Object *object = (Object *)malloc(sizeof(Object));
     if (object == NULL) {
-        fprintf(stderr, "Failed to allocate memory for object\n");
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for object\n");
         exit(1);
     }
 
     object->id = _object_id++;
     object->texture = IMG_LoadTexture(_engine->renderer, texture);
     if (object->texture == NULL) {
-        fprintf(stderr, "Failed to load texture: %s\n", IMG_GetError());
+        fprintf(stderr, "[ENGINE] Failed to load texture: %s\n", IMG_GetError());
         exit(1);
     }
     object->x = x;
@@ -291,7 +464,6 @@ Object *create_object(char *name, char *texture, int x, int y, int width, int he
     object->height = height;
     object->data = data;
 
-    // Add object to object list
     _add_object_to_list(object, name);
 
     return object;
@@ -306,6 +478,7 @@ Object *create_object(char *name, char *texture, int x, int y, int width, int he
  * \return The object
  */
 Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data) {
+    _assert_engine_init();
     return create_object(name, object_template->texture, x, y, object_template->width, object_template->height, data);
 }
 
@@ -314,6 +487,7 @@ Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, i
  * \param object The object to draw
  */
 void draw_object(Object *object) {
+    _assert_engine_init();
     SDL_Rect rect = {object->x, object->y, object->width, object->height};
     SDL_RenderCopy(_engine->renderer, object->texture, NULL, &rect);
 }
@@ -324,6 +498,7 @@ void draw_object(Object *object) {
  * \return The object
  */
 Object *get_object_by_id(int id) {
+    _assert_engine_init();
     ObjectList *current = _object_list;
     while (current != NULL) {
         if (current->object->id == id) {
@@ -331,7 +506,7 @@ Object *get_object_by_id(int id) {
         }
         current = current->next;
     }
-    fprintf(stderr, "Object with id %d not found\n", id);
+    fprintf(stderr, "[ENGINE] Object with id %d not found\n", id);
     exit(1);
 }
 
@@ -340,6 +515,7 @@ Object *get_object_by_id(int id) {
  * \param id The id of the object
  */
 void destroy_object_by_id(int id) {
+    _assert_engine_init();
     ObjectList *current = _object_list;
     ObjectList *prev = NULL;
     while (current != NULL) {
@@ -364,6 +540,7 @@ void destroy_object_by_id(int id) {
  * \param name The name of the object
  */
 void destroy_object_by_name(char *name) {
+    _assert_engine_init();
     ObjectList *current = _object_list;
     ObjectList *prev = NULL;
     while (current != NULL) {
@@ -386,6 +563,7 @@ void destroy_object_by_name(char *name) {
  * Destroys all objects
  */
 void destroy_all_objects() {
+    _assert_engine_init();
     ObjectList *current = _object_list;
     while (current != NULL) {
         ObjectList *next = current->next;
@@ -407,19 +585,22 @@ void destroy_all_objects() {
  * \param name The name of the object template
  */
 static void _add_object_template_to_list(ObjectTemplate *template, char *name) {
+    char *objt_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (objt_name == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for object template name\n");
+        exit(1);
+    }
+    strcpy(objt_name, name);
+
     ObjectTemplateList *object_template_list_item = (ObjectTemplateList *)malloc(sizeof(ObjectTemplateList));
     if (object_template_list_item == NULL) {
-        fprintf(stderr, "Failed to allocate memory for object template list item\n");
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for object template list item\n");
         exit(1);
     }
 
     object_template_list_item->object_template = template;
-    object_template_list_item->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
-    if (object_template_list_item->name == NULL) {
-        fprintf(stderr, "Failed to allocate memory for object template name\n");
-        exit(1);
-    }
-    strcpy(object_template_list_item->name, name);
+    object_template_list_item->name = objt_name;
+    object_template_list_item->next = NULL;
 
     if (_object_template_list == NULL) {
         _object_template_list = object_template_list_item;
@@ -441,9 +622,10 @@ static void _add_object_template_to_list(ObjectTemplate *template, char *name) {
  * \return The object template
  */
 ObjectTemplate *create_object_template(char *name, char *texture, int width, int height) {
+    _assert_engine_init();
     ObjectTemplate *object_template = (ObjectTemplate *)malloc(sizeof(ObjectTemplate));
     if (object_template == NULL) {
-        fprintf(stderr, "Failed to allocate memory for object template\n");
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for object template\n");
         exit(1);
     }
     object_template->texture = texture;
@@ -462,6 +644,7 @@ ObjectTemplate *create_object_template(char *name, char *texture, int width, int
  * \return The object template
  */
 ObjectTemplate *get_template_by_name(char *name) {
+    _assert_engine_init();
     ObjectTemplateList *current = _object_template_list;
     while (current != NULL) {
         if (strcmp(current->name, name) == 0) {
@@ -469,7 +652,7 @@ ObjectTemplate *get_template_by_name(char *name) {
         }
         current = current->next;
     }
-    fprintf(stderr, "Object template not found: %s\n", name);
+    fprintf(stderr, "[ENGINE] Object template not found: %s\n", name);
     exit(1);
 }
 
@@ -478,6 +661,7 @@ ObjectTemplate *get_template_by_name(char *name) {
  * \param name The name of the object template
  */
 void destroy_object_template(char *name) {
+    _assert_engine_init();
     ObjectTemplateList *current = _object_template_list;
     ObjectTemplateList *prev = NULL;
     while (current != NULL) {
@@ -501,6 +685,7 @@ void destroy_object_template(char *name) {
  * Destroys all object templates
  */
 void destroy_all_templates() {
+    _assert_engine_init();
     ObjectTemplateList *current = _object_template_list;
     while (current != NULL) {
         ObjectTemplateList *next = current->next;
@@ -522,6 +707,7 @@ void destroy_all_templates() {
  * \return True if the object is hovered, false otherwise
  */
 bool object_is_hovered(Object *object) {
+    _assert_engine_init();
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
@@ -534,6 +720,7 @@ bool object_is_hovered(Object *object) {
  * \return True if the object is hovered, false otherwise (or if the object does not exist)
  */
 bool object_is_hovered_by_id(int id) {
+    _assert_engine_init();
     ObjectList *current = _object_list;
     while (current != NULL) {
         if (current->object->id == id) {
