@@ -6,12 +6,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
-#include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
 
 #define Texture SDL_Texture
 #define Event SDL_Event
+#define Color SDL_Color
 
 typedef struct _Engine {
     SDL_Window *window;
@@ -71,6 +72,24 @@ typedef struct _TextureList {
     struct _TextureList *next;
 } TextureList;
 
+typedef struct _Font {
+    char *name;
+    TTF_Font *font;
+    struct _Font *next;
+} Font;
+
+typedef enum _Anchor {
+    TOP_LEFT,
+    TOP_CENTER,
+    TOP_RIGHT,
+    CENTER_LEFT,
+    CENTER,
+    CENTER_RIGHT,
+    BOTTOM_LEFT,
+    BOTTOM_CENTER,
+    BOTTOM_RIGHT
+} Anchor;
+
 
 // Engine functions
 
@@ -118,9 +137,16 @@ ObjectTemplate *get_template_by_name(char *name);
 void destroy_object_template(char *name);
 void destroy_all_templates();
 
-// Event handling functions
+// Utility functions
 
 bool object_is_hovered(Object *object);
 bool object_is_hovered_by_id(int id);
+
+// Text functions
+
+void load_font(char *filename, int size, char *name);
+void draw_text(char *font_name, char *text, int x, int y, Color color, Anchor anchor);
+void close_font(char *name);
+void close_all_fonts();
 
 #endif // __ENGINE_H__

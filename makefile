@@ -5,7 +5,7 @@ OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 DBG         = # debug flags
 
 INCLUDE     = -I ./include
-LIB         = -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
+LIB         = -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
 EXTRA       = -Werror -O3
 STATIC      = # for static linking
 

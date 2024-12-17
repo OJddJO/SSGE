@@ -5,6 +5,7 @@ static int _object_id = 0;
 static ObjectList *_object_list = NULL;
 static ObjectTemplateList *_object_template_list = NULL;
 static TextureList *_texture_list = NULL;
+static Font *_font = NULL;
 
 static void _assert_engine_init() {
     if (_engine == NULL) {
@@ -41,6 +42,11 @@ void engine_init(const char *title, int width, int height, int fps) {
         exit(1);
     }
 
+    if (TTF_Init() != 0) {
+        fprintf(stderr, "[ENGINE] Failed to initialize TTF: %s\n", TTF_GetError());
+        exit(1);
+    }
+
     _engine->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     if (_engine->window == NULL) {
         fprintf(stderr, "[ENGINE] Failed to create window: %s\n", SDL_GetError());
@@ -50,6 +56,11 @@ void engine_init(const char *title, int width, int height, int fps) {
     _engine->renderer = SDL_CreateRenderer(_engine->window, -1, SDL_RENDERER_ACCELERATED);
     if (_engine->renderer == NULL) {
         fprintf(stderr, "[ENGINE] Failed to create renderer: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    if (SDL_SetRenderDrawBlendMode(_engine->renderer, SDL_BLENDMODE_BLEND) != 0) {
+        fprintf(stderr, "[ENGINE] Failed to set render draw blend mode: %s\n", SDL_GetError());
         exit(1);
     }
 
@@ -729,4 +740,175 @@ bool object_is_hovered_by_id(int id) {
         current = current->next;
     }
     return false;
+}
+
+/***********************************************
+ * Text functions
+ ***********************************************/
+
+/**
+ * Loads a font
+ * \param filename The path to the font
+ * \param size The size of the font
+ * \param name The name of the font
+ */
+void load_font(char *filename, int size, char *name) {
+    _assert_engine_init();
+    TTF_Font *font = TTF_OpenFont(filename, size);
+    if (font == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to load font: %s\n", TTF_GetError());
+        exit(1);
+    }
+    char *name_alloc = (char *)malloc(sizeof(char) * strlen(filename) + 1);
+    if (name_alloc == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for font filename\n");
+        exit(1);
+    }
+    strcpy(name_alloc, name);
+
+    Font *font_struct = (Font *)malloc(sizeof(Font));
+    if (font_struct == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for font\n");
+        exit(1);
+    }
+
+    font_struct->name = name_alloc;
+    font_struct->font = font;
+    font_struct->next = NULL;
+
+    if (_font == NULL) {
+        _font = font_struct;
+    } else {
+        Font *current = _font;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = font_struct;
+    }
+}
+
+static Font *_get_font(char *font_name) {
+    Font *current = _font;
+    while (current != NULL) {
+        if (strcmp(current->name, font_name) == 0) {
+            return current;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Font not found: %s\n", font_name);
+    exit(1);
+}
+
+/**
+ * Draws text
+ * \param font_name The name of the font
+ * \param text The text to draw
+ * \param x The x position to draw the text
+ * \param y The y position to draw the text
+ * \param color The color of the text
+ * \param anchor The anchor of the text
+ */
+void draw_text(char *font_name, char *text, int x, int y, Color color, Anchor anchor) {
+    _assert_engine_init();
+    if (_font == NULL) {
+        fprintf(stderr, "[ENGINE] Font not loaded\n");
+        exit(1);
+    }
+
+    Font *font_struct = _get_font(font_name);
+    SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
+    if (surface == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to render text: %s\n", TTF_GetError());
+        exit(1);
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
+    if (texture == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to create texture from surface: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    SDL_Rect rect = {x, y, surface->w, surface->h};
+    switch (anchor) {
+        case TOP_LEFT:
+            break;
+        case TOP_CENTER:
+            rect.x -= surface->w / 2;
+            break;
+        case TOP_RIGHT:
+            rect.x -= surface->w;
+            break;
+        case CENTER_LEFT:
+            rect.y -= surface->h / 2;
+            break;
+        case CENTER:
+            rect.x -= surface->w / 2;
+            rect.y -= surface->h / 2;
+            break;
+        case CENTER_RIGHT:
+            rect.x -= surface->w;
+            rect.y -= surface->h / 2;
+            break;
+        case BOTTOM_LEFT:
+            rect.y -= surface->h;
+            break;
+        case BOTTOM_CENTER:
+            rect.x -= surface->w / 2;
+            rect.y -= surface->h;
+            break;
+        case BOTTOM_RIGHT:
+            rect.x -= surface->w;
+            rect.y -= surface->h;
+            break;
+    }
+
+    SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
+
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(texture);
+}
+
+/**
+ * Close a font by name
+ * \param font_name The name of the font
+ */
+void close_font(char *name) {
+    _assert_engine_init();
+    Font *current = _font;
+    Font *prev = NULL;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            if (prev == NULL) {
+                _font = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            TTF_CloseFont(current->font);
+            free(current->name);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+/**
+ * Closes all fonts
+ */
+void close_all_fonts() {
+    _assert_engine_init();
+    if (_font == NULL) {
+        return;
+    }
+    
+    Font *current = _font;
+    while (current != NULL) {
+        Font *next = current->next;
+        TTF_CloseFont(current->font);
+        free(current->name);
+        free(current);
+        current = next;
+    }
+    _font = NULL;
 }

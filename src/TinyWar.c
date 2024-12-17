@@ -6,6 +6,8 @@ void event_handler(Event event, void *game);
 
 int main(int argc, char *argv[]) {
     engine_init("TinyWar", WIN_W, WIN_H, FPS);
+    load_font("assets/font.ttf", 32, "font_32");
+    load_font("assets/font.ttf", 16, "font_16");
 
     window_resizable(false);
     window_fullscreen(false);
@@ -43,6 +45,8 @@ void draw(void *game) {
             draw_tile_with_size(grass, col * TILE_SIZE, row * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
     }
+    draw_text("font_32", "Hello World", 10, 10, (Color){255, 255, 255, 255}, TOP_LEFT);
+    draw_text("font_16", "Test one two one two", 10, 40, (Color){255, 255, 255, 255}, TOP_LEFT);
 }
 
 void event_handler(Event event, void *game) {
