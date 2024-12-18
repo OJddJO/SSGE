@@ -11,7 +11,6 @@
 #include <SDL2/SDL_ttf.h>
 
 #define Texture SDL_Texture
-#define Event SDL_Event
 #define Color SDL_Color
 
 typedef struct _Engine {
@@ -80,13 +79,13 @@ typedef struct _Font {
 
 typedef enum _Anchor {
     TOP_LEFT,
-    TOP_CENTER,
+    TOP,
     TOP_RIGHT,
-    CENTER_LEFT,
+    LEFT,
     CENTER,
-    CENTER_RIGHT,
+    RIGHT,
     BOTTOM_LEFT,
-    BOTTOM_CENTER,
+    BOTTOM,
     BOTTOM_RIGHT
 } Anchor;
 
@@ -95,7 +94,7 @@ typedef enum _Anchor {
 
 void engine_init(const char *title, int width, int height, int fps);
 void engine_quit();
-void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(Event, void *), void *game);
+void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *game);
 
 // Window functions
 
@@ -118,12 +117,14 @@ Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col);
 void draw_tile(Tile *tile, int x, int y);
 void draw_tile_with_size(Tile *tile, int x, int y, int width, int height);
 void draw_tile_from_tilemap(Tilemap *tilemap, int tile_row, int tile_col, int x, int y);
+void destroy_tile(Tile *tile);
 void destroy_tilemap(Tilemap *tilemap);
 
 // Object functions
 
 Object *create_object(char *name, char *texture, int x, int y, int width, int height, void *data);
 Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data);
+bool object_exists(char *name);
 void draw_object(Object *object);
 Object *get_object_by_id(int id);
 void destroy_object_by_id(int id);
@@ -136,6 +137,12 @@ ObjectTemplate *create_object_template(char *name, char *texture, int width, int
 ObjectTemplate *get_template_by_name(char *name);
 void destroy_object_template(char *name);
 void destroy_all_templates();
+
+// Geometry functions
+
+Texture *create_line(int x1, int y1, int x2, int y2, char *name);
+Texture *create_rectangle(int x, int y, int width, int height);
+Texture *create_circle(int x, int y, int radius);
 
 // Utility functions
 

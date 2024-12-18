@@ -90,7 +90,7 @@ void engine_quit() {
  * \param event_handler The event handler function
  * \param game The game data to pass to the functions (update, draw, event_handler)
  */
-void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(Event, void *), void *game) {
+void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *game) {
     _assert_engine_init();
 
     Uint32 frameStart;
@@ -99,7 +99,7 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
     while (_engine->isRunning) {
         frameStart = SDL_GetTicks();
 
-        Event event;
+        SDL_Event event;
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 _engine->isRunning = 0;
@@ -328,6 +328,7 @@ Tilemap *create_tilemap(char *filename, int tile_width, int tile_height, int spa
  * \param tile_row The row of the tile
  * \param tile_col The column of the tile
  * \return The tile
+ * \note The tile must be destroyed after use
  */
 Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col) {
     _assert_engine_init();
@@ -395,6 +396,15 @@ void draw_tile_from_tilemap(Tilemap *tilemap, int tile_row, int tile_col, int x,
     SDL_Rect src = {tile_col * (tilemap->tile_width + tilemap->spacing), tile_row * (tilemap->tile_height + tilemap->spacing), tilemap->tile_width, tilemap->tile_height};
     SDL_Rect dest = {x, y, tilemap->tile_width, tilemap->tile_height};
     SDL_RenderCopy(_engine->renderer, tilemap->texture, &src, &dest);
+}
+
+/**
+ * Destroys a tile
+ * \param tile The tile to destroy
+ * \note This function does not destroy the tilemap
+ */
+void destroy_tile(Tile *tile) {
+    free(tile);
 }
 
 /**
@@ -491,6 +501,23 @@ Object *create_object(char *name, char *texture, int x, int y, int width, int he
 Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data) {
     _assert_engine_init();
     return create_object(name, object_template->texture, x, y, object_template->width, object_template->height, data);
+}
+
+/**
+ * Checks if an object exists
+ * \param name The name of the object
+ * \return True if the object exists, false otherwise
+ */
+bool object_exists(char *name) {
+    _assert_engine_init();
+    ObjectList *current = _object_list;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            return true;
+        }
+        current = current->next;
+    }
+    return false;
 }
 
 /**
@@ -709,6 +736,39 @@ void destroy_all_templates() {
 }
 
 /***********************************************
+ * Geometry functions
+ ***********************************************/
+
+/**
+ * Creates a line
+ * \param x1 The x position of the first point
+ * \param y1 The y position of the first point
+ * \param x2 The x position of the second point
+ * \param y2 The y position of the second point
+ * \param name The name of the line
+ * \return The line as a texture
+ */
+Texture *create_line(int x1, int y1, int x2, int y2, char *name) {
+    _assert_engine_init();
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    if (texture == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to create texture: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    SDL_SetRenderTarget(_engine->renderer, texture);
+    if (SDL_RenderDrawLine(_engine->renderer, x1, y1, x2, y2) != 0) {
+        fprintf(stderr, "[ENGINE] Failed to draw line: %s\n", SDL_GetError());
+        exit(1);
+    }
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
+}
+
+/***********************************************
  * Utility functions
  ***********************************************/
 
@@ -832,27 +892,27 @@ void draw_text(char *font_name, char *text, int x, int y, Color color, Anchor an
     switch (anchor) {
         case TOP_LEFT:
             break;
-        case TOP_CENTER:
+        case TOP:
             rect.x -= surface->w / 2;
             break;
         case TOP_RIGHT:
             rect.x -= surface->w;
             break;
-        case CENTER_LEFT:
+        case LEFT:
             rect.y -= surface->h / 2;
             break;
         case CENTER:
             rect.x -= surface->w / 2;
             rect.y -= surface->h / 2;
             break;
-        case CENTER_RIGHT:
+        case RIGHT:
             rect.x -= surface->w;
             rect.y -= surface->h / 2;
             break;
         case BOTTOM_LEFT:
             rect.y -= surface->h;
             break;
-        case BOTTOM_CENTER:
+        case BOTTOM:
             rect.x -= surface->w / 2;
             rect.y -= surface->h;
             break;
