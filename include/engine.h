@@ -9,6 +9,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "SDL2_gfxPrimitives.h"
 
 // Texture structure (SDL_Texture)
@@ -25,6 +26,8 @@
  * \param SDL_FLIP_HORIZONTAL_AND_VERTICAL Horizontal and vertical flip
  */ 
 #define Flip SDL_RendererFlip
+// Audio structure (Mix_Chunk)
+#define Audio Mix_Chunk
 
 /**
  * Engine structure
@@ -145,6 +148,18 @@ typedef struct _TextureList {
     Texture *texture;
     struct _TextureList *next;
 } TextureList;
+
+/**
+ * Audio list structure
+ * \param name The name of the audio
+ * \param soubd The audio
+ * \param next The next audio list item
+ */
+typedef struct _Audiolist {
+    char *name;
+    Mix_Chunk *audio;
+    struct _Audiolist *next;
+} Audiolist;
 
 /**
  * Font structure
@@ -272,5 +287,15 @@ void load_font(char *filename, int size, char *name);
 void draw_text(char *font_name, char *text, int x, int y, Color color, Anchor anchor);
 void close_font(char *name);
 void close_all_fonts();
+
+// Audio functions
+
+Audio *load_sound(char *filename, char *name);
+void play_sound(Audio *audio);
+void play_sound_by_name(char *name);
+void pause_sound(char *name);
+void stop_sound(char *name);
+void close_sound(char *name);
+void close_all_sound();
 
 #endif // __ENGINE_H__

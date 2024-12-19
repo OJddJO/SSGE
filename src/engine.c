@@ -5,6 +5,7 @@ static int _object_id = 0;
 static ObjectList *_object_list = NULL;
 static ObjectTemplateList *_object_template_list = NULL;
 static TextureList *_texture_list = NULL;
+static Audiolist *_audio_list = NULL;
 static Font *_font = NULL;
 static SDL_Event _event;
 static Color _color = {0, 0, 0, 255};
@@ -1500,4 +1501,55 @@ void close_all_fonts() {
         current = next;
     }
     _font = NULL;
+}
+
+/***********************************************
+ * Audio functions
+ ***********************************************/
+
+static void _add_to_sound_list(Mix_Chunk *audio, char *name) {
+    char *sound_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (sound_name == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for audio name\n");
+        exit(1);
+    }
+    strcpy(sound_name, name);
+
+    Audiolist *sound_list_item = (Audiolist *)malloc(sizeof(Audiolist));
+    if (sound_list_item == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for audio list item\n");
+        exit(1);
+    }
+
+    sound_list_item->audio = audio;
+    sound_list_item->name = sound_name;
+    sound_list_item->next = NULL;
+
+    if (_audio_list == NULL) {
+        _audio_list = sound_list_item;
+    } else {
+        Audiolist *current = _audio_list;
+        while (current->next != NULL) {
+            current = current->next;
+        }
+        current->next = sound_list_item;
+    }
+}
+
+/**
+ * Loads a audio
+ * \param filename The path to the audio
+ * \param name The name of the audio
+ */
+Audio *load_sound(char *filename, char *name) {
+    _assert_engine_init();
+    Audio *audio = Mix_LoadWAV(filename);
+    if (audio == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to load audio: %s\n", Mix_GetError());
+        exit(1);
+    }
+
+    _add_to_sound_list(audio, name);
+
+    return audio;
 }
