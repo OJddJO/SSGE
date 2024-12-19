@@ -15,6 +15,7 @@ int main(int argc, char *argv[]) {
     window_resizable(false);
     window_fullscreen(false);
     set_manual_update(true);
+    set_background_color((Color){23, 15, 71, 255});
 
     Game *game = init_game();
 
@@ -73,10 +74,10 @@ void draw(void *_game) {
     if (!game->winner) {
         //draw grid
         for (int i = 0; i < 4; i++) {
-            draw_line_thick(0, i * TILE_SIZE, WIN_W, i * TILE_SIZE, (Color){255, 255, 255, 255}, 5);
+            draw_line_thick(0, i * TILE_SIZE, WIN_W, i * TILE_SIZE, (Color){66, 50, 166, 255}, 5);
         }
         for (int i = 0; i < 4; i++) {
-            draw_line_thick(i * TILE_SIZE, 0, i * TILE_SIZE, WIN_H, (Color){255, 255, 255, 255}, 5);
+            draw_line_thick(i * TILE_SIZE, 0, i * TILE_SIZE, WIN_H, (Color){66, 50, 166, 255}, 5);
         }
         //draw X and O
         for (int i = 0; i < 3; i++) {

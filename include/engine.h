@@ -15,6 +15,16 @@
 #define Texture SDL_Texture
 // Color structure {r, g, b, a} (SDL_Color)
 #define Color SDL_Color
+// Point structure {x, y} (SDL_Point)
+#define Point SDL_Point
+/**
+ * Flip enum (SDL_RendererFlip)
+ * \param SDL_FLIP_NONE No flip
+ * \param SDL_FLIP_HORIZONTAL Horizontal flip
+ * \param SDL_FLIP_VERTICAL Vertical flip
+ * \param SDL_FLIP_HORIZONTAL_AND_VERTICAL Horizontal and vertical flip
+ */ 
+#define Flip SDL_RendererFlip
 
 /**
  * Engine structure
@@ -180,6 +190,7 @@ void manual_update();
 Texture *load_texture(char *filename, char *name);
 Texture *get_texture_by_name(char *name);
 void draw_texture(Texture *texture, int x, int y, int width, int height);
+void draw_texture_ex(Texture *texture, int x, int y, int width, int height, double angle, Point *center, Flip flip);
 void draw_texture_from_path(char *filename, int x, int y, int width, int height);
 void destroy_texture(char *name);
 void destroy_all_textures();
@@ -240,6 +251,12 @@ Texture *create_line_thick(char *name, int x1, int y1, int x2, int y2, Color col
 Texture *create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
 Texture *create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness);
 Texture *create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness);
+
+// Utility functions
+
+void set_color(Color color);
+void set_background_color(Color color);
+void delay(int ms);
 
 // Event functions
 

@@ -8,6 +8,7 @@ static TextureList *_texture_list = NULL;
 static Font *_font = NULL;
 static SDL_Event _event;
 static Color _color = {0, 0, 0, 255};
+static Color _clear_color = {0, 0, 0, 255};
 static bool _manual_update_frame = false;
 static bool _update_frame = true; // set to true to draw the first frame
 
@@ -79,7 +80,7 @@ void engine_init(const char *title, int width, int height, int fps) {
 /**
  * Quits the engine
  * \warning This function DOES NOT free the memory allocated for objects, object templates, and textures
- *          You must free them manually, using the destroy functions.
+ * \warning You must free them manually, using the destroy functions
  * \note This function must be called at the end of the program
  */
 void engine_quit() {
@@ -92,13 +93,13 @@ void engine_quit() {
 
 /**
  * Runs the engine
- * \param update The update function. Should take a `void *` (game struct that contains all the needed data) as argument and return `void`
- * \param draw The draw function. Should takes a `void *` (game struct that contains all the needed data) as argument and returns `void`.
- * \param event_handler The event handler function. Should takes a `SDL_Event` and a `void *` (game struct that contains all the needed data) as arguments and returns `void`.
- * \param game The game data to pass to the functions (update, draw, event_handler)
+ * \param update The update function. Should take a `void *` as argument and return `void`
+ * \param draw The draw function. Should takes a `void *` as argument and returns `void`.
+ * \param event_handler The event handler function. Should takes a `SDL_Event` and a `void *` as arguments and returns `void`.
+ * \param data The data to pass to the functions (update, draw, event_handler)
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw.
  */
-void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *game) {
+void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *data) {
     _assert_engine_init();
 
     Uint32 frameStart;
@@ -111,14 +112,16 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
             if (_event.type == SDL_QUIT) {
                 _engine->isRunning = 0;
             } else if (event_handler != NULL) {
-                if (event_handler) event_handler(_event, game);
+                if (event_handler) event_handler(_event, data);
             }
         }
 
-        if (update) update(game);
+        if (update) update(data);
         if (_update_frame || !_manual_update_frame) {
+            SDL_SetRenderDrawColor(_engine->renderer, _clear_color.r, _clear_color.g, _clear_color.b, _clear_color.a);
             SDL_RenderClear(_engine->renderer);
-            if (draw) draw(game);
+            SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+            if (draw) draw(data);
             _update_frame = false;
         }
 
@@ -281,6 +284,23 @@ void draw_texture(Texture *texture, int x, int y, int width, int height) {
     _assert_engine_init();
     SDL_Rect rect = {x, y, width, height};
     SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
+}
+
+/**
+ * Draws a texture with more options
+ * \param texture The texture to draw
+ * \param x The x position to draw the texture
+ * \param y The y position to draw the texture
+ * \param width The width of the texture
+ * \param height The height of the texture
+ * \param angle The angle to rotate the texture, can be NULL
+ * \param center The center of the rotation, can be NULL
+ * \param flip The flip of the texture
+ */
+void draw_texture_ex(Texture *texture, int x, int y, int width, int height, double angle, Point *center, Flip flip) {
+    _assert_engine_init();
+    SDL_Rect rect = {x, y, width, height};
+    SDL_RenderCopyEx(_engine->renderer, texture, NULL, &rect, angle, center, flip);
 }
 
 /**
@@ -1208,6 +1228,37 @@ Texture *create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color co
     _add_to_texture_list(texture, name);
 
     return texture;
+}
+
+/***********************************************
+ * Utility functions
+ ************************************************/
+
+/**
+ * Sets the color of the renderer
+ * \param color The color to set
+ */
+void set_color(Color color) {
+    _assert_engine_init();
+    _color = color;
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+}
+
+/**
+ * Change the background color
+ * \param color The color to set
+ */
+void set_background_color(Color color) {
+    _assert_engine_init();
+    _clear_color = color;
+}
+
+/**
+ * Delay the program
+ * \param ms The time to delay in milliseconds
+ */
+void delay(int ms) {
+    SDL_Delay(ms);
 }
 
 /***********************************************
