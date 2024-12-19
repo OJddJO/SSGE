@@ -6,6 +6,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <time.h>
+#include <math.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
@@ -109,6 +110,8 @@ Texture *get_texture_by_name(char *name);
 void draw_texture(Texture *texture, int x, int y, int width, int height);
 void draw_texture_from_path(char *filename, int x, int y, int width, int height);
 void destroy_all_textures();
+void change_draw_color(Color color);
+void rotate_texture(char *name, double angle); //need to be tested
 
 // Tilemap functions
 
@@ -127,6 +130,7 @@ Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, i
 bool object_exists(char *name);
 void draw_object(Object *object);
 Object *get_object_by_id(int id);
+Object *get_object_by_name(char *name);
 void destroy_object_by_id(int id);
 void destroy_object_by_name(char *name);
 void destroy_all_objects();
@@ -138,11 +142,21 @@ ObjectTemplate *get_template_by_name(char *name);
 void destroy_object_template(char *name);
 void destroy_all_templates();
 
+// Hitbox functions
+
+Object *create_hitbox(char *name, int x, int y, int width, int height);
+bool hitbox_is_colliding(Object *hitbox1, Object *hitbox2);
+
 // Geometry functions
 
-Texture *create_line(int x1, int y1, int x2, int y2, char *name);
-Texture *create_rectangle(int x, int y, int width, int height);
-Texture *create_circle(int x, int y, int radius);
+void draw_line(int x1, int y1, int x2, int y2, Color color);
+void draw_line_thick(int x1, int y1, int x2, int y2, int thickness, Color color);
+void draw_rect(int x, int y, int width, int height, Color color);
+void draw_rect_thick(int x, int y, int width, int height, int thickness, Color color);
+void draw_circle(int x, int y, int radius, Color color);
+void draw_circle_thick(int x, int y, int radius, int thickness, Color color);
+void fill_rect(int x, int y, int width, int height, Color color);
+void fill_circle(int x, int y, int radius, Color color);
 
 // Utility functions
 

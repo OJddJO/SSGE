@@ -8,7 +8,7 @@ int main(int argc, char *argv[]) {
     engine_init("TinyWar", WIN_W, WIN_H, FPS);
     load_font("assets/font.ttf", 32, "font_32");
     load_font("assets/font.ttf", 16, "font_16");
-    create_line(0, 0, 100, 100, "line");
+    change_draw_color((Color){255, 255, 255, 255});
 
     window_resizable(false);
     window_fullscreen(false);
@@ -47,10 +47,7 @@ void draw(void *game) {
             destroy_tile(grass);
         }
     }
-    Texture *line = get_texture_by_name("line");
-    draw_texture(line, 0, 0, 100, 100);
-    draw_text("font_32", "Hello World", 10, 10, (Color){255, 255, 255, 100}, TOP_LEFT);
-    draw_text("font_16", "Test one two one two", 10, 40, (Color){255, 255, 255, 255}, TOP_LEFT);
+    fill_circle(500, 500, 100, (Color){255, 0, 0, 255});
 }
 
 void event_handler(SDL_Event event, void *game) {

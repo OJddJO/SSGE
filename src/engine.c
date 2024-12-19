@@ -6,6 +6,7 @@ static ObjectList *_object_list = NULL;
 static ObjectTemplateList *_object_template_list = NULL;
 static TextureList *_texture_list = NULL;
 static Font *_font = NULL;
+static Color _color = {0, 0, 0, 255};
 
 static void _assert_engine_init() {
     if (_engine == NULL) {
@@ -64,6 +65,8 @@ void engine_init(const char *title, int width, int height, int fps) {
         exit(1);
     }
 
+    SDL_SetRenderDrawColor(_engine->renderer, 0, 0, 0, 255);
+
     _engine->isRunning = true;
     _engine->width = width;
     _engine->height = height;
@@ -86,9 +89,10 @@ void engine_quit() {
 /**
  * Runs the engine
  * \param update The update function
- * \param draw The draw function
- * \param event_handler The event handler function
+ * \param draw The draw function, can be `NULL`
+ * \param event_handler The event handler function, can be `NULL`
  * \param game The game data to pass to the functions (update, draw, event_handler)
+ * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw.
  */
 void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *game) {
     _assert_engine_init();
@@ -103,14 +107,14 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 _engine->isRunning = 0;
-            } else {
+            } else if (event_handler != NULL) {
                 event_handler(event, game);
             }
         }
 
         update(game);
         SDL_RenderClear(_engine->renderer);
-        draw(game);
+        if (draw != NULL) draw(game);
 
         SDL_RenderPresent(_engine->renderer);
 
@@ -285,6 +289,28 @@ void destroy_all_textures() {
     _texture_list = NULL;
 }
 
+/**
+ * Change current draw color
+ * \param color The color to change to
+ * \note This function changes the draw color for all subsequent draw calls
+ */
+void change_draw_color(Color color) {
+    _assert_engine_init();
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+    _color = color;
+}
+
+/**
+ * Rotate a texture and draw it
+ * \param name The name of the texture
+ * \param angle The angle to rotate the texture
+ */
+void rotate_texture(char *name, double angle) {
+    _assert_engine_init();
+    Texture *texture = get_texture_by_name(name);
+    SDL_RenderCopyEx(_engine->renderer, texture, NULL, NULL, angle, NULL, SDL_FLIP_NONE);
+}
+
 /***********************************************
  * Tilemap functions
  ***********************************************/
@@ -392,7 +418,7 @@ void draw_tile_from_tilemap(Tilemap *tilemap, int tile_row, int tile_col, int x,
         fprintf(stderr, "[ENGINE] Tile out of bounds\n");
         exit(1);
     }
-    
+
     SDL_Rect src = {tile_col * (tilemap->tile_width + tilemap->spacing), tile_row * (tilemap->tile_height + tilemap->spacing), tilemap->tile_width, tilemap->tile_height};
     SDL_Rect dest = {x, y, tilemap->tile_width, tilemap->tile_height};
     SDL_RenderCopy(_engine->renderer, tilemap->texture, &src, &dest);
@@ -544,7 +570,25 @@ Object *get_object_by_id(int id) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Object with id %d not found\n", id);
+    fprintf(stderr, "[ENGINE] Object not found: %d\n", id);
+    exit(1);
+}
+
+/**
+ * Gets an object by name
+ * \param name The name of the object
+ * \return The first object with the given name
+ */
+Object *get_object_by_name(char *name) {
+    _assert_engine_init();
+    ObjectList *current = _object_list;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            return current->object;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Object not found: %s\n", name);
     exit(1);
 }
 
@@ -736,36 +780,257 @@ void destroy_all_templates() {
 }
 
 /***********************************************
+ * Hitbox functions
+ ***********************************************/
+
+/**
+ * Creates a hitbox
+ * \param name The name of the hitbox
+ * \param x The x position of the hitbox
+ * \param y The y position of the hitbox
+ * \param width The width of the hitbox
+ * \param height The height of the hitbox
+ * \return The hitbox
+ */
+Object *create_hitbox(char *name, int x, int y, int width, int height) {
+    _assert_engine_init();
+    Object *hitbox = (Object *)malloc(sizeof(Object));
+    if (hitbox == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to allocate memory for hitbox\n");
+        exit(1);
+    }
+    hitbox->x = x;
+    hitbox->y = y;
+    hitbox->width = width;
+    hitbox->height = height;
+
+    return hitbox;
+}
+
+/**
+ * Checks if a hitbox is colliding with another hitbox
+ * \param hitbox1 The first hitbox
+ * \param hitbox2 The second hitbox
+ * \return True if the hitboxes are colliding, false otherwise
+ */
+bool hitbox_is_colliding(Object *hitbox1, Object *hitbox2) {
+    return hitbox1->x < hitbox2->x + hitbox2->width && hitbox1->x + hitbox1->width > hitbox2->x && hitbox1->y < hitbox2->y + hitbox2->height && hitbox1->y + hitbox1->height > hitbox2->y;
+}
+
+/***********************************************
  * Geometry functions
  ***********************************************/
 
 /**
- * Creates a line
+ * Draws a line
  * \param x1 The x position of the first point
  * \param y1 The y position of the first point
  * \param x2 The x position of the second point
  * \param y2 The y position of the second point
- * \param name The name of the line
- * \return The line as a texture
+ * \param color The color of the line
  */
-Texture *create_line(int x1, int y1, int x2, int y2, char *name) {
+void draw_line(int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
-    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
-    if (texture == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to create texture: %s\n", SDL_GetError());
-        exit(1);
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+    SDL_RenderDrawLine(_engine->renderer, x1, y1, x2, y2);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+}
+
+/**
+ * Draws a line with a specified thickness
+ * \param x1 The x position of the first point
+ * \param y1 The y position of the first point
+ * \param x2 The x position of the second point
+ * \param y2 The y position of the second point
+ * \param thickness The thickness of the line
+ * \param color The color of the line
+ */
+void draw_line_thick(int x1, int y1, int x2, int y2, int thickness, Color color) {
+    _assert_engine_init();
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+
+    // Calculate the direction vector of the line
+    int dx = x2 - x1;
+    int dy = y2 - y1;
+    float length = sqrt(dx * dx + dy * dy);
+    float unit_dx = dx / length;
+    float unit_dy = dy / length;
+
+    // Calculate the perpendicular vector for thickness
+    float perp_dx = -unit_dy * thickness / 2;
+    float perp_dy = unit_dx * thickness / 2;
+
+    // Draw the thick line as a series of filled rectangles
+    for (int i = 0; i < length; i++) {
+        int x = x1 + unit_dx * i;
+        int y = y1 + unit_dy * i;
+        SDL_Rect rect = { x + perp_dx, y + perp_dy, thickness, thickness };
+        SDL_RenderFillRect(_engine->renderer, &rect);
     }
 
-    SDL_SetRenderTarget(_engine->renderer, texture);
-    if (SDL_RenderDrawLine(_engine->renderer, x1, y1, x2, y2) != 0) {
-        fprintf(stderr, "[ENGINE] Failed to draw line: %s\n", SDL_GetError());
-        exit(1);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+}
+
+/**
+ * Draws a rectangle
+ * \param x The x position of the rectangle
+ * \param y The y position of the rectangle
+ * \param width The width of the rectangle
+ * \param height The height of the rectangle
+ * \param color The color of the rectangle
+ */
+void draw_rect(int x, int y, int width, int height, Color color) {
+    _assert_engine_init();
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+    SDL_Rect rect = {x, y, width, height};
+    SDL_RenderDrawRect(_engine->renderer, &rect);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+}
+
+/**
+ * Draws a rectangle with a specified thickness
+ * \param x The x position of the rectangle
+ * \param y The y position of the rectangle
+ * \param width The width of the rectangle
+ * \param height The height of the rectangle
+ * \param thickness The thickness of the rectangle
+ * \param color The color of the rectangle
+ */
+void draw_rect_thick(int x, int y, int width, int height, int thickness, Color color) {
+    _assert_engine_init();
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+
+    // Draw the rectangle as a series of rectangles
+    for (int i = 0; i < thickness; i++) {
+        SDL_Rect rect = {x - i, y - i, width + 2 * i, height + 2 * i};
+        SDL_RenderDrawRect(_engine->renderer, &rect);
     }
-    SDL_SetRenderTarget(_engine->renderer, NULL);
+}
 
-    _add_to_texture_list(texture, name);
+/**
+ * Draws a circle
+ * \param x The x position of the circle
+ * \param y The y position of the circle
+ * \param radius The radius of the circle
+ * \param color The color of the circle
+ */
+void draw_circle(int x, int y, int radius, Color color) {
+    _assert_engine_init();
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
 
-    return texture;
+    int num_points = 2 * M_PI * radius; // Number of points proportional to the circumference
+    SDL_Point *points = malloc(num_points * sizeof(SDL_Point));
+    if (points == NULL) {
+        // Handle memory allocation failure
+        return;
+    }
+
+    for (int i = 0; i < num_points; i++) {
+        double angle = i * 2 * M_PI / num_points;
+        points[i].x = x + cos(angle) * radius;
+        points[i].y = y + sin(angle) * radius;
+    }
+    SDL_RenderDrawPoints(_engine->renderer, points, num_points);
+
+    free(points);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+}
+
+/**
+ * Draws a circle with a specified thickness
+ * \param x The x position of the circle
+ * \param y The y position of the circle
+ * \param radius The radius of the circle
+ * \param thickness The thickness of the circle
+ * \param color The color of the circle
+ */
+void draw_circle_thick(int x, int y, int radius, int thickness, Color color) {
+    _assert_engine_init();
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+
+    int max_radius = radius + thickness;
+    int total_points = 0;
+
+    // Calculate total number of points needed
+    for (int r = radius; r < max_radius; r++) {
+        total_points += 2 * M_PI * r;
+    }
+
+    SDL_Point *points = malloc(total_points * sizeof(SDL_Point));
+    if (points == NULL) {
+        // Handle memory allocation failure
+        return;
+    }
+
+    int index = 0;
+    for (int r = radius; r < max_radius; r++) {
+        int num_points = 2 * M_PI * r;
+        for (int i = 0; i < num_points; i++) {
+            double angle = i * 2 * M_PI / num_points;
+            points[index].x = x + cos(angle) * r;
+            points[index].y = y + sin(angle) * r;
+            index++;
+        }
+    }
+
+    SDL_RenderDrawPoints(_engine->renderer, points, total_points);
+    free(points);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+}
+
+/**
+ * Fills a rectangle
+ * \param x The x position of the rectangle
+ * \param y The y position of the rectangle
+ * \param width The width of the rectangle
+ * \param height The height of the rectangle
+ * \param color The color of the rectangle
+ */
+void fill_rect(int x, int y, int width, int height, Color color) {
+    _assert_engine_init();
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+    SDL_Rect rect = {x, y, width, height};
+    SDL_RenderFillRect(_engine->renderer, &rect);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+}
+
+/**
+ * Fills a circle
+ * \param x The x position of the circle
+ * \param y The y position of the circle
+ * \param radius The radius of the circle
+ * \param color The color of the circle
+ */
+void fill_circle(int x, int y, int radius, Color color) {
+    _assert_engine_init();
+    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+
+    int total_points = 0;
+
+    // Calculate total number of points needed
+    for (int r = 0; r < radius; r++) {
+        total_points += 2 * M_PI * r;
+    }
+
+    SDL_Point *points = malloc(total_points * sizeof(SDL_Point));
+    if (points == NULL) {
+        // Handle memory allocation failure
+        return;
+    }
+
+    int index = 0;
+    for (int r = 0; r < radius; r++) {
+        int num_points = 2 * M_PI * r;
+        for (int i = 0; i < num_points; i++) {
+            double angle = i * 2 * M_PI / num_points;
+            points[index].x = x + cos(angle) * r;
+            points[index].y = y + sin(angle) * r;
+            index++;
+        }
+    }
+
+    SDL_RenderDrawPoints(_engine->renderer, points, total_points);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
 /***********************************************
