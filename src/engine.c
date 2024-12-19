@@ -171,7 +171,9 @@ void window_fullscreen(bool fullscreen) {
 /**
  * Sets the manual update mode
  * \param manual_update True if the manual update mode should be enabled, false otherwise
- * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `manual_update` function is called
+ * \note This function should be called before the `engine_run` function
+ * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `manual_update` function is called.
+ * \note Setting the manual update mode may be more efficient when the screen does not need to be updated every frame
  */
 void set_manual_update(bool manual_update) {
     _assert_engine_init();
@@ -181,7 +183,7 @@ void set_manual_update(bool manual_update) {
 /**
  * Manually updates the screen
  * \note This function should be called when the manual update mode is enabled
- * \note This function does nothing if the manual update mode is disabled
+ * \note It does nothing if the manual update mode is disabled
  */
 void manual_update() {
     if (_manual_update_frame) {
