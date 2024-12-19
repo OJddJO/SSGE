@@ -4,7 +4,7 @@
 #include "engine.h"
 
 #define FPS 60
-#define TILE_SIZE 64
+#define TILE_SIZE 128
 // #define MAP_W 40
 // #define MAP_H 26
 // #define WIN_W MAP_W * TILE_SIZE

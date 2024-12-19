@@ -10,7 +10,7 @@ static int check_winner(Game *game);
 int main(int argc, char *argv[]) {
     engine_init("TinyWar", WIN_W, WIN_H, FPS);
     load_font("assets/font.ttf", 32, "font_32");
-    load_font("assets/font.ttf", 16, "font_16");
+    load_font("assets/font.ttf", 64, "font_64");
 
     window_resizable(false);
     window_fullscreen(false);
@@ -82,16 +82,16 @@ void draw(void *_game) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (game->matrix[i][j] == 1) {
-                    draw_text("font_32", "X", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (Color){255, 255, 255, 255}, CENTER);
+                    draw_text("font_64", "X", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (Color){255, 255, 255, 255}, CENTER);
                 } else if (game->matrix[i][j] == 2) {
-                    draw_text("font_32", "O", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (Color){255, 255, 255, 255}, CENTER);
+                    draw_text("font_64", "O", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (Color){255, 255, 255, 255}, CENTER);
                 }
             }
         }
     } else {
         char text[20];
         sprintf(text, "Player %d wins!", game->winner);
-        draw_text("font_16", text, WIN_W / 2, WIN_H / 2, (Color){255, 255, 255, 255}, CENTER);
+        draw_text("font_32", text, WIN_W / 2, WIN_H / 2, (Color){255, 255, 255, 255}, CENTER);
     }
 }
 
