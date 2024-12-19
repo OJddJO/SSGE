@@ -8,6 +8,8 @@ static TextureList *_texture_list = NULL;
 static Font *_font = NULL;
 static Color _color = {0, 0, 0, 255};
 static SDL_Event _event;
+static bool _manual_update_frame = false;
+static bool _update_frame = true; // set to true to draw the first frame
 
 static void _assert_engine_init() {
     if (_engine == NULL) {
@@ -91,8 +93,8 @@ void engine_quit() {
 /**
  * Runs the engine
  * \param update The update function. Should take a `void *` (game struct that contains all the needed data) as argument and return `void`
- * \param draw The draw function. Should takes a `void *` (game struct that contains all the needed data) as argument and returns `void`. Can be `NULL`
- * \param event_handler The event handler function. Should takes a `SDL_Event` and a `void *` (game struct that contains all the needed data) as arguments and returns `void`. Can be `NULL`
+ * \param draw The draw function. Should takes a `void *` (game struct that contains all the needed data) as argument and returns `void`.
+ * \param event_handler The event handler function. Should takes a `SDL_Event` and a `void *` (game struct that contains all the needed data) as arguments and returns `void`.
  * \param game The game data to pass to the functions (update, draw, event_handler)
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw.
  */
@@ -109,13 +111,16 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
             if (_event.type == SDL_QUIT) {
                 _engine->isRunning = 0;
             } else if (event_handler != NULL) {
-                event_handler(_event, game);
+                if (event_handler) event_handler(_event, game);
             }
         }
 
-        update(game);
-        SDL_RenderClear(_engine->renderer);
-        if (draw != NULL) draw(game);
+        if (update) update(game);
+        if (_update_frame || !_manual_update_frame) {
+            SDL_RenderClear(_engine->renderer);
+            if (draw) draw(game);
+            _update_frame = false;
+        }
 
         SDL_RenderPresent(_engine->renderer);
 
@@ -161,6 +166,27 @@ void window_resizable(bool resizable) {
 void window_fullscreen(bool fullscreen) {
     _assert_engine_init();
     SDL_SetWindowFullscreen(_engine->window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+}
+
+/**
+ * Sets the manual update mode
+ * \param manual_update True if the manual update mode should be enabled, false otherwise
+ * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `manual_update` function is called
+ */
+void set_manual_update(bool manual_update) {
+    _assert_engine_init();
+    _manual_update_frame = manual_update;
+}
+
+/**
+ * Manually updates the screen
+ * \note This function should be called when the manual update mode is enabled
+ * \note This function does nothing if the manual update mode is disabled
+ */
+void manual_update() {
+    if (_manual_update_frame) {
+        _update_frame = true;
+    }
 }
 
 /***********************************************
@@ -271,6 +297,33 @@ void draw_texture_from_path(char *filename, int x, int y, int width, int height)
     SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
 
     SDL_DestroyTexture(texture);
+}
+
+/**
+ * Destroys a texture
+ * \param name The name of the texture
+ */
+void destroy_texture(char *name) {
+    _assert_engine_init();
+    TextureList *current = _texture_list;
+    TextureList *prev = NULL;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            if (prev == NULL) {
+                _texture_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            SDL_DestroyTexture(current->texture);
+            free(current->name);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Texture not found: %s\n", name);
+    exit(1);
 }
 
 /**
@@ -795,6 +848,8 @@ Object *create_hitbox(char *name, int x, int y, int width, int height) {
     new_hitbox->height = height;
     new_hitbox->hitbox = true;
 
+    _add_object_to_list(new_hitbox, name);
+
     return new_hitbox;
 }
 
@@ -893,10 +948,9 @@ void draw_line_thick(int x1, int y1, int x2, int y2, Color color, int thickness)
  */
 void draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thickness) {
     _assert_engine_init();
-    thickLineRGBA(_engine->renderer, x1, y1, x2, y1, thickness, color.r, color.g, color.b, color.a);
-    thickLineRGBA(_engine->renderer, x2, y1, x2, y2, thickness, color.r, color.g, color.b, color.a);
-    thickLineRGBA(_engine->renderer, x2, y2, x1, y2, thickness, color.r, color.g, color.b, color.a);
-    thickLineRGBA(_engine->renderer, x1, y2, x1, y1, thickness, color.r, color.g, color.b, color.a);
+    for (int i = 0; i < thickness; i++) {
+        rectangleRGBA(_engine->renderer, x1 + i, y1 + i, x2 - i, y2 - i, color.r, color.g, color.b, color.a);
+    }
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
@@ -910,7 +964,7 @@ void draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thickness)
  */
 void draw_circle_thick(int x, int y, int radius, Color color, int thickness) {
     _assert_engine_init();
-    thickCircleRGBA(_engine->renderer, x, y, radius, thickness, color.r, color.g, color.b, color.a);
+    thickCircleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a, thickness);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
@@ -925,24 +979,255 @@ void draw_circle_thick(int x, int y, int radius, Color color, int thickness) {
  */
 void draw_ellipse_thick(int x, int y, int rx, int ry, Color color, int thickness) {
     _assert_engine_init();
-    thickEllipseRGBA(_engine->renderer, x, y, rx, ry, thickness, color.r, color.g, color.b, color.a);
+    thickEllipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a, thickness);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
+/**
+ * Draws geometry from a texture
+ * \param texture The texture to draw
+ * \param x The x position to draw the texture
+ * \param y The y position to draw the texture
+ */
+void draw_geometry(Texture *texture, int x, int y) {
+    _assert_engine_init();
+    SDL_Rect rect = {x, y, _engine->width, _engine->height};
+    SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
+}
 
+/**
+ * Create a line as a texture
+ * \param name The name of the texture
+ * \param x1 The x position of the first point
+ * \param y1 The y position of the first point
+ * \param x2 The x position of the second point
+ * \param y2 The y position of the second point
+ * \param color The color of the line
+ * \return The texture
+ */
+Texture *create_line(char *name, int x1, int y1, int x2, int y2, Color color) {
+    _assert_engine_init();
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(_engine->renderer, texture);
+
+    lineRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
+
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
+}
+
+/**
+ * Create a rectangle as a texture
+ * \param name The name of the texture
+ * \param x1 The x position of the point at the top-left corner of the rectangle
+ * \param y1 The y position of the point at the top-left corner of the rectangle
+ * \param x2 The x position of the point at the bottom-right corner of the rectangle
+ * \param y2 The y position of the point at the bottom-right corner of the rectangle
+ * \param color The color of the rectangle
+ * \return The texture
+ */
+Texture *create_rect(char *name, int x1, int y1, int x2, int y2, Color color) {
+    _assert_engine_init();
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(_engine->renderer, texture);
+
+    rectangleRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
+
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
+}
+
+/**
+ * Create a circle as a texture
+ * \param name The name of the texture
+ * \param x The x position of the circle
+ * \param y The y position of the circle
+ * \param radius The radius of the circle
+ * \param color The color of the circle
+ * \return The texture
+ */
+Texture *create_circle(char *name, int x, int y, int radius, Color color) {
+    _assert_engine_init();
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(_engine->renderer, texture);
+
+    circleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a);
+
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
+}
+
+/**
+ * Create an ellipse as a texture
+ * \param name The name of the texture
+ * \param x The x position of the ellipse
+ * \param y The y position of the ellipse
+ * \param rx The x radius of the ellipse
+ * \param ry The y radius of the ellipse
+ * \param color The color of the ellipse
+ * \return The texture
+ */
+Texture *create_ellipse(char *name, int x, int y, int rx, int ry, Color color) {
+    _assert_engine_init();
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(_engine->renderer, texture);
+
+    ellipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
+
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
+}
+
+/**
+ * Create a line with a specified thickness as a texture
+ * \param name The name of the texture
+ * \param x1 The x position of the first point
+ * \param y1 The y position of the first point
+ * \param x2 The x position of the second point
+ * \param y2 The y position of the second point
+ * \param color The color of the line
+ * \param thickness The thickness of the line
+ * \return The texture
+ */
+Texture *create_line_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness) {
+    _assert_engine_init();
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(_engine->renderer, texture);
+
+    thickLineRGBA(_engine->renderer, x1, y1, x2, y2, thickness, color.r, color.g, color.b, color.a);
+
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
+}
+
+/**
+ * Create a rectangle with a specified thickness as a texture
+ * \param name The name of the texture
+ * \param x1 The x position of the point at the top-left corner of the rectangle
+ * \param y1 The y position of the point at the top-left corner of the rectangle
+ * \param x2 The x position of the point at the bottom-right corner of the rectangle
+ * \param y2 The y position of the point at the bottom-right corner of the rectangle
+ * \param color The color of the rectangle
+ * \param thickness The thickness of the rectangle
+ * \return The texture
+ */
+Texture *create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness) {
+    _assert_engine_init();
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(_engine->renderer, texture);
+
+    for (int i = 0; i < thickness; i++) {
+        rectangleRGBA(_engine->renderer, x1 + i, y1 + i, x2 - i, y2 - i, color.r, color.g, color.b, color.a);
+    }
+
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
+}
+
+/**
+ * Create a circle with a specified thickness as a texture
+ * \param name The name of the texture
+ * \param x The x position of the circle
+ * \param y The y position of the circle
+ * \param radius The radius of the circle
+ * \param color The color of the circle
+ * \param thickness The thickness of the circle
+ * \return The texture
+ */
+Texture *create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness) {
+    _assert_engine_init();
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(_engine->renderer, texture);
+
+    thickCircleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a, thickness);
+
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
+}
+
+/**
+ * Create an ellipse with a specified thickness as a texture
+ * \param name The name of the texture
+ * \param x The x position of the ellipse
+ * \param y The y position of the ellipse
+ * \param rx The x radius of the ellipse
+ * \param ry The y radius of the ellipse
+ * \param color The color of the ellipse
+ * \param thickness The thickness of the ellipse
+ * \return The texture
+ */
+Texture *create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness) {
+    _assert_engine_init();
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderTarget(_engine->renderer, texture);
+
+    thickEllipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a, thickness);
+
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
+}
 
 /***********************************************
  * Event functions
  ***********************************************/
 
 /**
+ * Get the mouse position
+ * \param x The variable to store the x position of the mouse
+ * \param y The variable to store the y position of the mouse
+ */
+void get_mouse_position(int *x, int *y) {
+    _assert_engine_init();
+    SDL_GetMouseState(x, y);
+}
+
+/**
  * Checks if any key is pressed
- * \param event The event to check
  * \return True if any key is pressed, false otherwise
  */
-bool any_key_pressed(SDL_Event event) {
+bool any_key_pressed() {
     _assert_engine_init();
-    return event.type == SDL_KEYDOWN;
+    return _event.type == SDL_KEYDOWN;
 }
 
 /**
@@ -968,6 +1253,23 @@ bool object_is_hovered_by_id(int id) {
     ObjectList *current = _object_list;
     while (current != NULL) {
         if (current->object->id == id) {
+            return object_is_hovered(current->object);
+        }
+        current = current->next;
+    }
+    return false;
+}
+
+/**
+ * Checks if an object is hovered by name
+ * \param name The name of the object to check
+ * \return True if the object is hovered, false otherwise (or if the object does not exist)
+ */
+bool object_is_hovered_by_name(char *name) {
+    _assert_engine_init();
+    ObjectList *current = _object_list;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
             return object_is_hovered(current->object);
         }
         current = current->next;

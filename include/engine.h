@@ -172,6 +172,8 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
 void set_window_icon(char *filename);
 void window_resizable(bool resizable);
 void window_fullscreen(bool fullscreen);
+void set_manual_update(bool manual_update);
+void manual_update();
 
 // Texture functions
 
@@ -179,6 +181,7 @@ Texture *load_texture(char *filename, char *name);
 Texture *get_texture_by_name(char *name);
 void draw_texture(Texture *texture, int x, int y, int width, int height);
 void draw_texture_from_path(char *filename, int x, int y, int width, int height);
+void destroy_texture(char *name);
 void destroy_all_textures();
 void rotate_texture(char *name, double angle); //need to be tested
 
@@ -226,14 +229,25 @@ void draw_ellipse(int x, int y, int rx, int ry, Color color);
 void draw_line_thick(int x1, int y1, int x2, int y2, Color color, int thickness);
 void draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thickness);
 void draw_circle_thick(int x, int y, int radius, Color color, int thickness);
+void draw_ellipse_thick(int x, int y, int rx, int ry, Color color, int thickness);
 
-Texture create_line(int x1, int y1, int x2, int y2, Color color);
+void draw_geometry(Texture *texture, int x, int y);
+Texture *create_line(char *name, int x1, int y1, int x2, int y2, Color color);
+Texture *create_rect(char *name, int x1, int y1, int x2, int y2, Color color);
+Texture *create_circle(char *name, int x, int y, int radius, Color color);
+Texture *create_ellipse(char *name, int x, int y, int rx, int ry, Color color);
+Texture *create_line_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
+Texture *create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
+Texture *create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness);
+Texture *create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness);
 
 // Event functions
 
-bool key_is_pressed();
+void get_mouse_position(int *x, int *y);
+bool any_key_pressed();
 bool object_is_hovered(Object *object);
 bool object_is_hovered_by_id(int id);
+bool object_is_hovered_by_name(char *name);
 
 // Text functions
 

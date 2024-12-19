@@ -6,17 +6,15 @@ Game *init_game() {
         fprintf(stderr, "[GAME] Failed to allocate memory for game\n");
         exit(1);
     }
-    Tilemap *tm = create_tilemap("assets/tilemap.png", 16, 16, 1, 11, 18);
-    game->tilemap = tm;
-
-    srand(time(NULL));
-
-    game->nb_players = 4;
-    for (int row = 0; row < MAP_H; row++) {
-        for (int col = 0; col < MAP_W; col++) {
-            game->map[row][col] = rand() % 3;
+    
+    for (int i = 0; i < MAP_H; i++) {
+        for (int j = 0; j < MAP_W; j++) {
+            game->matrix[i][j] = 0;
         }
     }
+
+    game->current_player = 1;
+    game->winner = 0;
 
     return game;
 }

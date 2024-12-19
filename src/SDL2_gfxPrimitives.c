@@ -4165,19 +4165,19 @@ int thickEllipseRGBA(SDL_Renderer *renderer, Sint16 xc, Sint16 yc, Sint16 xr, Si
 		for (x = -xo; x <= -xi; x++)
 		{
 			y = sqrt(yo2 * (1.0 - x * x / xo2)) + 0.5;
-			result |= renderdrawline(renderer, xc + x, yc - y, xc + x, yc + y);
+			result |= SDL_RenderDrawLine(renderer, xc + x, yc - y, xc + x, yc + y);
 		}
 		for (x = -xi + 1; x <= xi - 1; x++)
 		{
 			y = sqrt(yo2 * (1.0 - x * x / xo2)) + 0.5;
 			z = sqrt(yi2 * (1.0 - x * x / xi2)) + 0.5;
-			result |= renderdrawline(renderer, xc + x, yc + z, xc + x, yc + y);
-			result |= renderdrawline(renderer, xc + x, yc - z, xc + x, yc - y);
+			result |= SDL_RenderDrawLine(renderer, xc + x, yc + z, xc + x, yc + y);
+			result |= SDL_RenderDrawLine(renderer, xc + x, yc - z, xc + x, yc - y);
 		}
 		for (x = xo; x >= xi; x--)
 		{
 			y = sqrt(yo2 * (1.0 - x * x / xo2)) + 0.5;
-			result |= renderdrawline(renderer, xc + x, yc - y, xc + x, yc + y);
+			result |= SDL_RenderDrawLine(renderer, xc + x, yc - y, xc + x, yc + y);
 		}
 	}
 	else
@@ -4185,19 +4185,19 @@ int thickEllipseRGBA(SDL_Renderer *renderer, Sint16 xc, Sint16 yc, Sint16 xr, Si
 		for (y = -yo; y <= -yi; y++)
 		{
 			x = sqrt(xo2 * (1.0 - y * y / yo2)) + 0.5;
-			result |= renderdrawline(renderer, xc - x, yc + y, xc + x, yc + y);
+			result |= SDL_RenderDrawLine(renderer, xc - x, yc + y, xc + x, yc + y);
 		}
 		for (y = -yi + 1; y <= yi - 1; y++)
 		{
 			x = sqrt(xo2 * (1.0 - y * y / yo2)) + 0.5;
 			z = sqrt(xi2 * (1.0 - y * y / yi2)) + 0.5;
-			result |= renderdrawline(renderer, xc + z, yc + y, xc + x, yc + y);
-			result |= renderdrawline(renderer, xc - z, yc + y, xc - x, yc + y);
+			result |= SDL_RenderDrawLine(renderer, xc + z, yc + y, xc + x, yc + y);
+			result |= SDL_RenderDrawLine(renderer, xc - z, yc + y, xc - x, yc + y);
 		}
 		for (y = yo; y >= yi; y--)
 		{
 			x = sqrt(xo2 * (1.0 - y * y / yo2)) + 0.5;
-			result |= renderdrawline(renderer, xc - x, yc + y, xc + x, yc + y);
+			result |= SDL_RenderDrawLine(renderer, xc - x, yc + y, xc + x, yc + y);
 		}
 	}
 	return result;
