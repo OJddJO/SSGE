@@ -6,7 +6,6 @@ static ObjectList *_object_list = NULL;
 static ObjectTemplateList *_object_template_list = NULL;
 static TextureList *_texture_list = NULL;
 static Font *_font = NULL;
-static Color _color = {0, 0, 0, 255};
 static SDL_Event _event;
 static bool _manual_update_frame = false;
 static bool _update_frame = true; // set to true to draw the first frame
@@ -880,7 +879,6 @@ bool hitbox_is_colliding(Object *hitbox1, Object *hitbox2) {
 void draw_line(int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
     lineRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
 /**
@@ -894,7 +892,6 @@ void draw_line(int x1, int y1, int x2, int y2, Color color) {
 void draw_rect(int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
     rectangleRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
 /**
@@ -908,7 +905,6 @@ void draw_rect(int x1, int y1, int x2, int y2, Color color) {
 void draw_ellipse(int x, int y, int rx, int ry, Color color) {
     _assert_engine_init();
     ellipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
 /**
@@ -921,7 +917,6 @@ void draw_ellipse(int x, int y, int rx, int ry, Color color) {
 void draw_circle(int x, int y, int radius, Color color) {
     _assert_engine_init();
     circleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
 /**
@@ -936,7 +931,6 @@ void draw_circle(int x, int y, int radius, Color color) {
 void draw_line_thick(int x1, int y1, int x2, int y2, Color color, int thickness) {
     _assert_engine_init();
     thickLineRGBA(_engine->renderer, x1, y1, x2, y2, thickness, color.r, color.g, color.b, color.a);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
 /**
@@ -953,7 +947,6 @@ void draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thickness)
     for (int i = 0; i < thickness; i++) {
         rectangleRGBA(_engine->renderer, x1 + i, y1 + i, x2 - i, y2 - i, color.r, color.g, color.b, color.a);
     }
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
 /**
@@ -967,7 +960,6 @@ void draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thickness)
 void draw_circle_thick(int x, int y, int radius, Color color, int thickness) {
     _assert_engine_init();
     thickCircleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a, thickness);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
 /**
@@ -982,7 +974,6 @@ void draw_circle_thick(int x, int y, int radius, Color color, int thickness) {
 void draw_ellipse_thick(int x, int y, int rx, int ry, Color color, int thickness) {
     _assert_engine_init();
     thickEllipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a, thickness);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
 /**
@@ -1016,7 +1007,6 @@ Texture *create_line(char *name, int x1, int y1, int x2, int y2, Color color) {
     lineRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
 
     SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
     _add_to_texture_list(texture, name);
 
@@ -1042,7 +1032,6 @@ Texture *create_rect(char *name, int x1, int y1, int x2, int y2, Color color) {
     rectangleRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
 
     SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
     _add_to_texture_list(texture, name);
 
@@ -1067,7 +1056,6 @@ Texture *create_circle(char *name, int x, int y, int radius, Color color) {
     circleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a);
 
     SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
     _add_to_texture_list(texture, name);
 
@@ -1093,7 +1081,6 @@ Texture *create_ellipse(char *name, int x, int y, int rx, int ry, Color color) {
     ellipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
 
     SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
     _add_to_texture_list(texture, name);
 
@@ -1120,7 +1107,6 @@ Texture *create_line_thick(char *name, int x1, int y1, int x2, int y2, Color col
     thickLineRGBA(_engine->renderer, x1, y1, x2, y2, thickness, color.r, color.g, color.b, color.a);
 
     SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
     _add_to_texture_list(texture, name);
 
@@ -1149,7 +1135,6 @@ Texture *create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color col
     }
 
     SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
     _add_to_texture_list(texture, name);
 
@@ -1175,7 +1160,6 @@ Texture *create_circle_thick(char *name, int x, int y, int radius, Color color, 
     thickCircleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a, thickness);
 
     SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
     _add_to_texture_list(texture, name);
 
@@ -1202,7 +1186,6 @@ Texture *create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color co
     thickEllipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a, thickness);
 
     SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
     _add_to_texture_list(texture, name);
 
