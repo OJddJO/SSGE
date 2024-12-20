@@ -1541,7 +1541,7 @@ static void _add_to_sound_list(Mix_Chunk *audio, char *name) {
  * \param filename The path to the audio
  * \param name The name of the audio
  */
-Audio *load_sound(char *filename, char *name) {
+Audio *load_audio(char *filename, char *name) {
     _assert_engine_init();
     Audio *audio = Mix_LoadWAV(filename);
     if (audio == NULL) {
@@ -1552,4 +1552,92 @@ Audio *load_sound(char *filename, char *name) {
     _add_to_sound_list(audio, name);
 
     return audio;
+}
+
+/**
+ * Plays an audio
+ * \param audio The audio to play
+ * \param channel The channel to play the audio on, -1 for first free channel
+ */
+void play_audio(Audio *audio, int channel) {
+    _assert_engine_init();
+    Mix_PlayChannel(channel, audio, 0);
+}
+
+/**
+ * Plays an audio by name
+ * \param name The name of the audio to play
+ * \param channel The channel to play the audio on, -1 for first free channel
+ */
+void play_audio_by_name(char *name, int channel) {
+    _assert_engine_init();
+    Audiolist *current = _audio_list;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            Mix_PlayChannel(channel, current->audio, 0);
+            return;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Audio not found: %s\n", name);
+    exit(1);
+}
+
+/**
+ * Pauses an audio
+ * \param channel The channel to pause the audio on
+ */
+void pause_audio(int channel) {
+    _assert_engine_init();
+    Mix_Pause(channel);
+}
+
+/**
+ * Stops an audio
+ * \param channel The channel to stop the audio on
+ */
+void stop_audio(int channel) {
+    _assert_engine_init();
+    Mix_HaltChannel(channel);
+}
+
+/**
+ * Closes an audio by name
+ * \param name The name of the audio
+ */
+void close_audio(char *name) {
+    _assert_engine_init();
+    Audiolist *current = _audio_list;
+    Audiolist *prev = NULL;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            if (prev == NULL) {
+                _audio_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            Mix_FreeChunk(current->audio);
+            free(current->name);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+/**
+ * Closes all audios
+ */
+void close_all_audios() {
+    _assert_engine_init();
+    Audiolist *current = _audio_list;
+    while (current != NULL) {
+        Audiolist *next = current->next;
+        Mix_FreeChunk(current->audio);
+        free(current->name);
+        free(current);
+        current = next;
+    }
+    _audio_list = NULL;
 }

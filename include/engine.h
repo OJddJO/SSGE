@@ -290,12 +290,12 @@ void close_all_fonts();
 
 // Audio functions
 
-Audio *load_sound(char *filename, char *name);
-void play_sound(Audio *audio);
-void play_sound_by_name(char *name);
-void pause_sound(char *name);
-void stop_sound(char *name);
-void close_sound(char *name);
-void close_all_sound();
+Audio *load_audio(char *filename, char *name);
+void play_audio(Audio *audio, int channel);
+void play_audio_by_name(char *name, int channel);
+void pause_audio(int channel);
+void stop_audio(int channel);
+void close_audio(char *name);
+void close_all_audios();
 
 #endif // __ENGINE_H__
