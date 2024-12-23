@@ -4,7 +4,7 @@
  * Initialize the game
  * \param game The game structure to initialize
  */
-void init_game(Game *game) {    
+void init_game(Game *game) {
     for (int i = 0; i < MAP_H; i++) {
         for (int j = 0; j < MAP_W; j++) {
             game->matrix[i][j] = 0;
