@@ -1,7 +1,6 @@
 #include "engine.h"
 
 static Engine *_engine = NULL;
-static Uint32 _object_id = 0;
 static ObjectList *_object_list = NULL;
 static ObjectTemplateList *_object_template_list = NULL;
 static TextureList *_texture_list = NULL;
@@ -238,6 +237,10 @@ static void _add_to_texture_list(Texture *texture, char *name) {
     } else {
         TextureList *current = _texture_list;
         while (current->next != NULL) {
+            if (current->name == name) {
+                fprintf(stderr, "[ENGINE] Texture name already exists: %s\n", name);
+                exit(1);
+            }
             current = current->next;
         }
         current->next = texture_list_item;
@@ -552,6 +555,10 @@ static void _add_object_to_list(Object *object, char *name) {
     } else {
         ObjectList *current = _object_list;
         while (current->next != NULL) {
+            if (strcmp(current->name, name) == 0) {
+                fprintf(stderr, "[ENGINE] Object name already exists: %s\n", name);
+                exit(1);
+            }
             current = current->next;
         }
         current->next = object_list_item;
@@ -578,7 +585,6 @@ Object *create_object(char *name, Texture *texture, int x, int y, int width, int
         exit(1);
     }
 
-    object->id = _object_id++;
     object->texture = texture;
     object->x = x;
     object->y = y;
@@ -633,27 +639,9 @@ void draw_object(Object *object) {
 }
 
 /**
- * Gets an object by id
- * \param id The id of the object
- * \return The object
- */
-Object *get_object_by_id(int id) {
-    _assert_engine_init();
-    ObjectList *current = _object_list;
-    while (current != NULL) {
-        if (current->object->id == id) {
-            return current->object;
-        }
-        current = current->next;
-    }
-    fprintf(stderr, "[ENGINE] Object not found: %d\n", id);
-    exit(1);
-}
-
-/**
  * Gets an object by name
  * \param name The name of the object
- * \return The first object with the given name
+ * \return The object with the given name
  */
 Object *get_object_by_name(char *name) {
     _assert_engine_init();
@@ -666,31 +654,6 @@ Object *get_object_by_name(char *name) {
     }
     fprintf(stderr, "[ENGINE] Object not found: %s\n", name);
     exit(1);
-}
-
-/**
- * Destroys an object by name
- * \param id The id of the object
- */
-void destroy_object_by_id(int id) {
-    _assert_engine_init();
-    ObjectList *current = _object_list;
-    ObjectList *prev = NULL;
-    while (current != NULL) {
-        if (current->object->id == id) {
-            if (prev == NULL) {
-                _object_list = current->next;
-            } else {
-                prev->next = current->next;
-            }
-            free(current->object);
-            free(current->name);
-            free(current);
-            return;
-        }
-        prev = current;
-        current = current->next;
-    }
 }
 
 /**
@@ -765,6 +728,10 @@ static void _add_object_template_to_list(ObjectTemplate *template, char *name) {
     } else {
         ObjectTemplateList *current = _object_template_list;
         while (current->next != NULL) {
+            if (strcmp(current->name, name) == 0) {
+                fprintf(stderr, "[ENGINE] Object template name already exists: %s\n", name);
+                exit(1);
+            }
             current = current->next;
         }
         current->next = object_template_list_item;
@@ -1308,23 +1275,6 @@ bool object_is_hovered(Object *object) {
     SDL_GetMouseState(&mouseX, &mouseY);
 
     return mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height;
-}
-
-/**
- * Checks if an object is hovered by id
- * \param id The id of the object to check
- * \return True if the object is hovered, false otherwise (or if the object does not exist)
- */
-bool object_is_hovered_by_id(int id) {
-    _assert_engine_init();
-    ObjectList *current = _object_list;
-    while (current != NULL) {
-        if (current->object->id == id) {
-            return object_is_hovered(current->object);
-        }
-        current = current->next;
-    }
-    return false;
 }
 
 /**

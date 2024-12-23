@@ -63,7 +63,6 @@ typedef struct _ObjectTemplate {
 
 /**
  * Object structure
- * \param id The id of the object
  * \param texture The texture of the object
  * \param x The x position of the object
  * \param y The y position of the object
@@ -73,7 +72,6 @@ typedef struct _ObjectTemplate {
  * \param data The data of the object
  */
 typedef struct _Object {
-    Uint32 id;
     Texture *texture;
     int x;
     int y;
@@ -227,9 +225,7 @@ Object *create_object(char *name, Texture *texture, int x, int y, int width, int
 Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data);
 bool object_exists(char *name);
 void draw_object(Object *object);
-Object *get_object_by_id(int id);
 Object *get_object_by_name(char *name);
-void destroy_object_by_id(int id);
 void destroy_object_by_name(char *name);
 void destroy_all_objects();
 
@@ -278,7 +274,6 @@ void delay(int ms);
 void get_mouse_position(int *x, int *y);
 bool any_key_pressed();
 bool object_is_hovered(Object *object);
-bool object_is_hovered_by_id(int id);
 bool object_is_hovered_by_name(char *name);
 
 // Text functions
