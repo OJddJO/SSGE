@@ -2,7 +2,7 @@
 
 SDL2_gfxPrimitives.c: graphics primitives for SDL2 renderers
 
-Copyright (C) 2012-2014  Andreas Schiffler
+Copyright (C) 2012-2014  Andreas Schiffler - modified by OJddJO
 
 This software is provided 'as-is', without any express or implied
 warranty. In no event will the authors be held liable for any damages
