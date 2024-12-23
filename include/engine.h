@@ -73,7 +73,7 @@ typedef struct _ObjectTemplate {
  * \param data The data of the object
  */
 typedef struct _Object {
-    int id;
+    Uint32 id;
     Texture *texture;
     int x;
     int y;
@@ -291,6 +291,7 @@ void close_all_fonts();
 // Audio functions
 
 Audio *load_audio(char *filename, char *name);
+Audio *get_audio_by_name(char *name);
 void play_audio(Audio *audio, int channel);
 void play_audio_by_name(char *name, int channel);
 void pause_audio(int channel);

@@ -1,7 +1,7 @@
 #include "engine.h"
 
 static Engine *_engine = NULL;
-static int _object_id = 0;
+static Uint32 _object_id = 0;
 static ObjectList *_object_list = NULL;
 static ObjectTemplateList *_object_template_list = NULL;
 static TextureList *_texture_list = NULL;
@@ -70,6 +70,16 @@ void engine_init(const char *title, int width, int height, int fps) {
         exit(1);
     }
 
+    if (Mix_Init(MIX_INIT_MP3||MIX_INIT_OGG||MIX_INIT_WAVPACK) == 0) {
+        fprintf(stderr, "[ENGINE] Failed to initialize mixer: %s\n", Mix_GetError());
+        exit(1);
+    }
+
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) {
+        fprintf(stderr, "[ENGINE] Failed to open audio device for playback: %s\n", Mix_GetError());
+        exit(1);
+    }
+
     SDL_SetRenderDrawColor(_engine->renderer, 0, 0, 0, 255);
 
     _engine->isRunning = true;
@@ -88,6 +98,8 @@ void engine_quit() {
     _assert_engine_init();
     SDL_DestroyRenderer(_engine->renderer);
     SDL_DestroyWindow(_engine->window);
+    Mix_CloseAudio();
+    Mix_Quit();
     SDL_Quit();
     free(_engine);
 }
@@ -98,7 +110,8 @@ void engine_quit() {
  * \param draw The draw function. Should takes a `void *` as argument and returns `void`.
  * \param event_handler The event handler function. Should takes a `SDL_Event` and a `void *` as arguments and returns `void`.
  * \param data The data to pass to the functions (update, draw, event_handler)
- * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw.
+ * \warning The engine runs in an infinite loop until the window is closed
+ * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
  */
 void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *data) {
     _assert_engine_init();
@@ -112,9 +125,8 @@ void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handl
         while (SDL_PollEvent(&_event)) {
             if (_event.type == SDL_QUIT) {
                 _engine->isRunning = 0;
-            } else if (event_handler != NULL) {
-                if (event_handler) event_handler(_event, data);
             }
+            if (event_handler) event_handler(_event, data);
         }
 
         if (update) update(data);
@@ -1555,9 +1567,26 @@ Audio *load_audio(char *filename, char *name) {
 }
 
 /**
+ * Gets an audio by name
+ * \param name The name of the audio
+ */
+Audio *get_audio_by_name(char *name) {
+    _assert_engine_init();
+    Audiolist *current = _audio_list;
+    while (current != NULL) {
+        if (strcmp(current->name, name) == 0) {
+            return current->audio;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Audio not found: %s\n", name);
+    exit(1);
+}
+
+/**
  * Plays an audio
  * \param audio The audio to play
- * \param channel The channel to play the audio on, -1 for first free channel
+ * \param channel The channel to play the audio on, -1 for first free channel. Channels must be a number between 0 and 3
  */
 void play_audio(Audio *audio, int channel) {
     _assert_engine_init();

@@ -1,11 +1,11 @@
-EXE		    = ./bin/TinyWar
+EXE		    = ./bin/example
 SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 
 DBG         = # debug flags
 
 INCLUDE     = -I ./include
-LIB         = -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
+LIB         = -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
 EXTRA       = -Werror -O3
 STATIC      = # for static linking
 

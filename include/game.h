@@ -15,17 +15,14 @@
 #define WIN_W MAP_W * TILE_SIZE
 #define WIN_H MAP_H * TILE_SIZE
 
-typedef struct _Player {
-    char *name;
-    int x, y;
-} Player;
-
 typedef struct _Game {
     int matrix[3][3];
     int current_player;
     int winner;
+    int turn;
 } Game;
 
-Game *init_game();
+void init_game(Game *game);
+int check_winner(Game *game);
 
 #endif // __GAME_H__
