@@ -29,6 +29,11 @@
 // Audio structure (Mix_Chunk)
 #define Audio Mix_Chunk
 
+// Structure prototype
+
+// Game structure to contain all the game data
+typedef struct _Game Game;
+
 /**
  * Engine structure
  * \param window The window
@@ -188,7 +193,7 @@ typedef enum _Anchor {
 
 void engine_init(const char *title, int width, int height, int fps);
 void engine_quit();
-void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *game);
+void engine_run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SDL_Event, Game *), Game *game);
 
 // Window functions
 
@@ -213,6 +218,7 @@ void rotate_texture(char *name, double angle); //need to be tested
 
 Tilemap *create_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols);
 Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col);
+Texture *get_tile_texture(char *name, Tilemap *tilemap, int tile_row, int tile_col);
 void draw_tile(Tile *tile, int x, int y);
 void draw_tile_with_size(Tile *tile, int x, int y, int width, int height);
 void draw_tile_from_tilemap(Tilemap *tilemap, int tile_row, int tile_col, int x, int y);

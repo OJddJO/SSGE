@@ -105,14 +105,15 @@ void engine_quit() {
 
 /**
  * Runs the engine
- * \param update The update function. Should take a `void *` as argument and return `void`
- * \param draw The draw function. Should takes a `void *` as argument and returns `void`.
- * \param event_handler The event handler function. Should takes a `SDL_Event` and a `void *` as arguments and returns `void`.
- * \param data The data to pass to the functions (update, draw, event_handler)
+ * \param update The update function. Should take a `Game *` as argument and return `void`
+ * \param draw The draw function. Should takes a `Game *` as argument and returns `void`.
+ * \param event_handler The event handler function. Should takes a `SDL_Event` and a `Game *` as arguments and returns `void`.
+ * \param data The game data to pass to the functions (update, draw, event_handler)
  * \warning The engine runs in an infinite loop until the window is closed
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
+ * \note The quit event (window close) is handled by the engine
  */
-void engine_run(void (*update)(void *), void (*draw)(void *), void (*event_handler)(SDL_Event, void *), void *data) {
+void engine_run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SDL_Event, Game *), Game *data) {
     _assert_engine_init();
 
     Uint32 frameStart;
@@ -455,6 +456,28 @@ Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col) {
     tile->col = tile_col;
 
     return tile;
+}
+
+/**
+ * Gets a texture from a tilemap
+ * \param name The name of the texture
+ * \param tilemap The tilemap to use
+ * \param tile_row The row of the tile
+ * \param tile_col The column of the tile
+ * \return The texture
+ */
+Texture *get_tile_texture(char *name, Tilemap *tilemap, int tile_row, int tile_col) {
+    _assert_engine_init();
+    Tile *tile = get_tile(tilemap, tile_row, tile_col);
+    Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tilemap->tile_width, tilemap->tile_height);
+    SDL_SetRenderTarget(_engine->renderer, texture);
+    draw_tile(tile, 0, 0);
+    SDL_SetRenderTarget(_engine->renderer, NULL);
+    destroy_tile(tile);
+
+    _add_to_texture_list(texture, name);
+
+    return texture;
 }
 
 /**
