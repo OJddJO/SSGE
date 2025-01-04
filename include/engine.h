@@ -29,10 +29,12 @@
 // Audio structure (Mix_Chunk)
 #define Audio Mix_Chunk
 
-// Structure prototype
+// Structure prototypes
 
 // Game structure to contain all the game data
 typedef struct _Game Game;
+
+// Engine structures
 
 /**
  * Engine structure
@@ -118,11 +120,13 @@ typedef struct _Tile {
 
 /**
  * Object template list structure
+ * \param id The id of the object template list item
  * \param name The name of the object template
  * \param object_template The object template
  * \param next The next object template list item
  */
 typedef struct _ObjectTemplateList {
+    Uint32 id;
     char *name;
     ObjectTemplate *object_template;
     struct _ObjectTemplateList *next;
@@ -130,11 +134,13 @@ typedef struct _ObjectTemplateList {
 
 /**
  * Object list structure
+ * \param id The id of the object list item
  * \param name The name of the object
  * \param object The object
  * \param next The next object list item
  */
 typedef struct _ObjectList {
+    Uint32 id;
     char *name;
     Object *object;
     struct _ObjectList *next;
@@ -142,11 +148,13 @@ typedef struct _ObjectList {
 
 /**
  * Texture list structure
+ * \param id The id of the texture list item
  * \param name The name of the texture
  * \param texture The texture
  * \param next The next texture list item
  */
 typedef struct _TextureList {
+    Uint32 id;
     char *name;
     Texture *texture;
     struct _TextureList *next;
@@ -154,11 +162,13 @@ typedef struct _TextureList {
 
 /**
  * Audio list structure
+ * \param id The id of the audio list item
  * \param name The name of the audio
- * \param soubd The audio
+ * \param audio The audio
  * \param next The next audio list item
  */
 typedef struct _Audiolist {
+    Uint32 id;
     char *name;
     Mix_Chunk *audio;
     struct _Audiolist *next;
@@ -205,7 +215,8 @@ void manual_update();
 
 // Texture functions
 
-Texture *load_texture(char *filename, char *name);
+Uint32 create_texture(char *filename, char *name);
+Texture *get_texture_by_id(int id);
 Texture *get_texture_by_name(char *name);
 void draw_texture(Texture *texture, int x, int y, int width, int height);
 void draw_texture_ex(Texture *texture, int x, int y, int width, int height, double angle, Point *center, Flip flip);
@@ -218,7 +229,7 @@ void rotate_texture(char *name, double angle); //need to be tested
 
 Tilemap *create_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols);
 Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col);
-Texture *get_tile_texture(char *name, Tilemap *tilemap, int tile_row, int tile_col);
+Uint32 get_tile_as_texture(char *name, Tilemap *tilemap, int tile_row, int tile_col);
 void draw_tile(Tile *tile, int x, int y);
 void draw_tile_with_size(Tile *tile, int x, int y, int width, int height);
 void draw_tile_from_tilemap(Tilemap *tilemap, int tile_row, int tile_col, int x, int y);
@@ -227,17 +238,20 @@ void destroy_tilemap(Tilemap *tilemap);
 
 // Object functions
 
-Object *create_object(char *name, Texture *texture, int x, int y, int width, int height, bool hitbox, void *data);
-Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data);
-bool object_exists(char *name);
+Uint32 create_object(char *name, Texture *texture, int x, int y, int width, int height, bool hitbox, void *data);
+Uint32 instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data);
+bool object_exists_by_id(int id);
+bool object_exists_by_name(char *name);
 void draw_object(Object *object);
+Object *get_object_by_id(int id);
 Object *get_object_by_name(char *name);
 void destroy_object_by_name(char *name);
 void destroy_all_objects();
 
 // Object template functions
 
-ObjectTemplate *create_object_template(char *name, Texture *texture, int width, int height, bool hitbox);
+Uint32 create_object_template(char *name, Texture *texture, int width, int height, bool hitbox);
+ObjectTemplate *get_template_by_id(int id);
 ObjectTemplate *get_template_by_name(char *name);
 void destroy_object_template(char *name);
 void destroy_all_templates();
@@ -260,14 +274,14 @@ void draw_circle_thick(int x, int y, int radius, Color color, int thickness);
 void draw_ellipse_thick(int x, int y, int rx, int ry, Color color, int thickness);
 
 void draw_geometry(Texture *texture, int x, int y);
-Texture *create_line(char *name, int x1, int y1, int x2, int y2, Color color);
-Texture *create_rect(char *name, int x1, int y1, int x2, int y2, Color color);
-Texture *create_circle(char *name, int x, int y, int radius, Color color);
-Texture *create_ellipse(char *name, int x, int y, int rx, int ry, Color color);
-Texture *create_line_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
-Texture *create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
-Texture *create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness);
-Texture *create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness);
+Uint32 create_line(char *name, int x1, int y1, int x2, int y2, Color color);
+Uint32 create_rect(char *name, int x1, int y1, int x2, int y2, Color color);
+Uint32 create_circle(char *name, int x, int y, int radius, Color color);
+Uint32 create_ellipse(char *name, int x, int y, int rx, int ry, Color color);
+Uint32 create_line_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
+Uint32 create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
+Uint32 create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness);
+Uint32 create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness);
 
 // Utility functions
 
@@ -291,7 +305,8 @@ void close_all_fonts();
 
 // Audio functions
 
-Audio *load_audio(char *filename, char *name);
+Uint32 load_audio(char *filename, char *name);
+Audio *get_audio_by_id(int id);
 Audio *get_audio_by_name(char *name);
 void play_audio(Audio *audio, int channel);
 void play_audio_by_name(char *name, int channel);

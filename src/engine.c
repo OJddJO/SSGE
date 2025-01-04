@@ -1,9 +1,13 @@
 #include "engine.h"
 
 static Engine *_engine = NULL;
+static Uint32 _object_count = 0;
 static ObjectList *_object_list = NULL;
+static Uint32 _object_template_count = 0;
 static ObjectTemplateList *_object_template_list = NULL;
+static Uint32 _texture_count = 0;
 static TextureList *_texture_list = NULL;
+static Uint32 _audio_count = 0;
 static Audiolist *_audio_list = NULL;
 static Font *_font = NULL;
 static SDL_Event _event;
@@ -11,6 +15,7 @@ static Color _color = {0, 0, 0, 255};
 static Color _clear_color = {0, 0, 0, 255};
 static bool _manual_update_frame = false;
 static bool _update_frame = true; // set to true to draw the first frame
+
 
 static void _assert_engine_init() {
     if (_engine == NULL) {
@@ -111,7 +116,6 @@ void engine_quit() {
  * \param data The game data to pass to the functions (update, draw, event_handler)
  * \warning The engine runs in an infinite loop until the window is closed
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
- * \note The quit event (window close) is handled by the engine
  */
 void engine_run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SDL_Event, Game *), Game *data) {
     _assert_engine_init();
@@ -216,7 +220,7 @@ void manual_update() {
  * \param texture The texture to add
  * \param name The name of the texture
  */
-static void _add_to_texture_list(Texture *texture, char *name) {
+static void _add_texture_to_list(Texture *texture, char *name) {
     char *texture_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (texture_name == NULL) {
         fprintf(stderr, "[ENGINE] Failed to allocate memory for texture name\n");
@@ -229,6 +233,8 @@ static void _add_to_texture_list(Texture *texture, char *name) {
         fprintf(stderr, "[ENGINE] Failed to allocate memory for texture list item\n");
         exit(1);
     }
+
+    texture_list_item->id = ++_texture_count;
     texture_list_item->texture = texture;
     texture_list_item->name = texture_name;
     texture_list_item->next = NULL;
@@ -249,13 +255,13 @@ static void _add_to_texture_list(Texture *texture, char *name) {
 }
 
 /**
- * Loads a texture
+ * Creates a texture
  * \param filename The path to the texture
  * \param name The name of the texture
- * \return The texture
- * \note The texture must be destroyed after use
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name or its id
  */
-Texture *load_texture(char *filename, char *name) {
+Uint32 create_texture(char *filename, char *name) {
     _assert_engine_init();
 
     // Load texture
@@ -266,9 +272,27 @@ Texture *load_texture(char *filename, char *name) {
     }
 
     // Add texture to texture list
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
+}
+
+/**
+ * Gets a texture by id
+ * \param id The id of the texture
+ * \return The texture
+ */
+Texture *get_texture_by_id(int id) {
+    _assert_engine_init();
+    TextureList *current = _texture_list;
+    while (current != NULL) {
+        if (current->id == id) {
+            return current->texture;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Texture not found: %d\n", id);
+    exit(1);
 }
 
 /**
@@ -464,9 +488,10 @@ Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col) {
  * \param tilemap The tilemap to use
  * \param tile_row The row of the tile
  * \param tile_col The column of the tile
- * \return The texture
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name
  */
-Texture *get_tile_texture(char *name, Tilemap *tilemap, int tile_row, int tile_col) {
+Uint32 get_tile_as_texture(char *name, Tilemap *tilemap, int tile_row, int tile_col) {
     _assert_engine_init();
     Tile *tile = get_tile(tilemap, tile_row, tile_col);
     Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tilemap->tile_width, tilemap->tile_height);
@@ -475,9 +500,9 @@ Texture *get_tile_texture(char *name, Tilemap *tilemap, int tile_row, int tile_c
     SDL_SetRenderTarget(_engine->renderer, NULL);
     destroy_tile(tile);
 
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
 }
 
 /**
@@ -569,6 +594,8 @@ static void _add_object_to_list(Object *object, char *name) {
         fprintf(stderr, "[ENGINE] Failed to allocate memory for object list item\n");
         exit(1);
     }
+
+    object_list_item->id = ++_object_count;
     object_list_item->object = object;
     object_list_item->name = obj_name;
     object_list_item->next = NULL;
@@ -598,9 +625,10 @@ static void _add_object_to_list(Object *object, char *name) {
  * \param height The height of the object
  * \param hitbox True if the object has a hitbox, false otherwise
  * \param data The data of the object
- * \return The object
+ * \return The object id
+ * \note The object is stored internally and can be accessed by its name or its id
  */
-Object *create_object(char *name, Texture *texture, int x, int y, int width, int height, bool hitbox, void *data) {
+Uint32 create_object(char *name, Texture *texture, int x, int y, int width, int height, bool hitbox, void *data) {
     _assert_engine_init();
     Object *object = (Object *)malloc(sizeof(Object));
     if (object == NULL) {
@@ -618,7 +646,7 @@ Object *create_object(char *name, Texture *texture, int x, int y, int width, int
 
     _add_object_to_list(object, name);
 
-    return object;
+    return _object_count;
 }
 
 /**
@@ -627,11 +655,29 @@ Object *create_object(char *name, Texture *texture, int x, int y, int width, int
  * \param x The x position of the object
  * \param y The y position of the object
  * \param data The data of the object
- * \return The object
+ * \return The object id
+ * \note The object is stored internally and can be accessed by its name or its id
  */
-Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data) {
+Uint32 instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data) {
     _assert_engine_init();
     return create_object(name, object_template->texture, x, y, object_template->width, object_template->height, object_template->hitbox, data);
+}
+
+/**
+ * Checks if an object exists
+ * \param id The id of the object
+ * \return True if the object exists, false otherwise
+ */
+bool object_exists_by_id(int id) {
+    _assert_engine_init();
+    ObjectList *current = _object_list;
+    while (current != NULL) {
+        if (current->id == id) {
+            return true;
+        }
+        current = current->next;
+    }
+    return false;
 }
 
 /**
@@ -639,7 +685,7 @@ Object *instantiate_object(ObjectTemplate *object_template, char *name, int x, i
  * \param name The name of the object
  * \return True if the object exists, false otherwise
  */
-bool object_exists(char *name) {
+bool object_exists_by_name(char *name) {
     _assert_engine_init();
     ObjectList *current = _object_list;
     while (current != NULL) {
@@ -659,6 +705,24 @@ void draw_object(Object *object) {
     _assert_engine_init();
     SDL_Rect rect = {object->x, object->y, object->width, object->height};
     SDL_RenderCopy(_engine->renderer, object->texture, NULL, &rect);
+}
+
+/**
+ * Gets an object by id
+ * \param id The id of the object
+ * \return The object
+ */
+Object *get_object_by_id(int id) {
+    _assert_engine_init();
+    ObjectList *current = _object_list;
+    while (current != NULL) {
+        if (current->id == id) {
+            return current->object;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Object not found: %d\n", id);
+    exit(1);
 }
 
 /**
@@ -742,6 +806,7 @@ static void _add_object_template_to_list(ObjectTemplate *template, char *name) {
         exit(1);
     }
 
+    object_template_list_item->id = ++_object_template_count;
     object_template_list_item->object_template = template;
     object_template_list_item->name = objt_name;
     object_template_list_item->next = NULL;
@@ -768,9 +833,10 @@ static void _add_object_template_to_list(ObjectTemplate *template, char *name) {
  * \param width The width of the object template
  * \param height The height of the object template
  * \param hitbox True if objects created from this template have a hitbox, false otherwise
- * \return The object template
+ * \return The object template id
+ * \note The object template is stored internally and can be accessed by its name or its id
  */
-ObjectTemplate *create_object_template(char *name, Texture *texture, int width, int height, bool hitbox) {
+Uint32 create_object_template(char *name, Texture *texture, int width, int height, bool hitbox) {
     _assert_engine_init();
     ObjectTemplate *object_template = (ObjectTemplate *)malloc(sizeof(ObjectTemplate));
     if (object_template == NULL) {
@@ -785,7 +851,25 @@ ObjectTemplate *create_object_template(char *name, Texture *texture, int width, 
     // Add object template to object template list
     _add_object_template_to_list(object_template, name);
 
-    return object_template;
+    return _object_template_count;
+}
+
+/**
+ * Gets an object template by id
+ * \param id The id of the object template
+ * \return The object template
+ */
+ObjectTemplate *get_template_by_id(int id) {
+    _assert_engine_init();
+    ObjectTemplateList *current = _object_template_list;
+    while (current != NULL) {
+        if (current->id == id) {
+            return current->object_template;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Object template not found: %d\n", id);
+    exit(1);
 }
 
 /**
@@ -859,6 +943,9 @@ void destroy_all_templates() {
  * \param width The width of the hitbox
  * \param height The height of the hitbox
  * \return The hitbox
+ * \note The hitbox is an object with a hitbox property set to true, it does not have texture
+ * \note The hitbox is stored internally as an object and can be accessed by its name or its id 
+ * \warning The hitbox must be destroyed after use
  */
 Object *create_hitbox(char *name, int x, int y, int width, int height) {
     _assert_engine_init();
@@ -1029,9 +1116,10 @@ void draw_geometry(Texture *texture, int x, int y) {
  * \param x2 The x position of the second point
  * \param y2 The y position of the second point
  * \param color The color of the line
- * \return The texture
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name
  */
-Texture *create_line(char *name, int x1, int y1, int x2, int y2, Color color) {
+Uint32 create_line(char *name, int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -1042,9 +1130,9 @@ Texture *create_line(char *name, int x1, int y1, int x2, int y2, Color color) {
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
 }
 
 /**
@@ -1055,9 +1143,10 @@ Texture *create_line(char *name, int x1, int y1, int x2, int y2, Color color) {
  * \param x2 The x position of the point at the bottom-right corner of the rectangle
  * \param y2 The y position of the point at the bottom-right corner of the rectangle
  * \param color The color of the rectangle
- * \return The texture
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name
  */
-Texture *create_rect(char *name, int x1, int y1, int x2, int y2, Color color) {
+Uint32 create_rect(char *name, int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -1068,9 +1157,9 @@ Texture *create_rect(char *name, int x1, int y1, int x2, int y2, Color color) {
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
 }
 
 /**
@@ -1080,9 +1169,10 @@ Texture *create_rect(char *name, int x1, int y1, int x2, int y2, Color color) {
  * \param y The y position of the circle
  * \param radius The radius of the circle
  * \param color The color of the circle
- * \return The texture
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name
  */
-Texture *create_circle(char *name, int x, int y, int radius, Color color) {
+Uint32 create_circle(char *name, int x, int y, int radius, Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -1093,9 +1183,9 @@ Texture *create_circle(char *name, int x, int y, int radius, Color color) {
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
 }
 
 /**
@@ -1106,9 +1196,10 @@ Texture *create_circle(char *name, int x, int y, int radius, Color color) {
  * \param rx The x radius of the ellipse
  * \param ry The y radius of the ellipse
  * \param color The color of the ellipse
- * \return The texture
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name
  */
-Texture *create_ellipse(char *name, int x, int y, int rx, int ry, Color color) {
+Uint32 create_ellipse(char *name, int x, int y, int rx, int ry, Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -1119,9 +1210,9 @@ Texture *create_ellipse(char *name, int x, int y, int rx, int ry, Color color) {
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
 }
 
 /**
@@ -1133,9 +1224,10 @@ Texture *create_ellipse(char *name, int x, int y, int rx, int ry, Color color) {
  * \param y2 The y position of the second point
  * \param color The color of the line
  * \param thickness The thickness of the line
- * \return The texture
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name
  */
-Texture *create_line_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness) {
+Uint32 create_line_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -1146,9 +1238,9 @@ Texture *create_line_thick(char *name, int x1, int y1, int x2, int y2, Color col
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
 }
 
 /**
@@ -1160,9 +1252,10 @@ Texture *create_line_thick(char *name, int x1, int y1, int x2, int y2, Color col
  * \param y2 The y position of the point at the bottom-right corner of the rectangle
  * \param color The color of the rectangle
  * \param thickness The thickness of the rectangle
- * \return The texture
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name
  */
-Texture *create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness) {
+Uint32 create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -1175,9 +1268,9 @@ Texture *create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color col
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
 }
 
 /**
@@ -1188,9 +1281,10 @@ Texture *create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color col
  * \param radius The radius of the circle
  * \param color The color of the circle
  * \param thickness The thickness of the circle
- * \return The texture
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name
  */
-Texture *create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness) {
+Uint32 create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -1201,9 +1295,9 @@ Texture *create_circle_thick(char *name, int x, int y, int radius, Color color, 
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
 }
 
 /**
@@ -1215,9 +1309,10 @@ Texture *create_circle_thick(char *name, int x, int y, int radius, Color color, 
  * \param ry The y radius of the ellipse
  * \param color The color of the ellipse
  * \param thickness The thickness of the ellipse
- * \return The texture
+ * \return The texture id
+ * \note The texture is stored internally and can be accessed by its name
  */
-Texture *create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness) {
+Uint32 create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -1228,9 +1323,9 @@ Texture *create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color co
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
-    _add_to_texture_list(texture, name);
+    _add_texture_to_list(texture, name);
 
-    return texture;
+    return _texture_count;
 }
 
 /***********************************************
@@ -1492,7 +1587,12 @@ void close_all_fonts() {
  * Audio functions
  ***********************************************/
 
-static void _add_to_sound_list(Mix_Chunk *audio, char *name) {
+/**
+ * Adds an audio to the audio list
+ * \param audio The audio to add
+ * \param name The name of the audio
+ */
+static void _add_audio_to_list(Mix_Chunk *audio, char *name) {
     char *sound_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (sound_name == NULL) {
         fprintf(stderr, "[ENGINE] Failed to allocate memory for audio name\n");
@@ -1506,6 +1606,7 @@ static void _add_to_sound_list(Mix_Chunk *audio, char *name) {
         exit(1);
     }
 
+    sound_list_item->id = ++_audio_count;
     sound_list_item->audio = audio;
     sound_list_item->name = sound_name;
     sound_list_item->next = NULL;
@@ -1522,11 +1623,12 @@ static void _add_to_sound_list(Mix_Chunk *audio, char *name) {
 }
 
 /**
- * Loads a audio
+ * Loads an audio
  * \param filename The path to the audio
  * \param name The name of the audio
+ * \return The audio
  */
-Audio *load_audio(char *filename, char *name) {
+Uint32 load_audio(char *filename, char *name) {
     _assert_engine_init();
     Audio *audio = Mix_LoadWAV(filename);
     if (audio == NULL) {
@@ -1534,14 +1636,33 @@ Audio *load_audio(char *filename, char *name) {
         exit(1);
     }
 
-    _add_to_sound_list(audio, name);
+    _add_audio_to_list(audio, name);
 
-    return audio;
+    return _audio_count;
+}
+
+/**
+ * Gets an audio by id
+ * \param id The id of the audio
+ * \return The audio
+ */
+Audio *get_audio_by_id(int id) {
+    _assert_engine_init();
+    Audiolist *current = _audio_list;
+    while (current != NULL) {
+        if (current->id == id) {
+            return current->audio;
+        }
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Audio not found: %d\n", id);
+    exit(1);
 }
 
 /**
  * Gets an audio by name
  * \param name The name of the audio
+ * \return The audio
  */
 Audio *get_audio_by_name(char *name) {
     _assert_engine_init();
