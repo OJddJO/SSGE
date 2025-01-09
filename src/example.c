@@ -8,7 +8,7 @@ static void create_hitboxes();
 
 int main(int argc, char *argv[]) {
     // Initialize the engine
-    engine_init("TinyWar", WIN_W, WIN_H, FPS);
+    engine_init("TicTacToe", WIN_W, WIN_H, FPS);
     // Load fonts with sizes 32 and 64
     load_font("assets/font.ttf", 32, "font_32");
     load_font("assets/font.ttf", 64, "font_64");
