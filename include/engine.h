@@ -187,15 +187,15 @@ typedef struct _Font {
 } Font;
 
 typedef enum _Anchor {
-    TOP_LEFT,
-    TOP,
-    TOP_RIGHT,
-    LEFT,
+    NW,
+    N,
+    NE,
+    W,
     CENTER,
-    RIGHT,
-    BOTTOM_LEFT,
-    BOTTOM,
-    BOTTOM_RIGHT
+    E,
+    SW,
+    S,
+    SE
 } Anchor;
 
 
@@ -287,7 +287,6 @@ Uint32 create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color colo
 
 void set_color(Color color);
 void set_background_color(Color color);
-void delay(int ms);
 
 // Event functions
 

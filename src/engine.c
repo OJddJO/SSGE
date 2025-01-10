@@ -16,7 +16,6 @@ static Color _clear_color = {0, 0, 0, 255};
 static bool _manual_update_frame = false;
 static bool _update_frame = true; // set to true to draw the first frame
 
-
 static void _assert_engine_init() {
     if (_engine == NULL) {
         fprintf(stderr, "[ENGINE] Engine not initialized\n");
@@ -1351,14 +1350,6 @@ void set_background_color(Color color) {
     _clear_color = color;
 }
 
-/**
- * Delay the program
- * \param ms The time to delay in milliseconds
- */
-void delay(int ms) {
-    SDL_Delay(ms);
-}
-
 /***********************************************
  * Event functions
  ***********************************************/
@@ -1500,33 +1491,33 @@ void draw_text(char *font_name, char *text, int x, int y, Color color, Anchor an
 
     SDL_Rect rect = {x, y, surface->w, surface->h};
     switch (anchor) {
-        case TOP_LEFT:
+        case NW:
             break;
-        case TOP:
+        case N:
             rect.x -= surface->w / 2;
             break;
-        case TOP_RIGHT:
+        case NE:
             rect.x -= surface->w;
             break;
-        case LEFT:
+        case W:
             rect.y -= surface->h / 2;
             break;
         case CENTER:
             rect.x -= surface->w / 2;
             rect.y -= surface->h / 2;
             break;
-        case RIGHT:
+        case E:
             rect.x -= surface->w;
             rect.y -= surface->h / 2;
             break;
-        case BOTTOM_LEFT:
+        case SW:
             rect.y -= surface->h;
             break;
-        case BOTTOM:
+        case S:
             rect.x -= surface->w / 2;
             rect.y -= surface->h;
             break;
-        case BOTTOM_RIGHT:
+        case SE:
             rect.x -= surface->w;
             rect.y -= surface->h;
             break;
