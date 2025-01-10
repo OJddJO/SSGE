@@ -49,6 +49,9 @@ int main(int argc, char *argv[]) {
     close_all_fonts();
     engine_quit();
 
+    // Free the game structure
+    free(game);
+
     return 0;
 }
 
