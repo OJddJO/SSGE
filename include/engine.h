@@ -198,7 +198,6 @@ typedef enum _Anchor {
     SE
 } Anchor;
 
-
 // Engine functions
 
 void engine_init(const char *title, int width, int height, int fps);
@@ -207,6 +206,7 @@ void engine_run(void (*update)(Game *), void (*draw)(Game *), void (*event_handl
 
 // Window functions
 
+void set_window_title(char *title);
 void set_window_icon(char *filename);
 void window_resizable(bool resizable);
 void window_fullscreen(bool fullscreen);
@@ -215,19 +215,19 @@ void manual_update();
 
 // Texture functions
 
-Uint32 create_texture(char *filename, char *name);
-Texture *get_texture_by_id(int id);
+Uint32 load_texture(char *filename, char *name);
+Texture *get_texture(Uint32 id);
 Texture *get_texture_by_name(char *name);
 void draw_texture(Texture *texture, int x, int y, int width, int height);
 void draw_texture_ex(Texture *texture, int x, int y, int width, int height, double angle, Point *center, Flip flip);
 void draw_texture_from_path(char *filename, int x, int y, int width, int height);
-void destroy_texture(char *name);
+void destroy_texture(Uint32 id);
+void destroy_texture_by_name(char *name);
 void destroy_all_textures();
-void rotate_texture(char *name, double angle); //need to be tested
 
 // Tilemap functions
 
-Tilemap *create_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols);
+Tilemap *load_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols);
 Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col);
 Uint32 get_tile_as_texture(char *name, Tilemap *tilemap, int tile_row, int tile_col);
 void draw_tile(Tile *tile, int x, int y);
@@ -240,20 +240,23 @@ void destroy_tilemap(Tilemap *tilemap);
 
 Uint32 create_object(char *name, Texture *texture, int x, int y, int width, int height, bool hitbox, void *data);
 Uint32 instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data);
-bool object_exists_by_id(int id);
+bool object_exists(Uint32 id);
 bool object_exists_by_name(char *name);
 void draw_object(Object *object);
-Object *get_object_by_id(int id);
+void change_object_texture(Object *object, Texture *texture);
+Object *get_object(Uint32 id);
 Object *get_object_by_name(char *name);
+void destroy_object(Uint32 id);
 void destroy_object_by_name(char *name);
 void destroy_all_objects();
 
 // Object template functions
 
 Uint32 create_object_template(char *name, Texture *texture, int width, int height, bool hitbox);
-ObjectTemplate *get_template_by_id(int id);
+ObjectTemplate *get_template(Uint32 id);
 ObjectTemplate *get_template_by_name(char *name);
-void destroy_object_template(char *name);
+void destroy_object_template(Uint32 id);
+void destroy_object_template_by_name(char *name);
 void destroy_all_templates();
 
 // Hitbox functions
@@ -267,7 +270,6 @@ void draw_line(int x1, int y1, int x2, int y2, Color color);
 void draw_rect(int x1, int y1, int x2, int y2, Color color);
 void draw_circle(int x, int y, int radius, Color color);
 void draw_ellipse(int x, int y, int rx, int ry, Color color);
-
 void draw_line_thick(int x1, int y1, int x2, int y2, Color color, int thickness);
 void draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thickness);
 void draw_circle_thick(int x, int y, int radius, Color color, int thickness);
@@ -294,6 +296,8 @@ void get_mouse_position(int *x, int *y);
 bool any_key_pressed();
 bool object_is_hovered(Object *object);
 bool object_is_hovered_by_name(char *name);
+void get_hovered_objects(Object *objects[], int size);
+void get_hovered_objects_ids(Uint32 ids[], int size);
 
 // Text functions
 
@@ -305,13 +309,14 @@ void close_all_fonts();
 // Audio functions
 
 Uint32 load_audio(char *filename, char *name);
-Audio *get_audio_by_id(int id);
+Audio *get_audio(Uint32 id);
 Audio *get_audio_by_name(char *name);
 void play_audio(Audio *audio, int channel);
 void play_audio_by_name(char *name, int channel);
 void pause_audio(int channel);
 void stop_audio(int channel);
-void close_audio(char *name);
+void close_audio(Uint32 id);
+void close_audio_by_name(char *name);
 void close_all_audios();
 
 #endif // __ENGINE_H__
