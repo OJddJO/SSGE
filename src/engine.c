@@ -112,7 +112,7 @@ void engine_quit() {
  * \param update The update function. Should take a `Game *` as argument and return `void`
  * \param draw The draw function. Should takes a `Game *` as argument and returns `void`.
  * \param event_handler The event handler function. Should takes a `SDL_Event` and a `Game *` as arguments and returns `void`.
- * \param data The game data to pass to the functions (update, draw, event_handler)
+ * \param data The `Game *` to pass to the functions (update, draw, event_handler)
  * \warning The engine runs in an infinite loop until the window is closed
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
  */
@@ -153,6 +153,15 @@ void engine_run(void (*update)(Game *), void (*draw)(Game *), void (*event_handl
 /***********************************************
  * Window functions
  ************************************************/
+
+/**
+ * Sets the window title
+ * \param title The title of the window
+ */
+void set_window_title(char *title) {
+    _assert_engine_init();
+    SDL_SetWindowTitle(_engine->window, title);
+}
 
 /**
  * Sets the window icon
@@ -260,7 +269,7 @@ static void _add_texture_to_list(Texture *texture, char *name) {
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name or its id
  */
-Uint32 create_texture(char *filename, char *name) {
+Uint32 load_texture(char *filename, char *name) {
     _assert_engine_init();
 
     // Load texture
@@ -281,7 +290,7 @@ Uint32 create_texture(char *filename, char *name) {
  * \param id The id of the texture
  * \return The texture
  */
-Texture *get_texture_by_id(int id) {
+Texture *get_texture(Uint32 id) {
     _assert_engine_init();
     TextureList *current = _texture_list;
     while (current != NULL) {
@@ -363,9 +372,36 @@ void draw_texture_from_path(char *filename, int x, int y, int width, int height)
 
 /**
  * Destroys a texture
+ * \param id The id of the texture
+ */
+void destroy_texture(Uint32 id) {
+    _assert_engine_init();
+    TextureList *current = _texture_list;
+    TextureList *prev = NULL;
+    while (current != NULL) {
+        if (current->id == id) {
+            if (prev == NULL) {
+                _texture_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            SDL_DestroyTexture(current->texture);
+            free(current->name);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Texture not found: %d\n", id);
+    exit(1);
+}
+
+/**
+ * Destroys a texture
  * \param name The name of the texture
  */
-void destroy_texture(char *name) {
+void destroy_texture_by_name(char *name) {
     _assert_engine_init();
     TextureList *current = _texture_list;
     TextureList *prev = NULL;
@@ -389,8 +425,7 @@ void destroy_texture(char *name) {
 }
 
 /**
- * Destroys a texture
- * \param texture The texture to destroy
+ * Destroys all texture
  */
 void destroy_all_textures() {
     _assert_engine_init();
@@ -403,17 +438,6 @@ void destroy_all_textures() {
         current = next;
     }
     _texture_list = NULL;
-}
-
-/**
- * Rotate a texture and draw it
- * \param name The name of the texture
- * \param angle The angle to rotate the texture
- */
-void rotate_texture(char *name, double angle) {
-    _assert_engine_init();
-    Texture *texture = get_texture_by_name(name);
-    SDL_RenderCopyEx(_engine->renderer, texture, NULL, NULL, angle, NULL, SDL_FLIP_NONE);
 }
 
 /***********************************************
@@ -430,7 +454,7 @@ void rotate_texture(char *name, double angle) {
  * \param nb_cols The number of columns in the tilemap
  * \return The tilemap
  */
-Tilemap *create_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols) {
+Tilemap *load_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols) {
     _assert_engine_init();
     Tilemap *tilemap = (Tilemap *)malloc(sizeof(Tilemap));
     if (tilemap == NULL) {
@@ -667,7 +691,7 @@ Uint32 instantiate_object(ObjectTemplate *object_template, char *name, int x, in
  * \param id The id of the object
  * \return True if the object exists, false otherwise
  */
-bool object_exists_by_id(int id) {
+bool object_exists(Uint32 id) {
     _assert_engine_init();
     ObjectList *current = _object_list;
     while (current != NULL) {
@@ -707,11 +731,21 @@ void draw_object(Object *object) {
 }
 
 /**
+ * Changes the texture of an object
+ * \param object The object to change the texture of
+ * \param texture The new texture of the object
+ */
+void change_object_texture(Object *object, Texture *texture) {
+    _assert_engine_init();
+    object->texture = texture;
+}
+
+/**
  * Gets an object by id
  * \param id The id of the object
  * \return The object
  */
-Object *get_object_by_id(int id) {
+Object *get_object(Uint32 id) {
     _assert_engine_init();
     ObjectList *current = _object_list;
     while (current != NULL) {
@@ -739,6 +773,33 @@ Object *get_object_by_name(char *name) {
         current = current->next;
     }
     fprintf(stderr, "[ENGINE] Object not found: %s\n", name);
+    exit(1);
+}
+
+/**
+ * Destroys an object by id
+ * \param id The id of the object
+ */
+void destroy_object(Uint32 id) {
+    _assert_engine_init();
+    ObjectList *current = _object_list;
+    ObjectList *prev = NULL;
+    while (current != NULL) {
+        if (current->id == id) {
+            if (prev == NULL) {
+                _object_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            free(current->object);
+            free(current->name);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Object not found: %d\n", id);
     exit(1);
 }
 
@@ -858,7 +919,7 @@ Uint32 create_object_template(char *name, Texture *texture, int width, int heigh
  * \param id The id of the object template
  * \return The object template
  */
-ObjectTemplate *get_template_by_id(int id) {
+ObjectTemplate *get_template(Uint32 id) {
     _assert_engine_init();
     ObjectTemplateList *current = _object_template_list;
     while (current != NULL) {
@@ -890,10 +951,37 @@ ObjectTemplate *get_template_by_name(char *name) {
 }
 
 /**
+ * Destroys an object template by id
+ * \param id The id of the object template
+ */
+void destroy_object_template(Uint32 id) {
+    _assert_engine_init();
+    ObjectTemplateList *current = _object_template_list;
+    ObjectTemplateList *prev = NULL;
+    while (current != NULL) {
+        if (current->id == id) {
+            if (prev == NULL) {
+                _object_template_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            free(current->object_template);
+            free(current->name);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+    fprintf(stderr, "[ENGINE] Object template not found: %d\n", id);
+    exit(1);
+}
+
+/**
  * Destroys an object template by name
  * \param name The name of the object template
  */
-void destroy_object_template(char *name) {
+void destroy_object_template_by_name(char *name) {
     _assert_engine_init();
     ObjectTemplateList *current = _object_template_list;
     ObjectTemplateList *prev = NULL;
@@ -1393,14 +1481,57 @@ bool object_is_hovered(Object *object) {
  */
 bool object_is_hovered_by_name(char *name) {
     _assert_engine_init();
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
     ObjectList *current = _object_list;
     while (current != NULL) {
         if (strcmp(current->name, name) == 0) {
-            return object_is_hovered(current->object);
+            Object *object = current->object;
+            return mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height;
         }
         current = current->next;
     }
     return false;
+}
+
+/**
+ * Get the list of the objects that are hovered
+ * \param objects The array to store the hovered objects
+ * \param size The size of the array
+ */
+void get_hovered_objects(Object *objects[], int size) {
+    _assert_engine_init();
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    ObjectList *current = _object_list;
+    int i = 0;
+    while (current != NULL && i < size) {
+        Object *object = current->object;
+        if (mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height) {
+            objects[i++] = current->object;
+        }
+        current = current->next;
+    }
+}
+
+/**
+ * Get the list of the objects that are hovered
+ * \param ids The array to store the hovered objects ids
+ * \param size The size of the array
+ */
+void get_hovered_objects_ids(Uint32 ids[], int size) {
+    _assert_engine_init();
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    ObjectList *current = _object_list;
+    int i = 0;
+    while (current != NULL && i < size) {
+        Object *object = current->object;
+        if (mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height) {
+            ids[i++] = current->id;
+        }
+        current = current->next;
+    }
 }
 
 /***********************************************
@@ -1637,7 +1768,7 @@ Uint32 load_audio(char *filename, char *name) {
  * \param id The id of the audio
  * \return The audio
  */
-Audio *get_audio_by_id(int id) {
+Audio *get_audio(Uint32 id) {
     _assert_engine_init();
     Audiolist *current = _audio_list;
     while (current != NULL) {
@@ -1716,10 +1847,35 @@ void stop_audio(int channel) {
 }
 
 /**
+ * Closes an audio by id
+ * \param id The id of the audio
+ */
+void close_audio(Uint32 id) {
+    _assert_engine_init();
+    Audiolist *current = _audio_list;
+    Audiolist *prev = NULL;
+    while (current != NULL) {
+        if (current->id == id) {
+            if (prev == NULL) {
+                _audio_list = current->next;
+            } else {
+                prev->next = current->next;
+            }
+            Mix_FreeChunk(current->audio);
+            free(current->name);
+            free(current);
+            return;
+        }
+        prev = current;
+        current = current->next;
+    }
+}
+
+/**
  * Closes an audio by name
  * \param name The name of the audio
  */
-void close_audio(char *name) {
+void close_audio_by_name(char *name) {
     _assert_engine_init();
     Audiolist *current = _audio_list;
     Audiolist *prev = NULL;
