@@ -110,8 +110,8 @@ void engine_quit() {
 /**
  * Runs the engine
  * \param update The update function. Should take a `Game *` as argument and return `void`
- * \param draw The draw function. Should takes a `Game *` as argument and returns `void`.
- * \param event_handler The event handler function. Should takes a `SDL_Event` and a `Game *` as arguments and returns `void`.
+ * \param draw The draw function. Should takes a `Game *` as argument and returns `void`
+ * \param event_handler The event handler function. Should takes a `SDL_Event` and a `Game *` as arguments and returns `void`
  * \param data The `Game *` to pass to the functions (update, draw, event_handler)
  * \warning The engine runs in an infinite loop until the window is closed
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
@@ -1661,7 +1661,40 @@ void draw_text(char *font_name, char *text, int x, int y, Color color, Anchor an
 }
 
 /**
- * Close a font by name
+ * Creates text as a texture
+ * \param font_name The name of the font
+ * \param text The text to draw
+ * \param color The color of the text
+ * \param texture_name The name of the texture
+ */
+Uint32 create_text_as_texture(char *font_name, char *text, Color color, char *texture_name) {
+    _assert_engine_init();
+    if (_font == NULL) {
+        fprintf(stderr, "[ENGINE] Font not loaded\n");
+        exit(1);
+    }
+
+    Font *font_struct = _get_font(font_name);
+    SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
+    if (surface == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to render text: %s\n", TTF_GetError());
+        exit(1);
+    }
+
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
+    if (texture == NULL) {
+        fprintf(stderr, "[ENGINE] Failed to create texture from surface: %s\n", SDL_GetError());
+        exit(1);
+    }
+
+    SDL_FreeSurface(surface);
+    _add_texture_to_list(texture, texture_name);
+
+    return _texture_count;
+}
+
+/**
+ * Closes a font by name
  * \param font_name The name of the font
  */
 void close_font(char *name) {
