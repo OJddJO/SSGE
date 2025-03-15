@@ -183,7 +183,7 @@ typedef struct _SSGE_Audiolist {
 typedef struct _SSGE_Font {
     char *name;
     TTF_Font *font;
-    struct _Font *next;
+    struct _SSGE_Font *next;
 } SSGE_Font;
 
 typedef enum _SSGE_Anchor {
