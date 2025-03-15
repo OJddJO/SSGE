@@ -15,7 +15,7 @@ SSGE is a simple game engine written in C. It is designed to be used with the SD
 To use the engine, download the release and copy the files into your project.
 You will need to link against the SDL2 library.
 ```bash
-gcc -o main main.c -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+gcc main.c engine.c SDL2_gfxPrimitives_font.c SDL_gfxPrimitives.c SDL2_rotozoom -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -o main
 ```
 
 ## Example
