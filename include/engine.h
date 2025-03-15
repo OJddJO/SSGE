@@ -45,14 +45,14 @@ typedef struct _Game Game;
  * \param height The height of the window
  * \param fps The frames per second
  */
-typedef struct _Engine {
+typedef struct _SSGE_Engine {
     SDL_Window *window;
     SDL_Renderer *renderer;
     int isRunning;
     int width;
     int height;
     int fps;
-} Engine;
+} SSGE_Engine;
 
 /**
  * Object template structure
@@ -61,12 +61,12 @@ typedef struct _Engine {
  * \param height The height of the object
  * \param hitbox If objects created from this template have a hitbox
  */
-typedef struct _ObjectTemplate {
+typedef struct _SSGE_ObjectTemplate {
     Texture *texture;
     int width;
     int height;
     bool hitbox;
-} ObjectTemplate;
+} SSGE_ObjectTemplate;
 
 /**
  * Object structure
@@ -78,7 +78,7 @@ typedef struct _ObjectTemplate {
  * \param hitbox If the object has a hitbox
  * \param data The data of the object
  */
-typedef struct _Object {
+typedef struct _SSGE_Object {
     Texture *texture;
     int x;
     int y;
@@ -86,7 +86,7 @@ typedef struct _Object {
     int height;
     bool hitbox;
     void *data;
-} Object;
+} SSGE_Object;
 
 /**
  * Tilemap structure
@@ -97,14 +97,14 @@ typedef struct _Object {
  * \param nb_rows The number of rows in the tilemap
  * \param nb_cols The number of columns in the tilemap
  */
-typedef struct _Tilemap {
+typedef struct _SSGE_Tilemap {
     Texture *texture;
     int tile_width;
     int tile_height;
     int spacing;
     int nb_rows;
     int nb_cols;
-} Tilemap;
+} SSGE_Tilemap;
 
 /**
  * Tile structure
@@ -112,11 +112,11 @@ typedef struct _Tilemap {
  * \param row The row of the tile
  * \param col The column of the tile
  */
-typedef struct _Tile {
-    Tilemap *tilemap;
+typedef struct _SSGE_Tile {
+    SSGE_Tilemap *tilemap;
     int row;
     int col;
-} Tile;
+} SSGE_Tile;
 
 /**
  * Object template list structure
@@ -125,12 +125,12 @@ typedef struct _Tile {
  * \param object_template The object template
  * \param next The next object template list item
  */
-typedef struct _ObjectTemplateList {
+typedef struct _SSGE_ObjectTemplateList {
     Uint32 id;
     char *name;
-    ObjectTemplate *object_template;
-    struct _ObjectTemplateList *next;
-} ObjectTemplateList;
+    SSGE_ObjectTemplate *object_template;
+    struct _SSGE_ObjectTemplateList *next;
+} SSGE_ObjectTemplateList;
 
 /**
  * Object list structure
@@ -139,12 +139,12 @@ typedef struct _ObjectTemplateList {
  * \param object The object
  * \param next The next object list item
  */
-typedef struct _ObjectList {
+typedef struct _SSGE_ObjectList {
     Uint32 id;
     char *name;
-    Object *object;
-    struct _ObjectList *next;
-} ObjectList;
+    SSGE_Object *object;
+    struct _SSGE_ObjectList *next;
+} SSGE_ObjectList;
 
 /**
  * Texture list structure
@@ -153,12 +153,12 @@ typedef struct _ObjectList {
  * \param texture The texture
  * \param next The next texture list item
  */
-typedef struct _TextureList {
+typedef struct _SSGE_TextureList {
     Uint32 id;
     char *name;
     Texture *texture;
-    struct _TextureList *next;
-} TextureList;
+    struct _SSGE_TextureList *next;
+} SSGE_TextureList;
 
 /**
  * Audio list structure
@@ -167,12 +167,12 @@ typedef struct _TextureList {
  * \param audio The audio
  * \param next The next audio list item
  */
-typedef struct _Audiolist {
+typedef struct _SSGE_Audiolist {
     Uint32 id;
     char *name;
     Mix_Chunk *audio;
-    struct _Audiolist *next;
-} Audiolist;
+    struct _SSGE_Audiolist *next;
+} SSGE_Audiolist;
 
 /**
  * Font structure
@@ -180,13 +180,13 @@ typedef struct _Audiolist {
  * \param font The font
  * \param next The next font
  */
-typedef struct _Font {
+typedef struct _SSGE_Font {
     char *name;
     TTF_Font *font;
     struct _Font *next;
-} Font;
+} SSGE_Font;
 
-typedef enum _Anchor {
+typedef enum _SSGE_Anchor {
     NW,
     N,
     NE,
@@ -196,128 +196,132 @@ typedef enum _Anchor {
     SW,
     S,
     SE
-} Anchor;
+} SSGE_Anchor;
 
-// Engine functions
+// SSGE_Engine functions
 
-void engine_init(const char *title, int width, int height, int fps);
-void engine_quit();
-void engine_run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SDL_Event, Game *), Game *game);
+void SSGE_engine_init(const char *title, int width, int height, int fps);
+void SSGE_engine_quit();
+void SSGE_engine_run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SDL_Event, Game *), Game *game);
 
 // Window functions
 
-void set_window_title(char *title);
-void set_window_icon(char *filename);
-void window_resizable(bool resizable);
-void window_fullscreen(bool fullscreen);
-void set_manual_update(bool manual_update);
-void manual_update();
+void SSGE_set_window_title(char *title);
+void SSGE_set_window_icon(char *filename);
+void SSGE_window_resizable(bool resizable);
+void SSGE_window_fullscreen(bool fullscreen);
+void SSGE_set_manual_update(bool manual_update);
+void SSGE_manual_update();
 
 // Texture functions
 
-Uint32 load_texture(char *filename, char *name);
-Texture *get_texture(Uint32 id);
-Texture *get_texture_by_name(char *name);
-void draw_texture(Texture *texture, int x, int y, int width, int height);
-void draw_texture_ex(Texture *texture, int x, int y, int width, int height, double angle, Point *center, Flip flip);
-void draw_texture_from_path(char *filename, int x, int y, int width, int height);
-void destroy_texture(Uint32 id);
-void destroy_texture_by_name(char *name);
-void destroy_all_textures();
+Uint32 SSGE_load_texture(char *filename, char *name);
+Texture *SSGE_get_texture(Uint32 id);
+Texture *SSGE_get_texture_by_name(char *name);
+void SSGE_draw_texture(Texture *texture, int x, int y, int width, int height);
+void SSGE_draw_texture_ex(Texture *texture, int x, int y, int width, int height, double angle, Point *center, Flip flip);
+void SSGE_draw_texture_from_path(char *filename, int x, int y, int width, int height);
+void SSGE_destroy_texture(Uint32 id);
+void SSGE_destroy_texture_by_name(char *name);
+void SSGE_destroy_all_textures();
 
 // Tilemap functions
 
-Tilemap *load_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols);
-Tile *get_tile(Tilemap *tilemap, int tile_row, int tile_col);
-Uint32 get_tile_as_texture(char *name, Tilemap *tilemap, int tile_row, int tile_col);
-void draw_tile(Tile *tile, int x, int y);
-void draw_tile_with_size(Tile *tile, int x, int y, int width, int height);
-void draw_tile_from_tilemap(Tilemap *tilemap, int tile_row, int tile_col, int x, int y);
-void destroy_tile(Tile *tile);
-void destroy_tilemap(Tilemap *tilemap);
+SSGE_Tilemap *SSGE_load_tilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols);
+SSGE_Tile *SSGE_get_tile(SSGE_Tilemap *tilemap, int tile_row, int tile_col);
+Uint32 SSGE_get_tile_as_texture(char *name, SSGE_Tilemap *tilemap, int tile_row, int tile_col);
+void SSGE_draw_tile(SSGE_Tile *tile, int x, int y);
+void SSGE_draw_tile_with_size(SSGE_Tile *tile, int x, int y, int width, int height);
+void SSGE_draw_tile_from_tilemap(SSGE_Tilemap *tilemap, int tile_row, int tile_col, int x, int y);
+void SSGE_destroy_tile(SSGE_Tile *tile);
+void SSGE_destroy_tilemap(SSGE_Tilemap *tilemap);
 
 // Object functions
 
-Uint32 create_object(char *name, Texture *texture, int x, int y, int width, int height, bool hitbox, void *data);
-Uint32 instantiate_object(ObjectTemplate *object_template, char *name, int x, int y, void *data);
-bool object_exists(Uint32 id);
-bool object_exists_by_name(char *name);
-void draw_object(Object *object);
-void change_object_texture(Object *object, Texture *texture);
-Object *get_object(Uint32 id);
-Object *get_object_by_name(char *name);
-void destroy_object(Uint32 id);
-void destroy_object_by_name(char *name);
-void destroy_all_objects();
+Uint32 SSGE_create_object(char *name, Texture *texture, int x, int y, int width, int height, bool hitbox, void *data);
+Uint32 SSGE_instantiate_object(SSGE_ObjectTemplate *object_template, char *name, int x, int y, void *data);
+bool SSGE_object_exists(Uint32 id);
+bool SSGE_object_exists_by_name(char *name);
+void SSGE_draw_object(SSGE_Object *object);
+void SSGE_change_object_texture(SSGE_Object *object, Texture *texture);
+SSGE_Object *SSGE_get_object(Uint32 id);
+SSGE_Object *SSGE_get_object_by_name(char *name);
+void SSGE_destroy_object(Uint32 id);
+void SSGE_destroy_object_by_name(char *name);
+void SSGE_destroy_all_objects();
 
 // Object template functions
 
-Uint32 create_object_template(char *name, Texture *texture, int width, int height, bool hitbox);
-ObjectTemplate *get_template(Uint32 id);
-ObjectTemplate *get_template_by_name(char *name);
-void destroy_object_template(Uint32 id);
-void destroy_object_template_by_name(char *name);
-void destroy_all_templates();
+Uint32 SSGE_create_object_template(char *name, Texture *texture, int width, int height, bool hitbox);
+SSGE_ObjectTemplate *SSGE_get_template(Uint32 id);
+SSGE_ObjectTemplate *SSGE_get_template_by_name(char *name);
+void SSGE_destroy_object_template(Uint32 id);
+void SSGE_destroy_object_template_by_name(char *name);
+void SSGE_destroy_all_templates();
 
 // Hitbox functions
 
-Object *create_hitbox(char *name, int x, int y, int width, int height);
-bool hitbox_is_colliding(Object *hitbox1, Object *hitbox2);
+SSGE_Object *SSGE_create_hitbox(char *name, int x, int y, int width, int height);
+bool SSGE_hitbox_is_colliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2);
 
 // Geometry functions
 
-void draw_line(int x1, int y1, int x2, int y2, Color color);
-void draw_rect(int x1, int y1, int x2, int y2, Color color);
-void draw_circle(int x, int y, int radius, Color color);
-void draw_ellipse(int x, int y, int rx, int ry, Color color);
-void draw_line_thick(int x1, int y1, int x2, int y2, Color color, int thickness);
-void draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thickness);
-void draw_circle_thick(int x, int y, int radius, Color color, int thickness);
-void draw_ellipse_thick(int x, int y, int rx, int ry, Color color, int thickness);
+void SSGE_draw_line(int x1, int y1, int x2, int y2, Color color);
+void SSGE_draw_rect(int x1, int y1, int x2, int y2, Color color);
+void SSGE_draw_circle(int x, int y, int radius, Color color);
+void SSGE_draw_ellipse(int x, int y, int rx, int ry, Color color);
+void SSGE_draw_line_thick(int x1, int y1, int x2, int y2, Color color, int thickness);
+void SSGE_draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thickness);
+void SSGE_draw_circle_thick(int x, int y, int radius, Color color, int thickness);
+void SSGE_draw_ellipse_thick(int x, int y, int rx, int ry, Color color, int thickness);
 
-void draw_geometry(Texture *texture, int x, int y);
-Uint32 create_line(char *name, int x1, int y1, int x2, int y2, Color color);
-Uint32 create_rect(char *name, int x1, int y1, int x2, int y2, Color color);
-Uint32 create_circle(char *name, int x, int y, int radius, Color color);
-Uint32 create_ellipse(char *name, int x, int y, int rx, int ry, Color color);
-Uint32 create_line_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
-Uint32 create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
-Uint32 create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness);
-Uint32 create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness);
+void SSGE_fill_rect(int x1, int y1, int x2, int y2, Color color);
+void SSGE_fill_circle(int x, int y, int radius, Color color);
+void SSGE_fill_ellipse(int x, int y, int rx, int ry, Color color);
+
+void SSGE_draw_geometry(Texture *texture, int x, int y);
+Uint32 SSGE_create_line(char *name, int x1, int y1, int x2, int y2, Color color);
+Uint32 SSGE_create_rect(char *name, int x1, int y1, int x2, int y2, Color color);
+Uint32 SSGE_create_circle(char *name, int x, int y, int radius, Color color);
+Uint32 SSGE_create_ellipse(char *name, int x, int y, int rx, int ry, Color color);
+Uint32 SSGE_create_line_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
+Uint32 SSGE_create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness);
+Uint32 SSGE_create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness);
+Uint32 SSGE_create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness);
 
 // Utility functions
 
-void set_color(Color color);
-void set_background_color(Color color);
+void SSGE_set_color(Color color);
+void SSGE_set_background_color(Color color);
 
 // Event functions
 
-void get_mouse_position(int *x, int *y);
-bool any_key_pressed();
-bool object_is_hovered(Object *object);
-bool object_is_hovered_by_name(char *name);
-void get_hovered_objects(Object *objects[], int size);
-void get_hovered_objects_ids(Uint32 ids[], int size);
+void SSGE_get_mouse_position(int *x, int *y);
+bool SSGE_any_key_pressed();
+bool SSGE_object_is_hovered(SSGE_Object *object);
+bool SSGE_object_is_hovered_by_name(char *name);
+void SSGE_get_hovered_objects(SSGE_Object *objects[], int size);
+void SSGE_get_hovered_objects_ids(Uint32 ids[], int size);
 
 // Text functions
 
-void load_font(char *filename, int size, char *name);
-void draw_text(char *font_name, char *text, int x, int y, Color color, Anchor anchor);
-Uint32 create_text_as_texture(char *font_name, char *text, Color color, char *texture_name);
-void close_font(char *name);
-void close_all_fonts();
+void SSGE_load_font(char *filename, int size, char *name);
+void SSGE_draw_text(char *font_name, char *text, int x, int y, Color color, SSGE_Anchor anchor);
+Uint32 SSGE_create_text_as_texture(char *font_name, char *text, Color color, char *texture_name);
+void SSGE_close_font(char *name);
+void SSGE_close_all_fonts();
 
 // Audio functions
 
-Uint32 load_audio(char *filename, char *name);
-Audio *get_audio(Uint32 id);
-Audio *get_audio_by_name(char *name);
-void play_audio(Audio *audio, int channel);
-void play_audio_by_name(char *name, int channel);
-void pause_audio(int channel);
-void stop_audio(int channel);
-void close_audio(Uint32 id);
-void close_audio_by_name(char *name);
-void close_all_audios();
+Uint32 SSGE_load_audio(char *filename, char *name);
+Audio *SSGE_get_audio(Uint32 id);
+Audio *SSGE_get_audio_by_name(char *name);
+void SSGE_play_audio(Audio *audio, int channel);
+void SSGE_play_audio_by_name(char *name, int channel);
+void SSGE_pause_audio(int channel);
+void SSGE_stop_audio(int channel);
+void SSGE_close_audio(Uint32 id);
+void SSGE_close_audio_by_name(char *name);
+void SSGE_close_all_audios();
 
 #endif // __ENGINE_H__
