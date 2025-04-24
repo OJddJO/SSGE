@@ -261,7 +261,7 @@ void SSGE_destroy_all_templates();
 
 // Hitbox functions
 
-SSGE_Object *SSGE_create_hitbox(char *name, int x, int y, int width, int height);
+Uint32 SSGE_create_hitbox(char *name, int x, int y, int width, int height);
 bool SSGE_hitbox_is_colliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2);
 
 // Geometry functions

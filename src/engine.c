@@ -1029,12 +1029,12 @@ void SSGE_destroy_all_templates() {
  * \param y The y position of the hitbox
  * \param width The width of the hitbox
  * \param height The height of the hitbox
- * \return The hitbox
+ * \return The hitbox id
  * \note The hitbox is an object with a hitbox property set to true, it does not have texture
- * \note The hitbox is stored internally as an object and can be accessed by its name or its id 
- * \warning The hitbox must be destroyed after use
+ * \note The hitbox is stored internally as an object and can be accessed by its name or its id
+ * \warning The hitbox must be destroyed at the exit of the program, as texture
  */
-SSGE_Object *SSGE_create_hitbox(char *name, int x, int y, int width, int height) {
+Uint32 SSGE_create_hitbox(char *name, int x, int y, int width, int height) {
     _assert_engine_init();
     SSGE_Object *new_hitbox = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (new_hitbox == NULL) {
@@ -1049,7 +1049,7 @@ SSGE_Object *SSGE_create_hitbox(char *name, int x, int y, int width, int height)
 
     _add_object_to_list(new_hitbox, name);
 
-    return new_hitbox;
+    return _object_count;
 }
 
 /**
@@ -1059,6 +1059,7 @@ SSGE_Object *SSGE_create_hitbox(char *name, int x, int y, int width, int height)
  * \return True if the hitboxes are colliding, false otherwise
  */
 bool SSGE_hitbox_is_colliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2) {
+    if (!hitbox1->hitbox || !hitbox2->hitbox) return false;
     return hitbox1->x < hitbox2->x + hitbox2->width && hitbox1->x + hitbox1->width > hitbox2->x && hitbox1->y < hitbox2->y + hitbox2->height && hitbox1->y + hitbox1->height > hitbox2->y;
 }
 
@@ -1076,6 +1077,7 @@ bool SSGE_hitbox_is_colliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2) {
  */
 void SSGE_draw_line(int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
+    if (color.a == 0) return;
     lineRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1090,6 +1092,7 @@ void SSGE_draw_line(int x1, int y1, int x2, int y2, Color color) {
  */
 void SSGE_draw_rect(int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
+    if (color.a == 0) return;
     rectangleRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1104,6 +1107,7 @@ void SSGE_draw_rect(int x1, int y1, int x2, int y2, Color color) {
  */
 void SSGE_draw_ellipse(int x, int y, int rx, int ry, Color color) {
     _assert_engine_init();
+    if (color.a == 0) return;
     ellipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1117,6 +1121,7 @@ void SSGE_draw_ellipse(int x, int y, int rx, int ry, Color color) {
  */
 void SSGE_draw_circle(int x, int y, int radius, Color color) {
     _assert_engine_init();
+    if (color.a == 0) return;
     circleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1132,6 +1137,7 @@ void SSGE_draw_circle(int x, int y, int radius, Color color) {
  */
 void SSGE_draw_line_thick(int x1, int y1, int x2, int y2, Color color, int thickness) {
     _assert_engine_init();
+    if (color.a == 0) return;
     thickLineRGBA(_engine->renderer, x1, y1, x2, y2, thickness, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1147,6 +1153,7 @@ void SSGE_draw_line_thick(int x1, int y1, int x2, int y2, Color color, int thick
  */
 void SSGE_draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thickness) {
     _assert_engine_init();
+    if (color.a == 0) return;
     for (int i = 0; i < thickness; i++) {
         rectangleRGBA(_engine->renderer, x1 + i, y1 + i, x2 - i, y2 - i, color.r, color.g, color.b, color.a);
     }
@@ -1163,6 +1170,7 @@ void SSGE_draw_rect_thick(int x1, int y1, int x2, int y2, Color color, int thick
  */
 void SSGE_draw_circle_thick(int x, int y, int radius, Color color, int thickness) {
     _assert_engine_init();
+    if (color.a == 0) return;
     thickCircleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a, thickness);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1178,6 +1186,7 @@ void SSGE_draw_circle_thick(int x, int y, int radius, Color color, int thickness
  */
 void SSGE_draw_ellipse_thick(int x, int y, int rx, int ry, Color color, int thickness) {
     _assert_engine_init();
+    if (color.a == 0) return;
     thickEllipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a, thickness);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1191,6 +1200,7 @@ void SSGE_draw_ellipse_thick(int x, int y, int rx, int ry, Color color, int thic
  */
 void SSGE_fill_rect(int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
+    if (color.a == 0) return;
     boxRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1204,6 +1214,7 @@ void SSGE_fill_rect(int x1, int y1, int x2, int y2, Color color) {
  */
 void SSGE_fill_circle(int x, int y, int radius, Color color) {
     _assert_engine_init();
+    if (color.a == 0) return;
     filledCircleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1218,6 +1229,7 @@ void SSGE_fill_circle(int x, int y, int radius, Color color) {
  */
 void SSGE_fill_ellipse(int x, int y, int rx, int ry, Color color) {
     _assert_engine_init();
+    if (color.a == 0) return;
     filledEllipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 }
@@ -1249,13 +1261,15 @@ void SSGE_draw_geometry(Texture *texture, int x, int y) {
 Uint32 SSGE_create_line(char *name, int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(_engine->renderer, texture);
+    if (color.a != 0) {
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(_engine->renderer, texture);
 
-    lineRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
+        lineRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
 
-    SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+        SDL_SetRenderTarget(_engine->renderer, NULL);
+        SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    }
 
     _add_texture_to_list(texture, name);
 
@@ -1276,13 +1290,15 @@ Uint32 SSGE_create_line(char *name, int x1, int y1, int x2, int y2, Color color)
 Uint32 SSGE_create_rect(char *name, int x1, int y1, int x2, int y2, Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(_engine->renderer, texture);
+    if (color.a != 0) {
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(_engine->renderer, texture);
 
-    rectangleRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
+        rectangleRGBA(_engine->renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
 
-    SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+        SDL_SetRenderTarget(_engine->renderer, NULL);
+        SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    }
 
     _add_texture_to_list(texture, name);
 
@@ -1302,13 +1318,15 @@ Uint32 SSGE_create_rect(char *name, int x1, int y1, int x2, int y2, Color color)
 Uint32 SSGE_create_circle(char *name, int x, int y, int radius, Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(_engine->renderer, texture);
+    if (color.a != 0) {
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(_engine->renderer, texture);
 
-    circleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a);
+        filledCircleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a);
 
-    SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+        SDL_SetRenderTarget(_engine->renderer, NULL);
+        SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    }
 
     _add_texture_to_list(texture, name);
 
@@ -1329,13 +1347,15 @@ Uint32 SSGE_create_circle(char *name, int x, int y, int radius, Color color) {
 Uint32 SSGE_create_ellipse(char *name, int x, int y, int rx, int ry, Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(_engine->renderer, texture);
-
-    ellipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
-
-    SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    if (color.a != 0) {
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(_engine->renderer, texture);
+    
+        ellipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
+    
+        SDL_SetRenderTarget(_engine->renderer, NULL);
+        SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    }
 
     _add_texture_to_list(texture, name);
 
@@ -1357,13 +1377,15 @@ Uint32 SSGE_create_ellipse(char *name, int x, int y, int rx, int ry, Color color
 Uint32 SSGE_create_line_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(_engine->renderer, texture);
-
-    thickLineRGBA(_engine->renderer, x1, y1, x2, y2, thickness, color.r, color.g, color.b, color.a);
-
-    SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    if (color.a != 0) {
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(_engine->renderer, texture);
+    
+        thickLineRGBA(_engine->renderer, x1, y1, x2, y2, thickness, color.r, color.g, color.b, color.a);
+    
+        SDL_SetRenderTarget(_engine->renderer, NULL);
+        SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    }
 
     _add_texture_to_list(texture, name);
 
@@ -1384,16 +1406,18 @@ Uint32 SSGE_create_line_thick(char *name, int x1, int y1, int x2, int y2, Color 
  */
 Uint32 SSGE_create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color color, int thickness) {
     _assert_engine_init();
-    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(_engine->renderer, texture);
-
-    for (int i = 0; i < thickness; i++) {
-        rectangleRGBA(_engine->renderer, x1 + i, y1 + i, x2 - i, y2 - i, color.r, color.g, color.b, color.a);
+    SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);    
+    if (color.a != 0) {
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(_engine->renderer, texture);
+    
+        for (int i = 0; i < thickness; i++) {
+            rectangleRGBA(_engine->renderer, x1 + i, y1 + i, x2 - i, y2 - i, color.r, color.g, color.b, color.a);
+        }
+    
+        SDL_SetRenderTarget(_engine->renderer, NULL);
+        SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
     }
-
-    SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
 
     _add_texture_to_list(texture, name);
 
@@ -1414,13 +1438,15 @@ Uint32 SSGE_create_rect_thick(char *name, int x1, int y1, int x2, int y2, Color 
 Uint32 SSGE_create_circle_thick(char *name, int x, int y, int radius, Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(_engine->renderer, texture);
-
-    thickCircleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a, thickness);
-
-    SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    if (color.a != 0) {
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(_engine->renderer, texture);
+    
+        thickCircleRGBA(_engine->renderer, x, y, radius, color.r, color.g, color.b, color.a, thickness);
+    
+        SDL_SetRenderTarget(_engine->renderer, NULL);
+        SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    }
 
     _add_texture_to_list(texture, name);
 
@@ -1442,13 +1468,15 @@ Uint32 SSGE_create_circle_thick(char *name, int x, int y, int radius, Color colo
 Uint32 SSGE_create_ellipse_thick(char *name, int x, int y, int rx, int ry, Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderTarget(_engine->renderer, texture);
+    if (color.a != 0) {
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderTarget(_engine->renderer, texture);
 
-    thickEllipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a, thickness);
+        thickEllipseRGBA(_engine->renderer, x, y, rx, ry, color.r, color.g, color.b, color.a, thickness);
 
-    SDL_SetRenderTarget(_engine->renderer, NULL);
-    SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+        SDL_SetRenderTarget(_engine->renderer, NULL);
+        SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+    }
 
     _add_texture_to_list(texture, name);
 
@@ -1642,6 +1670,9 @@ static SSGE_Font *_get_font(char *font_name) {
  */
 void SSGE_draw_text(char *font_name, char *text, int x, int y, Color color, SSGE_Anchor anchor) {
     _assert_engine_init();
+
+    if (color.a == 0) return;
+
     if (_font == NULL) {
         fprintf(stderr, "[ENGINE] Font not loaded\n");
         exit(1);
@@ -1714,20 +1745,26 @@ Uint32 SSGE_create_text_as_texture(char *font_name, char *text, Color color, cha
         exit(1);
     }
 
-    SSGE_Font *font_struct = _get_font(font_name);
-    SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
-    if (surface == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to render text: %s\n", TTF_GetError());
-        exit(1);
-    }
+    SDL_Texture *texture;
 
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
-    if (texture == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to create texture from surface: %s\n", SDL_GetError());
-        exit(1);
-    }
+    if (color.a != 0) {
+        SSGE_Font *font_struct = _get_font(font_name);
+        SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
+        if (surface == NULL) {
+            fprintf(stderr, "[ENGINE] Failed to render text: %s\n", TTF_GetError());
+            exit(1);
+        }
 
-    SDL_FreeSurface(surface);
+        texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
+        if (texture == NULL) {
+            fprintf(stderr, "[ENGINE] Failed to create texture from surface: %s\n", SDL_GetError());
+            exit(1);
+        }
+
+        SDL_FreeSurface(surface);
+    } else {
+        texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+    }
     _add_texture_to_list(texture, texture_name);
 
     return _texture_count;
