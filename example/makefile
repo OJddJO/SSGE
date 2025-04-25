@@ -7,9 +7,17 @@ SSGE_LIB	= -L lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSSGE 
 LIB         = -L lib -lmingw32 # other libraries
 EXTRA       = -Werror -Wall -O3
 
-all: create_dirs link
+all: setup create_dirs link
 
 remake: clean all
+
+setup:
+	erase /f include\SSGE.h
+	erase /f bin\SSGE.dll
+	erase /f /q lib
+	copy ..\include\SSGE.h .\include\SSGE.h
+	copy ..\bin\SSGE.dll .\bin\SSGE.dll
+	copy ..\lib .\lib
 
 clean:
 	erase $(subst build/, build\, $(OBJ))

@@ -5,7 +5,7 @@
     #ifdef DLL_EXPORT
         #define SSGEDECL __declspec(dllexport)
     #else
-        #define SSGEDECL 
+        #define SSGEDECL
     #endif
 #endif // SSGEDECL
 

@@ -18,7 +18,7 @@ static bool _update_frame = true; // set to true to draw the first frame
 
 static void _assert_engine_init() {
     if (_engine == NULL) {
-        fprintf(stderr, "[ENGINE] Engine not initialized\n");
+        fprintf(stderr, "[SSGE] Engine not initialized\n");
         exit(1);
     }
 }
@@ -36,50 +36,50 @@ static void _assert_engine_init() {
  */
 SSGEDECL void SSGE_engine_init(const char *title, int width, int height, int fps) {
     if (_engine != NULL) {
-        fprintf(stderr, "[ENGINE] Engine already initialized\n");
+        fprintf(stderr, "[SSGE] Engine already initialized\n");
         exit(1);
     }
 
     _engine = (SSGE_Engine *)malloc(sizeof(SSGE_Engine));
     if (_engine == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for engine\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for engine\n");
         exit(1);
     }
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        fprintf(stderr, "[ENGINE] Failed to initialize SDL: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE] Failed to initialize SDL: %s\n", SDL_GetError());
         exit(1);
     }
 
     if (TTF_Init() != 0) {
-        fprintf(stderr, "[ENGINE] Failed to initialize TTF: %s\n", TTF_GetError());
+        fprintf(stderr, "[SSGE] Failed to initialize TTF: %s\n", TTF_GetError());
         exit(1);
     }
 
     _engine->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     if (_engine->window == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to create window: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE] Failed to create window: %s\n", SDL_GetError());
         exit(1);
     }
 
     _engine->renderer = SDL_CreateRenderer(_engine->window, -1, SDL_RENDERER_ACCELERATED);
     if (_engine->renderer == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to create renderer: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE] Failed to create renderer: %s\n", SDL_GetError());
         exit(1);
     }
 
     if (SDL_SetRenderDrawBlendMode(_engine->renderer, SDL_BLENDMODE_BLEND) != 0) {
-        fprintf(stderr, "[ENGINE] Failed to set render draw blend mode: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE] Failed to set render draw blend mode: %s\n", SDL_GetError());
         exit(1);
     }
 
     if (Mix_Init(MIX_INIT_MP3 || MIX_INIT_OGG || MIX_INIT_WAVPACK) == 0) {
-        fprintf(stderr, "[ENGINE] Failed to initialize mixer: %s\n", Mix_GetError());
+        fprintf(stderr, "[SSGE] Failed to initialize mixer: %s\n", Mix_GetError());
         exit(1);
     }
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) {
-        fprintf(stderr, "[ENGINE] Failed to open audio device for playback: %s\n", Mix_GetError());
+        fprintf(stderr, "[SSGE] Failed to open audio device for playback: %s\n", Mix_GetError());
         exit(1);
     }
 
@@ -105,6 +105,10 @@ SSGEDECL void SSGE_engine_quit() {
     Mix_Quit();
     SDL_Quit();
     free(_engine);
+
+    #if SSGE_DEBUG
+        SSGE_PrintMemoryUsage();
+    #endif // SSGE_DEBUG
 }
 
 /**
@@ -171,7 +175,7 @@ SSGEDECL void SSGE_set_window_icon(char *filename) {
     _assert_engine_init();
     SDL_Surface *icon = IMG_Load(filename);
     if (icon == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to load icon: %s\n", IMG_GetError());
+        fprintf(stderr, "[SSGE] Failed to load icon: %s\n", IMG_GetError());
         exit(1);
     }
     SDL_SetWindowIcon(_engine->window, icon);
@@ -231,14 +235,14 @@ SSGEDECL void SSGE_manual_update() {
 static void _add_texture_to_list(SSGE_Texture *texture, char *name) {
     char *texture_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (texture_name == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for texture name\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for texture name\n");
         exit(1);
     }
     strcpy(texture_name, name);
 
     SSGE_TextureList *texture_list_item = (SSGE_TextureList *)malloc(sizeof(SSGE_TextureList));
     if (texture_list_item == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for texture list item\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for texture list item\n");
         exit(1);
     }
 
@@ -271,7 +275,7 @@ SSGEDECL Uint32 SSGE_load_texture(char *filename, char *name) {
     // Load texture
     SSGE_Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
     if (texture == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to load image: %s\n", IMG_GetError());
+        fprintf(stderr, "[SSGE] Failed to load image: %s\n", IMG_GetError());
         exit(1);
     }
 
@@ -295,7 +299,7 @@ SSGEDECL SSGE_Texture *SSGE_get_texture(Uint32 id) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Texture not found: %d\n", id);
+    fprintf(stderr, "[SSGE] Texture not found: %d\n", id);
     exit(1);
 }
 
@@ -313,7 +317,7 @@ SSGEDECL SSGE_Texture *SSGE_get_texture_by_name(char *name) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Texture not found: %s\n", name);
+    fprintf(stderr, "[SSGE] Texture not found: %s\n", name);
     exit(1);
 }
 
@@ -389,7 +393,7 @@ SSGEDECL void SSGE_destroy_texture(Uint32 id) {
         prev = current;
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Texture not found: %d\n", id);
+    fprintf(stderr, "[SSGE] Texture not found: %d\n", id);
     exit(1);
 }
 
@@ -416,7 +420,7 @@ SSGEDECL void SSGE_destroy_texture_by_name(char *name) {
         prev = current;
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Texture not found: %s\n", name);
+    fprintf(stderr, "[SSGE] Texture not found: %s\n", name);
     exit(1);
 }
 
@@ -454,13 +458,13 @@ SSGEDECL SSGE_Tilemap *SSGE_load_tilemap(char *filename, int tile_width, int til
     _assert_engine_init();
     SSGE_Tilemap *tilemap = (SSGE_Tilemap *)malloc(sizeof(SSGE_Tilemap));
     if (tilemap == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for tilemap\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for tilemap\n");
         exit(1);
     }
 
     tilemap->texture = IMG_LoadTexture(_engine->renderer, filename);
     if (tilemap->texture == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to load tilemap: %s\n", IMG_GetError());
+        fprintf(stderr, "[SSGE] Failed to load tilemap: %s\n", IMG_GetError());
         exit(1);
     }
 
@@ -484,13 +488,13 @@ SSGEDECL SSGE_Tilemap *SSGE_load_tilemap(char *filename, int tile_width, int til
 SSGEDECL SSGE_Tile *SSGE_get_tile(SSGE_Tilemap *tilemap, int tile_row, int tile_col) {
     _assert_engine_init();
     if (tile_row >= tilemap->nb_rows || tile_col >= tilemap->nb_cols) {
-        fprintf(stderr, "[ENGINE] Tile out of bounds\n");
+        fprintf(stderr, "[SSGE] Tile out of bounds\n");
         exit(1);
     }
 
     SSGE_Tile *tile = (SSGE_Tile *)malloc(sizeof(SSGE_Tile));
     if (tile == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for tile\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for tile\n");
         exit(1);
     }
 
@@ -563,7 +567,7 @@ SSGEDECL void SSGE_draw_tile_with_size(SSGE_Tile *tile, int x, int y, int width,
 SSGEDECL void SSGE_draw_tile_from_tilemap(SSGE_Tilemap *tilemap, int tile_row, int tile_col, int x, int y) {
     _assert_engine_init();
     if (tile_row >= tilemap->nb_rows || tile_col >= tilemap->nb_cols) {
-        fprintf(stderr, "[ENGINE] Tile out of bounds\n");
+        fprintf(stderr, "[SSGE] Tile out of bounds\n");
         exit(1);
     }
 
@@ -603,14 +607,14 @@ SSGEDECL void SSGE_destroy_tilemap(SSGE_Tilemap *tilemap) {
 static void _add_object_to_list(SSGE_Object *object, char *name) {
     char *obj_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (obj_name == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for object name\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for object name\n");
         exit(1);
     }
     strcpy(obj_name, name);
 
     SSGE_ObjectList *object_list_item = (SSGE_ObjectList *)malloc(sizeof(SSGE_ObjectList));
     if (object_list_item == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for object list item\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for object list item\n");
         exit(1);
     }
 
@@ -648,7 +652,7 @@ SSGEDECL Uint32 SSGE_create_object(char *name, SSGE_Texture *texture, int x, int
     _assert_engine_init();
     SSGE_Object *object = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (object == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for object\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for object\n");
         exit(1);
     }
 
@@ -748,7 +752,7 @@ SSGEDECL SSGE_Object *SSGE_get_object(Uint32 id) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Object not found: %d\n", id);
+    fprintf(stderr, "[SSGE] Object not found: %d\n", id);
     exit(1);
 }
 
@@ -766,7 +770,7 @@ SSGEDECL SSGE_Object *SSGE_get_object_by_name(char *name) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Object not found: %s\n", name);
+    fprintf(stderr, "[SSGE] Object not found: %s\n", name);
     exit(1);
 }
 
@@ -796,7 +800,7 @@ SSGEDECL void SSGE_destroy_object(Uint32 id) {
         prev = current;
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Object not found: %d\n", id);
+    fprintf(stderr, "[SSGE] Object not found: %d\n", id);
     exit(1);
 }
 
@@ -858,14 +862,14 @@ SSGEDECL void SSGE_destroy_all_objects() {
 static void _add_object_template_to_list(SSGE_ObjectTemplate *template, char *name) {
     char *objt_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (objt_name == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for object template name\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for object template name\n");
         exit(1);
     }
     strcpy(objt_name, name);
 
     SSGE_ObjectTemplateList *object_template_list_item = (SSGE_ObjectTemplateList *)malloc(sizeof(SSGE_ObjectTemplateList));
     if (object_template_list_item == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for object template list item\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for object template list item\n");
         exit(1);
     }
 
@@ -900,7 +904,7 @@ SSGEDECL Uint32 SSGE_create_object_template(char *name, SSGE_Texture *texture, i
     _assert_engine_init();
     SSGE_ObjectTemplate *object_template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (object_template == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for object template\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for object template\n");
         exit(1);
     }
     object_template->texture = texture;
@@ -929,7 +933,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_get_template(Uint32 id) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Object template not found: %d\n", id);
+    fprintf(stderr, "[SSGE] Object template not found: %d\n", id);
     exit(1);
 }
 
@@ -947,7 +951,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_get_template_by_name(char *name) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Object template not found: %s\n", name);
+    fprintf(stderr, "[SSGE] Object template not found: %s\n", name);
     exit(1);
 }
 
@@ -974,7 +978,7 @@ SSGEDECL void SSGE_destroy_object_template(Uint32 id) {
         prev = current;
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Object template not found: %d\n", id);
+    fprintf(stderr, "[SSGE] Object template not found: %d\n", id);
     exit(1);
 }
 
@@ -1039,7 +1043,7 @@ SSGEDECL Uint32 SSGE_create_hitbox(char *name, int x, int y, int width, int heig
     _assert_engine_init();
     SSGE_Object *new_hitbox = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (new_hitbox == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for hitbox\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for hitbox\n");
         exit(1);
     }
     new_hitbox->x = x;
@@ -1047,6 +1051,9 @@ SSGEDECL Uint32 SSGE_create_hitbox(char *name, int x, int y, int width, int heig
     new_hitbox->width = width;
     new_hitbox->height = height;
     new_hitbox->hitbox = true;
+    new_hitbox->texture = NULL; // No texture for hitbox
+    new_hitbox->data = NULL;
+    new_hitbox->destroy_data = NULL; // No data to destroy for hitbox
 
     _add_object_to_list(new_hitbox, name);
 
@@ -1617,19 +1624,19 @@ SSGEDECL void SSGE_load_font(char *filename, int size, char *name) {
     _assert_engine_init();
     TTF_Font *font = TTF_OpenFont(filename, size);
     if (font == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to load font: %s\n", TTF_GetError());
+        fprintf(stderr, "[SSGE] Failed to load font: %s\n", TTF_GetError());
         exit(1);
     }
     char *name_alloc = (char *)malloc(sizeof(char) * strlen(filename) + 1);
     if (name_alloc == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for font filename\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for font filename\n");
         exit(1);
     }
     strcpy(name_alloc, name);
 
     SSGE_Font *font_struct = (SSGE_Font *)malloc(sizeof(SSGE_Font));
     if (font_struct == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for font\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for font\n");
         exit(1);
     }
 
@@ -1656,7 +1663,7 @@ static SSGE_Font *_get_font(char *font_name) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Font not found: %s\n", font_name);
+    fprintf(stderr, "[SSGE] Font not found: %s\n", font_name);
     exit(1);
 }
 
@@ -1675,20 +1682,20 @@ SSGEDECL void SSGE_draw_text(char *font_name, char *text, int x, int y, SSGE_Col
     if (color.a == 0) return;
 
     if (_font == NULL) {
-        fprintf(stderr, "[ENGINE] Font not loaded\n");
+        fprintf(stderr, "[SSGE] Font not loaded\n");
         exit(1);
     }
 
     SSGE_Font *font_struct = _get_font(font_name);
     SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
     if (surface == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to render text: %s\n", TTF_GetError());
+        fprintf(stderr, "[SSGE] Failed to render text: %s\n", TTF_GetError());
         exit(1);
     }
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
     if (texture == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to create texture from surface: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE] Failed to create texture from surface: %s\n", SDL_GetError());
         exit(1);
     }
 
@@ -1742,7 +1749,7 @@ SSGEDECL void SSGE_draw_text(char *font_name, char *text, int x, int y, SSGE_Col
 SSGEDECL Uint32 SSGE_create_text_as_texture(char *font_name, char *text, SSGE_Color color, char *texture_name) {
     _assert_engine_init();
     if (_font == NULL) {
-        fprintf(stderr, "[ENGINE] Font not loaded\n");
+        fprintf(stderr, "[SSGE] Font not loaded\n");
         exit(1);
     }
 
@@ -1752,13 +1759,13 @@ SSGEDECL Uint32 SSGE_create_text_as_texture(char *font_name, char *text, SSGE_Co
         SSGE_Font *font_struct = _get_font(font_name);
         SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
         if (surface == NULL) {
-            fprintf(stderr, "[ENGINE] Failed to render text: %s\n", TTF_GetError());
+            fprintf(stderr, "[SSGE] Failed to render text: %s\n", TTF_GetError());
             exit(1);
         }
 
         texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
         if (texture == NULL) {
-            fprintf(stderr, "[ENGINE] Failed to create texture from surface: %s\n", SDL_GetError());
+            fprintf(stderr, "[SSGE] Failed to create texture from surface: %s\n", SDL_GetError());
             exit(1);
         }
 
@@ -1828,14 +1835,14 @@ SSGEDECL void SSGE_close_all_fonts() {
 static void _add_audio_to_list(Mix_Chunk *audio, char *name) {
     char *sound_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (sound_name == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for audio name\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for audio name\n");
         exit(1);
     }
     strcpy(sound_name, name);
 
     SSGE_Audiolist *sound_list_item = (SSGE_Audiolist *)malloc(sizeof(SSGE_Audiolist));
     if (sound_list_item == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to allocate memory for audio list item\n");
+        fprintf(stderr, "[SSGE] Failed to allocate memory for audio list item\n");
         exit(1);
     }
 
@@ -1865,7 +1872,7 @@ SSGEDECL Uint32 SSGE_load_audio(char *filename, char *name) {
     _assert_engine_init();
     SSGE_Audio *audio = Mix_LoadWAV(filename);
     if (audio == NULL) {
-        fprintf(stderr, "[ENGINE] Failed to load audio: %s\n", Mix_GetError());
+        fprintf(stderr, "[SSGE] Failed to load audio: %s\n", Mix_GetError());
         exit(1);
     }
 
@@ -1888,7 +1895,7 @@ SSGEDECL SSGE_Audio *SSGE_get_audio(Uint32 id) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Audio not found: %d\n", id);
+    fprintf(stderr, "[SSGE] Audio not found: %d\n", id);
     exit(1);
 }
 
@@ -1906,7 +1913,7 @@ SSGEDECL SSGE_Audio *SSGE_get_audio_by_name(char *name) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Audio not found: %s\n", name);
+    fprintf(stderr, "[SSGE] Audio not found: %s\n", name);
     exit(1);
 }
 
@@ -1934,7 +1941,7 @@ SSGEDECL void SSGE_play_audio_by_name(char *name, int channel) {
         }
         current = current->next;
     }
-    fprintf(stderr, "[ENGINE] Audio not found: %s\n", name);
+    fprintf(stderr, "[SSGE] Audio not found: %s\n", name);
     exit(1);
 }
 
