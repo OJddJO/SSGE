@@ -110,6 +110,7 @@ typedef struct _SSGE_ObjectTemplate {
     int width;
     int height;
     bool hitbox;
+    void (*destroy_data)(void *);
 } SSGE_ObjectTemplate;
 
 /**
@@ -130,6 +131,7 @@ typedef struct _SSGE_Object {
     int height;
     bool hitbox;
     void *data;
+    void (*destroy_data)(void *);
 } SSGE_Object;
 
 /**
@@ -248,7 +250,7 @@ typedef enum _SSGE_Anchor {
 
 SSGEDECL void SSGE_engine_init(const char *title, int width, int height, int fps);
 SSGEDECL void SSGE_engine_quit();
-SSGEDECL void SSGE_engine_run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SDL_Event, Game *), Game *game);
+SSGEDECL void SSGE_engine_run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SSGE_Event, Game *), Game *data);
 
 // Window functions
 
@@ -284,7 +286,7 @@ SSGEDECL void SSGE_destroy_tilemap(SSGE_Tilemap *tilemap);
 
 // Object functions
 
-SSGEDECL Uint32 SSGE_create_object(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data);
+SSGEDECL Uint32 SSGE_create_object(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data, void (*destroy_data)(void *));
 SSGEDECL Uint32 SSGE_instantiate_object(SSGE_ObjectTemplate *object_template, char *name, int x, int y, void *data);
 SSGEDECL bool SSGE_object_exists(Uint32 id);
 SSGEDECL bool SSGE_object_exists_by_name(char *name);
@@ -298,7 +300,7 @@ SSGEDECL void SSGE_destroy_all_objects();
 
 // Object template functions
 
-SSGEDECL Uint32 SSGE_create_object_template(char *name, SSGE_Texture *texture, int width, int height, bool hitbox);
+SSGEDECL Uint32 SSGE_create_object_template(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroy_data)(void *));
 SSGEDECL SSGE_ObjectTemplate *SSGE_get_template(Uint32 id);
 SSGEDECL SSGE_ObjectTemplate *SSGE_get_template_by_name(char *name);
 SSGEDECL void SSGE_destroy_object_template(Uint32 id);

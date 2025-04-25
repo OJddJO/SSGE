@@ -252,10 +252,6 @@ static void _add_texture_to_list(SSGE_Texture *texture, char *name) {
     } else {
         SSGE_TextureList *current = _texture_list;
         while (current->next != NULL) {
-            if (current->name == name) {
-                fprintf(stderr, "[ENGINE] Texture name already exists: %s\n", name);
-                exit(1);
-            }
             current = current->next;
         }
         current->next = texture_list_item;
@@ -628,10 +624,6 @@ static void _add_object_to_list(SSGE_Object *object, char *name) {
     } else {
         SSGE_ObjectList *current = _object_list;
         while (current->next != NULL) {
-            if (strcmp(current->name, name) == 0) {
-                fprintf(stderr, "[ENGINE] Object name already exists: %s\n", name);
-                exit(1);
-            }
             current = current->next;
         }
         current->next = object_list_item;
@@ -648,10 +640,11 @@ static void _add_object_to_list(SSGE_Object *object, char *name) {
  * \param height The height of the object
  * \param hitbox True if the object has a hitbox, false otherwise
  * \param data The data of the object
+ * \param destroy_data The function to destroy the data of the object
  * \return The object id
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEDECL Uint32 SSGE_create_object(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data) {
+SSGEDECL Uint32 SSGE_create_object(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data, void (*destroy_data)(void *)) {
     _assert_engine_init();
     SSGE_Object *object = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (object == NULL) {
@@ -666,6 +659,7 @@ SSGEDECL Uint32 SSGE_create_object(char *name, SSGE_Texture *texture, int x, int
     object->height = height;
     object->hitbox = hitbox;
     object->data = data;
+    object->destroy_data = destroy_data;
 
     _add_object_to_list(object, name);
 
@@ -683,7 +677,7 @@ SSGEDECL Uint32 SSGE_create_object(char *name, SSGE_Texture *texture, int x, int
  */
 SSGEDECL Uint32 SSGE_instantiate_object(SSGE_ObjectTemplate *object_template, char *name, int x, int y, void *data) {
     _assert_engine_init();
-    return SSGE_create_object(name, object_template->texture, x, y, object_template->width, object_template->height, object_template->hitbox, data);
+    return SSGE_create_object(name, object_template->texture, x, y, object_template->width, object_template->height, object_template->hitbox, data, object_template->destroy_data);
 }
 
 /**
@@ -791,6 +785,9 @@ SSGEDECL void SSGE_destroy_object(Uint32 id) {
             } else {
                 prev->next = current->next;
             }
+            // Destroy the data bind to the object
+            if (current->object->destroy_data != NULL)
+                current->object->destroy_data(current->object->data);
             free(current->object);
             free(current->name);
             free(current);
@@ -818,6 +815,9 @@ SSGEDECL void SSGE_destroy_object_by_name(char *name) {
             } else {
                 prev->next = current->next;
             }
+            // Destroy the data bind to the object
+            if (current->object->destroy_data != NULL)
+                current->object->destroy_data(current->object->data);
             free(current->object);
             free(current->name);
             free(current);
@@ -835,6 +835,9 @@ SSGEDECL void SSGE_destroy_all_objects() {
     SSGE_ObjectList *current = _object_list;
     while (current != NULL) {
         SSGE_ObjectList *next = current->next;
+        // Destroy the data bind to the object
+        if (current->object->destroy_data != NULL)
+            current->object->destroy_data(current->object->data);
         free(current->object);
         free(current->name);
         free(current);
@@ -876,10 +879,6 @@ static void _add_object_template_to_list(SSGE_ObjectTemplate *template, char *na
     } else {
         SSGE_ObjectTemplateList *current = _object_template_list;
         while (current->next != NULL) {
-            if (strcmp(current->name, name) == 0) {
-                fprintf(stderr, "[ENGINE] Object template name already exists: %s\n", name);
-                exit(1);
-            }
             current = current->next;
         }
         current->next = object_template_list_item;
@@ -893,10 +892,11 @@ static void _add_object_template_to_list(SSGE_ObjectTemplate *template, char *na
  * \param width The width of the object template
  * \param height The height of the object template
  * \param hitbox True if objects created from this template have a hitbox, false otherwise
+ * \param destroy_data The function to destroy the data of the object
  * \return The object template id
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEDECL Uint32 SSGE_create_object_template(char *name, SSGE_Texture *texture, int width, int height, bool hitbox) {
+SSGEDECL Uint32 SSGE_create_object_template(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroy_data)(void *)) {
     _assert_engine_init();
     SSGE_ObjectTemplate *object_template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (object_template == NULL) {
@@ -907,6 +907,7 @@ SSGEDECL Uint32 SSGE_create_object_template(char *name, SSGE_Texture *texture, i
     object_template->width = width;
     object_template->height = height;
     object_template->hitbox = hitbox;
+    object_template->destroy_data = destroy_data;
 
     // Add object template to object template list
     _add_object_template_to_list(object_template, name);
