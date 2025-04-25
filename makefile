@@ -7,7 +7,7 @@ OBJ				= $(subst src,build,$(patsubst %.c, %.o, $(SRC)))
 
 INCLUDE			= -I ./include
 LIB				= -L lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-EXTRA			= -Werror -O3
+EXTRA			= -Werror -Wall -O3
 
 all: create_dirs static dll
 

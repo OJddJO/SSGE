@@ -2,7 +2,7 @@
 
 static void update(Game *game);
 static void draw(Game *game);
-static void event_handler(SDL_Event event, Game *game);
+static void event_handler(SSGE_Event event, Game *game);
 
 static void create_hitboxes();
 
@@ -23,7 +23,7 @@ int main(int argc, char *argv[]) {
     SSGE_window_resizable(false);
     SSGE_window_fullscreen(false);
     SSGE_set_manual_update(true);
-    SSGE_set_background_color((Color){23, 15, 71, 255});
+    SSGE_set_background_color((SSGE_Color){23, 15, 71, 255});
 
     // Create the game structure
     Game *game = (Game *)malloc(sizeof(Game));
@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 static void create_hitboxes() {
     for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 3; j++) {
-            char name[10];
+            char name[30];
             sprintf(name, "hitbox_%d_%d", i, j);
             SSGE_create_hitbox(name, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
@@ -85,18 +85,18 @@ void draw(Game *game) {
     if (game->winner == 0) {
         //draw grid
         for (int i = 0; i < 4; i++) {
-            SSGE_draw_line_thick(0, i * TILE_SIZE, WIN_W, i * TILE_SIZE, (Color){66, 50, 166, 255}, 5);
+            SSGE_draw_line_thick(0, i * TILE_SIZE, WIN_W, i * TILE_SIZE, (SSGE_Color){66, 50, 166, 255}, 5);
         }
         for (int i = 0; i < 4; i++) {
-            SSGE_draw_line_thick(i * TILE_SIZE, 0, i * TILE_SIZE, WIN_H, (Color){66, 50, 166, 255}, 5);
+            SSGE_draw_line_thick(i * TILE_SIZE, 0, i * TILE_SIZE, WIN_H, (SSGE_Color){66, 50, 166, 255}, 5);
         }
         //draw X and O
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (game->matrix[i][j] == 1) {
-                    SSGE_draw_text("font_64", "X", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (Color){255, 255, 255, 255}, CENTER);
+                    SSGE_draw_text("font_64", "X", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, CENTER);
                 } else if (game->matrix[i][j] == 2) {
-                    SSGE_draw_text("font_64", "O", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (Color){255, 255, 255, 255}, CENTER);
+                    SSGE_draw_text("font_64", "O", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, CENTER);
                 }
             }
         }
@@ -109,7 +109,7 @@ void draw(Game *game) {
             sprintf(text, "Player %d wins!", game->winner);
             SSGE_play_audio_by_name("win", -1);
         }
-        SSGE_draw_text("font_32", text, WIN_W / 2, WIN_H / 2, (Color){255, 255, 255, 255}, CENTER);
+        SSGE_draw_text("font_32", text, WIN_W / 2, WIN_H / 2, (SSGE_Color){255, 255, 255, 255}, CENTER);
     }
 }
 
@@ -118,7 +118,7 @@ void draw(Game *game) {
  * \param event The SDL event
  * \param game The game structure
  */
-void event_handler(SDL_Event event, Game *game) {
+void event_handler(SSGE_Event event, Game *game) {
     switch (event.type) {
         case SDL_MOUSEBUTTONDOWN: // handle mouse click
             if (game->winner == 0) { // if the game is not over
@@ -127,7 +127,7 @@ void event_handler(SDL_Event event, Game *game) {
                 SSGE_get_mouse_position(&x, &y);
                 int i = x / TILE_SIZE;
                 int j = y / TILE_SIZE;
-                char name[10];
+                char name[30];
 
                 // check if an hitbox is clicked
                 sprintf(name, "hitbox_%d_%d", i, j);
