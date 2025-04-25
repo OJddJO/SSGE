@@ -1,27 +1,31 @@
-EXE		    = ./bin/example
-SRC         = $(wildcard src/*.c)
-OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
+STATIC_BUILD	= ./lib/libSSGE.a
+DLL_BUILD		= ./bin/SSGE.dll
+IMPLIB_BUILD	= ./lib/libSSGE.dll.a
 
-DBG         = # debug flags
+SRC				= $(wildcard src/*.c)
+OBJ				= $(subst src,build,$(patsubst %.c, %.o, $(SRC)))
 
-INCLUDE     = -I ./include
-LIB         = -L lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-EXTRA       = -Werror -O3
-STATIC      = # for static linking
+INCLUDE			= -I ./include
+LIB				= -L lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
+EXTRA			= -Werror -O3
 
-all: create_dirs link
+all: create_dirs static dll
 
 remake: clean all
 
 clean:
-	erase $(subst build/, build\, $(OBJ))
+	rm -f $(OBJ)
 
 create_dirs:
 	if not exist bin mkdir bin
 	if not exist build mkdir build
+	if not exist lib mkdir lib
 
 build/%.o: src/%.c
-	gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(DBG) $(EXTRA)
+	gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(EXTRA)
 
-link: $(OBJ)
-	gcc $(OBJ) -o $(EXE) $(LIB) $(STATIC) $(DBG) $(EXTRA)
+static: $(OBJ)
+	ar rcs $(STATIC_BUILD) $(OBJ)
+
+dll: $(OBJ)
+	gcc -shared -o $(DLL_BUILD) $(OBJ) $(LIB) -Wl,--out-implib,$(IMPLIB_BUILD)
