@@ -9,15 +9,12 @@ EXTRA       = -Werror -Wall -O3
 
 all: setup create_dirs link
 
-remake: clean all
+remake: clean cleanSetup all
 
 setup:
-	erase /f include\SSGE.h
-	erase /f bin\SSGE.dll
-	erase /f /q lib
-	copy ..\include\SSGE.h .\include\SSGE.h
-	copy ..\bin\SSGE.dll .\bin\SSGE.dll
-	copy ..\lib .\lib
+	xcopy /q /y ..\bin\SSGE.dll .\bin\SSGE.dll
+	xcopy /q /y ..\include .\include
+	xcopy /q /y ..\lib .\lib
 
 clean:
 	erase $(subst build/, build\, $(OBJ))

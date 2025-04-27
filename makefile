@@ -13,6 +13,9 @@ all: create_dirs static dll
 
 remake: clean all
 
+build/%.o: src/%.c
+	gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(EXTRA)
+
 clean:
 	rm -f $(OBJ)
 
@@ -20,9 +23,6 @@ create_dirs:
 	if not exist bin mkdir bin
 	if not exist build mkdir build
 	if not exist lib mkdir lib
-
-build/%.o: src/%.c
-	gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(EXTRA)
 
 static: $(OBJ)
 	ar rcs $(STATIC_BUILD) $(OBJ)

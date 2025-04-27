@@ -1,7 +1,7 @@
 #ifndef __GAME_H__
 #define __GAME_H__
 
-#include "SSGE.h"
+#include "SSGE/SSGE.h"
 
 #define FPS 60
 #define TILE_SIZE 128
