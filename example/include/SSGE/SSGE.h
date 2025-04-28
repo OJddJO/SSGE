@@ -1,18 +1,14 @@
 #ifndef __SSGE_H__
 #define __SSGE_H__
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
-#include <time.h>
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 
 #include "SSGE/SSGE_decl.h"
-#include "SDL2/SDL2_gfxPrimitives.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -55,11 +51,14 @@ typedef enum {
     SSGE_FLIP_HOR_VER    = 0x00000003    // flip horizontally and vertically
 } SSGE_Flip;
 
-// Audio structure (Mix_Chunk)
-typedef struct Mix_Chunk SSGE_Audio;
-
 // Event structure (SDL_Event)
 typedef union SDL_Event SSGE_Event;
+
+// Font structure (TTF_Font)
+typedef struct _TTF_Font SSGE_Font;
+
+// Audio structure (Mix_Chunk)
+typedef struct Mix_Chunk SSGE_Audio;
 
 
 /************************************************
@@ -209,7 +208,7 @@ typedef struct _SSGE_TextureList {
 typedef struct _SSGE_Audiolist {
     Uint64 id;
     char *name;
-    Mix_Chunk *audio;
+    SSGE_Audio *audio;
     struct _SSGE_Audiolist *next;
 } SSGE_Audiolist;
 
@@ -219,22 +218,22 @@ typedef struct _SSGE_Audiolist {
  * \param font The font
  * \param next The next font
  */
-typedef struct _SSGE_Font {
+typedef struct _SSGE_FontList {
     char *name;
-    TTF_Font *font;
-    struct _SSGE_Font *next;
-} SSGE_Font;
+    SSGE_Font *font;
+    struct _SSGE_FontList *next;
+} SSGE_FontList;
 
 typedef enum _SSGE_Anchor {
-    NW,
-    N,
-    NE,
-    W,
-    CENTER,
-    E,
-    SW,
-    S,
-    SE
+    SSGE_NW,
+    SSGE_N,
+    SSGE_NE,
+    SSGE_W,
+    SSGE_CENTER,
+    SSGE_E,
+    SSGE_SW,
+    SSGE_S,
+    SSGE_SE
 } SSGE_Anchor;
 
 /************************************************

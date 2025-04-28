@@ -12,9 +12,12 @@ all: setup create_dirs link
 remake: clean cleanSetup all
 
 setup:
-	xcopy /q /y ..\bin\SSGE.dll .\bin\SSGE.dll
-	xcopy /q /y ..\include .\include
-	xcopy /q /y ..\lib .\lib
+	erase /q .\bin\SSGE.dll
+	copy /y ..\bin\SSGE.dll .\bin\SSGE.dll
+	erase /q .\include\SSGE
+	xcopy /y /s ..\include\SSGE .\include\SSGE
+	erase /q .\lib
+	xcopy /y /s ..\lib .\lib
 
 clean:
 	erase $(subst build/, build\, $(OBJ))

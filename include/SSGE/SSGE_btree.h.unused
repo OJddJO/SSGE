@@ -5,9 +5,7 @@
 extern "C" {
 #endif
 
-#include <stdlib.h>
 #include <stdbool.h>
-#include <stdio.h>
 
 typedef struct _SSGE_BTreeNode {
     int keys[2 + 1];

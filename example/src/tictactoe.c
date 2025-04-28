@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "game.h"
 
 static void update(Game *game);
@@ -94,9 +95,9 @@ void draw(Game *game) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (game->matrix[i][j] == 1) {
-                    SSGE_DrawText("font_64", "X", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, CENTER);
+                    SSGE_DrawText("font_64", "X", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
                 } else if (game->matrix[i][j] == 2) {
-                    SSGE_DrawText("font_64", "O", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, CENTER);
+                    SSGE_DrawText("font_64", "O", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
                 }
             }
         }
@@ -109,7 +110,7 @@ void draw(Game *game) {
             sprintf(text, "Player %d wins!", game->winner);
             SSGE_PlayAudioByName("win", -1);
         }
-        SSGE_DrawText("font_32", text, WIN_W / 2, WIN_H / 2, (SSGE_Color){255, 255, 255, 255}, CENTER);
+        SSGE_DrawText("font_32", text, WIN_W / 2, WIN_H / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
     }
 }
 

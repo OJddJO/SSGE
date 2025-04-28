@@ -1,0 +1,27 @@
+#ifndef __SSGE_B_TREE_H__
+#define __SSGE_B_TREE_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include <stdbool.h>
+
+typedef struct _SSGE_BTreeNode {
+    int keys[2 + 1];
+    void *values[2 + 1];
+    struct _SSGE_BTreeNode *parent;
+    struct _SSGE_BTreeNode *children[3 + 1];
+    int nbKeys;
+    bool isLeaf;
+} SSGE_BTreeNode, *SSGE_BTree;
+
+SSGE_BTree *SSGE_BTree_Create();
+void SSGE_BTree_Insert(SSGE_BTree *tree, int key, void *value);
+void *SSGE_BTree_Remove(SSGE_BTree *tree, int key);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif // __SSGE_B_TREE_H__

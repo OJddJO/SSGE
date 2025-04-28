@@ -1,4 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "SSGE/SSGE.h"
+#include "SDL2/SDL2_gfxPrimitives.h"
 
 static SSGE_Engine *_engine = NULL;
 static Uint64 _object_count = 0;
@@ -9,7 +13,7 @@ static Uint64 _texture_count = 0;
 static SSGE_TextureList *_texture_list = NULL;
 static Uint64 _audio_count = 0;
 static SSGE_Audiolist *_audio_list = NULL;
-static SSGE_Font *_font = NULL;
+static SSGE_FontList *_font = NULL;
 static SSGE_Event _event;
 static SSGE_Color _color = {0, 0, 0, 255};
 static SSGE_Color _clear_color = {0, 0, 0, 255};
@@ -1618,7 +1622,7 @@ SSGEDECL void SSGE_GetHoveredObjectsIds(Uint64 ids[], int size) {
  */
 SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name) {
     _assert_engine_init();
-    TTF_Font *font = TTF_OpenFont(filename, size);
+    SSGE_Font *font = TTF_OpenFont(filename, size);
     if (font == NULL) {
         fprintf(stderr, "[SSGE] Failed to load font: %s\n", TTF_GetError());
         exit(1);
@@ -1630,7 +1634,7 @@ SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name) {
     }
     strcpy(name_alloc, name);
 
-    SSGE_Font *font_struct = (SSGE_Font *)malloc(sizeof(SSGE_Font));
+    SSGE_FontList *font_struct = (SSGE_FontList *)malloc(sizeof(SSGE_FontList));
     if (font_struct == NULL) {
         fprintf(stderr, "[SSGE] Failed to allocate memory for font\n");
         exit(1);
@@ -1643,7 +1647,7 @@ SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name) {
     if (_font == NULL) {
         _font = font_struct;
     } else {
-        SSGE_Font *current = _font;
+        SSGE_FontList *current = _font;
         while (current->next != NULL) {
             current = current->next;
         }
@@ -1651,8 +1655,8 @@ SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name) {
     }
 }
 
-static SSGE_Font *_get_font(char *font_name) {
-    SSGE_Font *current = _font;
+static SSGE_FontList *_get_font(char *font_name) {
+    SSGE_FontList *current = _font;
     while (current != NULL) {
         if (strcmp(current->name, font_name) == 0) {
             return current;
@@ -1682,7 +1686,7 @@ SSGEDECL void SSGE_DrawText(char *font_name, char *text, int x, int y, SSGE_Colo
         exit(1);
     }
 
-    SSGE_Font *font_struct = _get_font(font_name);
+    SSGE_FontList *font_struct = _get_font(font_name);
     SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
     if (surface == NULL) {
         fprintf(stderr, "[SSGE] Failed to render text: %s\n", TTF_GetError());
@@ -1697,33 +1701,33 @@ SSGEDECL void SSGE_DrawText(char *font_name, char *text, int x, int y, SSGE_Colo
 
     SDL_Rect rect = {x, y, surface->w, surface->h};
     switch (anchor) {
-        case NW:
+        case SSGE_NW:
             break;
-        case N:
+        case SSGE_N:
             rect.x -= surface->w / 2;
             break;
-        case NE:
+        case SSGE_NE:
             rect.x -= surface->w;
             break;
-        case W:
+        case SSGE_W:
             rect.y -= surface->h / 2;
             break;
-        case CENTER:
+        case SSGE_CENTER:
             rect.x -= surface->w / 2;
             rect.y -= surface->h / 2;
             break;
-        case E:
+        case SSGE_E:
             rect.x -= surface->w;
             rect.y -= surface->h / 2;
             break;
-        case SW:
+        case SSGE_SW:
             rect.y -= surface->h;
             break;
-        case S:
+        case SSGE_S:
             rect.x -= surface->w / 2;
             rect.y -= surface->h;
             break;
-        case SE:
+        case SSGE_SE:
             rect.x -= surface->w;
             rect.y -= surface->h;
             break;
@@ -1752,7 +1756,7 @@ SSGEDECL Uint64 SSGE_CreateText(char *font_name, char *text, SSGE_Color color, c
     SDL_Texture *texture;
 
     if (color.a != 0) {
-        SSGE_Font *font_struct = _get_font(font_name);
+        SSGE_FontList *font_struct = _get_font(font_name);
         SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
         if (surface == NULL) {
             fprintf(stderr, "[SSGE] Failed to render text: %s\n", TTF_GetError());
@@ -1780,8 +1784,8 @@ SSGEDECL Uint64 SSGE_CreateText(char *font_name, char *text, SSGE_Color color, c
  */
 SSGEDECL void SSGE_CloseFont(char *name) {
     _assert_engine_init();
-    SSGE_Font *current = _font;
-    SSGE_Font *prev = NULL;
+    SSGE_FontList *current = _font;
+    SSGE_FontList *prev = NULL;
     while (current != NULL) {
         if (strcmp(current->name, name) == 0) {
             if (prev == NULL) {
@@ -1808,9 +1812,9 @@ SSGEDECL void SSGE_CloseAllFonts() {
         return;
     }
     
-    SSGE_Font *current = _font;
+    SSGE_FontList *current = _font;
     while (current != NULL) {
-        SSGE_Font *next = current->next;
+        SSGE_FontList *next = current->next;
         TTF_CloseFont(current->font);
         free(current->name);
         free(current);
@@ -1828,7 +1832,7 @@ SSGEDECL void SSGE_CloseAllFonts() {
  * \param audio The audio to add
  * \param name The name of the audio
  */
-static void _add_audio_to_list(Mix_Chunk *audio, char *name) {
+static void _add_audio_to_list(SSGE_Audio *audio, char *name) {
     char *sound_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (sound_name == NULL) {
         fprintf(stderr, "[SSGE] Failed to allocate memory for audio name\n");

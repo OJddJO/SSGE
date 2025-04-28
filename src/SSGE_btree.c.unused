@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include "SSGE_btree.h"
 
 static SSGE_BTreeNode *SSGE_BTree_CreateNode() {
@@ -98,6 +99,53 @@ void SSGE_BTree_Insert(SSGE_BTree *tree, int key, void *value) {
     _btree_insert(tree, root, key, value);
 }
 
+static int _btree_find_predecessor(SSGE_BTreeNode *node) {
+}
+
+static int _btree_find_successor(SSGE_BTreeNode *node) {
+}
+
+static void _btree_merge_nodes(SSGE_BTreeNode *parent, int index) {
+}
+
+void *_btree_remove_from_leaf(SSGE_BTreeNode *node, int index) {
+    // Remove the key and value from the leaf node
+    void *value = node->values[index];
+    for (int j = index; j < node->nbKeys - 1; ++j) {
+        node->keys[j] = node->keys[j + 1];
+        node->values[j] = node->values[j + 1];
+    }
+    --node->nbKeys;
+    return value;
+}
+
+void *_btree_remove(SSGE_BTree *tree, SSGE_BTreeNode *node, int key) {
+    // Find the key in the leaf node
+    int i = 0;
+    while (i < node->nbKeys && key != node->keys[i]) {
+        ++i;
+    }
+
+    if (i >= node->nbKeys) {
+        if (node->isLeaf) return NULL;
+        else {
+            // Key not found in the current node, search in the child
+            int j = 0;
+            while (j < node->nbKeys && key > node->keys[j]) {
+                ++j;
+            }
+            return _btree_remove(tree, node->children[j], key);
+        }
+    }
+
+    // Key found in the current node
+    if (node->isLeaf) {
+        return _btree_remove_from_leaf(node, key);
+    } else {
+
+    }
+}
+
 /**
  * Remove a key from a B-Tree
  * \param tree The B-Tree to remove the key from
@@ -105,5 +153,4 @@ void SSGE_BTree_Insert(SSGE_BTree *tree, int key, void *value) {
  * \return The pointer to the value associated with the key
  */
 void *SSGE_BTree_Remove(SSGE_BTree *tree, int key) {
-    
 }
