@@ -6,13 +6,9 @@
 #include "SDL2/SDL2_gfxPrimitives.h"
 
 static SSGE_Engine *_engine = NULL;
-static Uint32 _object_count = 0;
 static SSGE_Array *_object_list = NULL;
-static Uint32 _object_template_count = 0;
 static SSGE_Array*_object_template_list = NULL;
-static Uint32 _texture_count = 0;
 static SSGE_Array *_texture_list = NULL;
-static Uint32 _audio_count = 0;
 static SSGE_Array *_audio_list = NULL;
 static SSGE_Array *_font = NULL;
 static SSGE_Event _event;
@@ -124,7 +120,7 @@ SSGEDECL void SSGE_Quit() {
 SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SSGE_Event, Game *), Game *data) {
     _assert_engine_init();
 
-    Uint32 frameStart;
+    uint32_t frameStart;
     int frameTime;
 
     while (_engine->isRunning) {
@@ -233,34 +229,15 @@ SSGEDECL void SSGE_ManualUpdate() {
  * \param texture The texture to add
  * \param name The name of the texture
  */
-static void _add_texture_to_list(SSGE_Texture *texture, char *name) {
-    char *texture_name = (char *)malloc(sizeof(char) * strlen(name) + 1);
-    if (texture_name == NULL) {
+static uint32_t _add_texture_to_list(SSGE_Texture *texture, char *name) {
+    texture->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (texture->name == NULL) {
         fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for texture name\n");
         exit(1);
     }
-    strcpy(texture_name, name);
+    strcpy(texture->name, name);
 
-    SSGE_TextureList *texture_list_item = (SSGE_TextureList *)malloc(sizeof(SSGE_TextureList));
-    if (texture_list_item == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for texture list item\n");
-        exit(1);
-    }
-
-    texture_list_item->id = ++_texture_count;
-    texture_list_item->texture = texture;
-    texture_list_item->name = texture_name;
-    texture_list_item->next = NULL;
-
-    if (_texture_list == NULL) {
-        _texture_list = texture_list_item;
-    } else {
-        SSGE_TextureList *current = _texture_list;
-        while (current->next != NULL) {
-            current = current->next;
-        }
-        current->next = texture_list_item;
-    }
+    return SSGE_Array_Add(_texture_list, texture);
 }
 
 /**
@@ -270,20 +247,29 @@ static void _add_texture_to_list(SSGE_Texture *texture, char *name) {
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name or its id
  */
-SSGEDECL Uint32 SSGE_LoadTexture(char *filename, char *name) {
+SSGEDECL uint32_t SSGE_LoadTexture(char *filename, char *name) {
     _assert_engine_init();
 
     // Load texture
-    SSGE_Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
+    SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
+    if (texture == NULL) {
+        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for texture");
+        exit(1);
+    }
+    texture->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (texture->name == NULL) {
+        fprintf(stderr, "[SSGE][CORE] Failed to allcoate memory for texture name");
+        exit(1);
+    }
+    strcpy(texture->name, name);
+    texture->texture = IMG_LoadTexture(_engine->renderer, filename);
     if (texture == NULL) {
         fprintf(stderr, "[SSGE][ENGINE] Failed to load image: %s\n", IMG_GetError());
         exit(1);
     }
 
     // Add texture to texture list
-    _add_texture_to_list(texture, name);
-
-    return _texture_count;
+    return _add_texture_to_list(texture, name);;
 }
 
 /**
@@ -291,17 +277,18 @@ SSGEDECL Uint32 SSGE_LoadTexture(char *filename, char *name) {
  * \param id The id of the texture
  * \return The texture
  */
-SSGEDECL SSGE_Texture *SSGE_GetTexture(Uint32 id) {
+SSGEDECL SSGE_Texture *SSGE_GetTexture(uint32_t id) {
     _assert_engine_init();
-    SSGE_TextureList *current = _texture_list;
-    while (current != NULL) {
-        if (current->id == id) {
-            return current->texture;
-        }
-        current = current->next;
+    SSGE_Texture *ptr = SSGE_Array_Get(_texture_list, id);
+    if (ptr == NULL) {
+        fprintf(stderr, "[SSGE][ENGINE] Texture not found: %u\n", id);
+        exit(1);
     }
-    fprintf(stderr, "[SSGE][ENGINE] Texture not found: %u\n", id);
-    exit(1);
+    return ptr;
+}
+
+static bool _find_texture_name(void *ptr, void *name) {
+    return strcmp(((SSGE_Texture *)ptr)->name, (char *)name) == 0 ? 1 : 0;
 }
 
 /**
@@ -311,15 +298,12 @@ SSGEDECL SSGE_Texture *SSGE_GetTexture(Uint32 id) {
  */
 SSGEDECL SSGE_Texture *SSGE_GetTextureByName(char *name) {
     _assert_engine_init();
-    SSGE_TextureList *current = _texture_list;
-    while (current != NULL) {
-        if (strcmp(current->name, name) == 0) {
-            return current->texture;
-        }
-        current = current->next;
+    SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(_texture_list, _find_texture_name, name);
+    if (ptr == NULL) {
+        fprintf(stderr, "[SSGE][ENGINE] Texture not found: %s\n", name);
+        exit(1);
     }
-    fprintf(stderr, "[SSGE][ENGINE] Texture not found: %s\n", name);
-    exit(1);
+    return ptr;
 }
 
 /**
@@ -333,7 +317,7 @@ SSGEDECL SSGE_Texture *SSGE_GetTextureByName(char *name) {
 SSGEDECL void SSGE_DrawTexture(SSGE_Texture *texture, int x, int y, int width, int height) {
     _assert_engine_init();
     SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
+    SDL_RenderCopy(_engine->renderer, texture->texture, NULL, &rect);
 }
 
 /**
@@ -350,7 +334,7 @@ SSGEDECL void SSGE_DrawTexture(SSGE_Texture *texture, int x, int y, int width, i
 SSGEDECL void SSGE_DrawTextureEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip) {
     _assert_engine_init();
     SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopyEx(_engine->renderer, texture, NULL, &rect, angle, center, (SDL_RendererFlip)flip);
+    SDL_RenderCopyEx(_engine->renderer, texture->texture, NULL, &rect, angle, center, (SDL_RendererFlip)flip);
 }
 
 /**
@@ -363,7 +347,7 @@ SSGEDECL void SSGE_DrawTextureEx(SSGE_Texture *texture, int x, int y, int width,
  */
 SSGEDECL void SSGE_DrawTextureFromPath(char *filename, int x, int y, int width, int height) {
     _assert_engine_init();
-    SSGE_Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
+    SDL_Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
 
     SDL_Rect rect = {x, y, width, height};
     SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
@@ -375,27 +359,20 @@ SSGEDECL void SSGE_DrawTextureFromPath(char *filename, int x, int y, int width, 
  * Destroys a texture
  * \param id The id of the texture
  */
-SSGEDECL void SSGE_DestroyTexture(Uint32 id) {
+SSGEDECL void SSGE_DestroyTexture(uint32_t id) {
     _assert_engine_init();
-    SSGE_TextureList *current = _texture_list;
-    SSGE_TextureList *prev = NULL;
-    while (current != NULL) {
-        if (current->id == id) {
-            if (prev == NULL) {
-                _texture_list = current->next;
-            } else {
-                prev->next = current->next;
-            }
-            SDL_DestroyTexture(current->texture);
-            free(current->name);
-            free(current);
-            return;
-        }
-        prev = current;
-        current = current->next;
+    SSGE_Texture *texture = SSGE_Array_Pop(_texture_list, id);
+    if (texture == NULL) {
+        fprintf(stderr, "[SSGE][ENGINE] Texture not found: %u\n", id);
+        exit(1);
     }
-    fprintf(stderr, "[SSGE][ENGINE] Texture not found: %u\n", id);
-    exit(1);
+    SDL_DestroyTexture(texture->texture);
+    free(texture->name);
+}
+
+static void *_destroy_texture(void *texture) {
+    SDL_DestroyTexture(((SSGE_Texture *)texture)->texture);
+    free(((SSGE_Texture *)texture)->name);
 }
 
 /**
@@ -404,25 +381,13 @@ SSGEDECL void SSGE_DestroyTexture(Uint32 id) {
  */
 SSGEDECL void SSGE_DestroyTextureByName(char *name) {
     _assert_engine_init();
-    SSGE_TextureList *current = _texture_list;
-    SSGE_TextureList *prev = NULL;
-    while (current != NULL) {
-        if (strcmp(current->name, name) == 0) {
-            if (prev == NULL) {
-                _texture_list = current->next;
-            } else {
-                prev->next = current->next;
-            }
-            SDL_DestroyTexture(current->texture);
-            free(current->name);
-            free(current);
-            return;
-        }
-        prev = current;
-        current = current->next;
+    SSGE_Texture *texture = SSGE_Array_FindPop(_texture_list, _find_texture_name, name);
+    if (texture == NULL) {
+        fprintf(stderr, "[SSGE][ENGINE] Texture not found: %s\n", name);
+        exit(1);
     }
-    fprintf(stderr, "[SSGE][ENGINE] Texture not found: %s\n", name);
-    exit(1);
+    SDL_DestroyTexture(texture->texture);
+    free(texture->name);
 }
 
 /**
@@ -430,15 +395,8 @@ SSGEDECL void SSGE_DestroyTextureByName(char *name) {
  */
 SSGEDECL void SSGE_DestroyAllTextures() {
     _assert_engine_init();
-    SSGE_TextureList *current = _texture_list;
-    while (current != NULL) {
-        SSGE_TextureList *next = current->next;
-        SDL_DestroyTexture(current->texture);
-        free(current->name);
-        free(current);
-        current = next;
-    }
-    _texture_list = NULL;
+    SSGE_Array_Destroy(_texture_list, _destroy_texture);
+    _texture_list = SSGE_Array_Create();
 }
 
 /***********************************************
@@ -515,18 +473,17 @@ SSGEDECL SSGE_Tile *SSGE_GetTile(SSGE_Tilemap *tilemap, int tile_row, int tile_c
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL Uint32 SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int tile_row, int tile_col) {
+SSGEDECL uint32_t SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int tile_row, int tile_col) {
     _assert_engine_init();
     SSGE_Tile *tile = SSGE_GetTile(tilemap, tile_row, tile_col);
-    SSGE_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tilemap->tile_width, tilemap->tile_height);
+    SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
+    texture->texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tilemap->tile_width, tilemap->tile_height);
     SDL_SetRenderTarget(_engine->renderer, texture);
     SSGE_DrawTile(tile, 0, 0);
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SSGE_DestroyTile(tile);
 
-    _add_texture_to_list(texture, name);
-
-    return _texture_count;
+    return _add_texture_to_list(texture, name);
 }
 
 /**
@@ -649,7 +606,7 @@ static void _add_object_to_list(SSGE_Object *object, char *name) {
  * \return The object id
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEDECL Uint32 SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data, void (*destroy_data)(void *)) {
+SSGEDECL uint32_t SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data, void (*destroy_data)(void *)) {
     _assert_engine_init();
     SSGE_Object *object = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (object == NULL) {
@@ -680,7 +637,7 @@ SSGEDECL Uint32 SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, int 
  * \return The object id
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEDECL Uint32 SSGE_InstantiateObject(SSGE_ObjectTemplate *object_template, char *name, int x, int y, void *data) {
+SSGEDECL uint32_t SSGE_InstantiateObject(SSGE_ObjectTemplate *object_template, char *name, int x, int y, void *data) {
     _assert_engine_init();
     return SSGE_CreateObject(name, object_template->texture, x, y, object_template->width, object_template->height, object_template->hitbox, data, object_template->destroy_data);
 }
@@ -690,7 +647,7 @@ SSGEDECL Uint32 SSGE_InstantiateObject(SSGE_ObjectTemplate *object_template, cha
  * \param id The id of the object
  * \return True if the object exists, false otherwise
  */
-SSGEDECL bool SSGE_ObjectExists(Uint32 id) {
+SSGEDECL bool SSGE_ObjectExists(uint32_t id) {
     _assert_engine_init();
     SSGE_ObjectList *current = _object_list;
     while (current != NULL) {
@@ -744,7 +701,7 @@ SSGEDECL void SSGE_ChangeObjectTexture(SSGE_Object *object, SSGE_Texture *textur
  * \param id The id of the object
  * \return The object
  */
-SSGEDECL SSGE_Object *SSGE_GetObject(Uint32 id) {
+SSGEDECL SSGE_Object *SSGE_GetObject(uint32_t id) {
     _assert_engine_init();
     SSGE_ObjectList *current = _object_list;
     while (current != NULL) {
@@ -779,7 +736,7 @@ SSGEDECL SSGE_Object *SSGE_GetObjectByName(char *name) {
  * Destroys an object by id
  * \param id The id of the object
  */
-SSGEDECL void SSGE_DestroyObject(Uint32 id) {
+SSGEDECL void SSGE_DestroyObject(uint32_t id) {
     _assert_engine_init();
     SSGE_ObjectList *current = _object_list;
     SSGE_ObjectList *prev = NULL;
@@ -901,7 +858,7 @@ static void _add_object_template_to_list(SSGE_ObjectTemplate *template, char *na
  * \return The object template id
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEDECL Uint32 SSGE_CreateObjectTemplate(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroy_data)(void *)) {
+SSGEDECL uint32_t SSGE_CreateObjectTemplate(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroy_data)(void *)) {
     _assert_engine_init();
     SSGE_ObjectTemplate *object_template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (object_template == NULL) {
@@ -925,7 +882,7 @@ SSGEDECL Uint32 SSGE_CreateObjectTemplate(char *name, SSGE_Texture *texture, int
  * \param id The id of the object template
  * \return The object template
  */
-SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplate(Uint32 id) {
+SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplate(uint32_t id) {
     _assert_engine_init();
     SSGE_ObjectTemplateList *current = _object_template_list;
     while (current != NULL) {
@@ -960,7 +917,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplateByName(char *name) {
  * Destroys an object template by id
  * \param id The id of the object template
  */
-SSGEDECL void SSGE_DestroyObjectTemplate(Uint32 id) {
+SSGEDECL void SSGE_DestroyObjectTemplate(uint32_t id) {
     _assert_engine_init();
     SSGE_ObjectTemplateList *current = _object_template_list;
     SSGE_ObjectTemplateList *prev = NULL;
@@ -1040,7 +997,7 @@ SSGEDECL void SSGE_DestroyAllTemplates() {
  * \note The hitbox is stored internally as an object and can be accessed by its name or its id
  * \warning The hitbox must be destroyed at the exit of the program, as texture
  */
-SSGEDECL Uint32 SSGE_CreateHitbox(char *name, int x, int y, int width, int height) {
+SSGEDECL uint32_t SSGE_CreateHitbox(char *name, int x, int y, int width, int height) {
     _assert_engine_init();
     SSGE_Object *new_hitbox = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (new_hitbox == NULL) {
@@ -1267,7 +1224,7 @@ SSGEDECL void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y) {
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL Uint32 SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SSGE_Color color) {
+SSGEDECL uint32_t SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SSGE_Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     if (texture == NULL) {
@@ -1300,7 +1257,7 @@ SSGEDECL Uint32 SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SSGE
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL Uint32 SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SSGE_Color color) {
+SSGEDECL uint32_t SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SSGE_Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     if (texture == NULL) {
@@ -1332,7 +1289,7 @@ SSGEDECL Uint32 SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SSGE
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL Uint32 SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_Color color) {
+SSGEDECL uint32_t SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     if (texture == NULL) {
@@ -1365,7 +1322,7 @@ SSGEDECL Uint32 SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_Col
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL Uint32 SSGE_CreateEllipse(char *name, int x, int y, int rx, int ry, SSGE_Color color) {
+SSGEDECL uint32_t SSGE_CreateEllipse(char *name, int x, int y, int rx, int ry, SSGE_Color color) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     if (texture == NULL) {
@@ -1399,7 +1356,7 @@ SSGEDECL Uint32 SSGE_CreateEllipse(char *name, int x, int y, int rx, int ry, SSG
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL Uint32 SSGE_CreateLineThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
+SSGEDECL uint32_t SSGE_CreateLineThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     if (texture == NULL) {
@@ -1433,7 +1390,7 @@ SSGEDECL Uint32 SSGE_CreateLineThick(char *name, int x1, int y1, int x2, int y2,
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL Uint32 SSGE_CreateRectThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
+SSGEDECL uint32_t SSGE_CreateRectThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);    
     if (texture == NULL) {
@@ -1468,7 +1425,7 @@ SSGEDECL Uint32 SSGE_CreateRectThick(char *name, int x1, int y1, int x2, int y2,
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL Uint32 SSGE_CreateCircleThick(char *name, int x, int y, int radius, SSGE_Color color, int thickness) {
+SSGEDECL uint32_t SSGE_CreateCircleThick(char *name, int x, int y, int radius, SSGE_Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     if (texture == NULL) {
@@ -1502,7 +1459,7 @@ SSGEDECL Uint32 SSGE_CreateCircleThick(char *name, int x, int y, int radius, SSG
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL Uint32 SSGE_CreateEllipseThick(char *name, int x, int y, int rx, int ry, SSGE_Color color, int thickness) {
+SSGEDECL uint32_t SSGE_CreateEllipseThick(char *name, int x, int y, int rx, int ry, SSGE_Color color, int thickness) {
     _assert_engine_init();
     SDL_Texture *texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     if (texture == NULL) {
@@ -1628,7 +1585,7 @@ SSGEDECL void SSGE_GetHoveredObjects(SSGE_Object *objects[], int size) {
  * \param ids The array to store the hovered objects ids
  * \param size The size of the array
  */
-SSGEDECL void SSGE_GetHoveredObjectsIds(Uint32 ids[], int size) {
+SSGEDECL void SSGE_GetHoveredObjectsIds(uint32_t ids[], int size) {
     _assert_engine_init();
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -1779,7 +1736,7 @@ SSGEDECL void SSGE_DrawText(char *font_name, char *text, int x, int y, SSGE_Colo
  * \param color The color of the text
  * \param texture_name The name of the texture
  */
-SSGEDECL Uint32 SSGE_CreateText(char *font_name, char *text, SSGE_Color color, char *texture_name) {
+SSGEDECL uint32_t SSGE_CreateText(char *font_name, char *text, SSGE_Color color, char *texture_name) {
     _assert_engine_init();
     if (_font == NULL) {
         fprintf(stderr, "[SSGE][ENGINE] No font loaded\n");
@@ -1901,7 +1858,7 @@ static void _add_audio_to_list(SSGE_Audio *audio, char *name) {
  * \param name The name of the audio
  * \return The audio
  */
-SSGEDECL Uint32 SSGE_LoadAudio(char *filename, char *name) {
+SSGEDECL uint32_t SSGE_LoadAudio(char *filename, char *name) {
     _assert_engine_init();
     SSGE_Audio *audio = Mix_LoadWAV(filename);
     if (audio == NULL) {
@@ -1919,7 +1876,7 @@ SSGEDECL Uint32 SSGE_LoadAudio(char *filename, char *name) {
  * \param id The id of the audio
  * \return The audio
  */
-SSGEDECL SSGE_Audio *SSGE_GetAudio(Uint32 id) {
+SSGEDECL SSGE_Audio *SSGE_GetAudio(uint32_t id) {
     _assert_engine_init();
     SSGE_Audiolist *current = _audio_list;
     while (current != NULL) {
@@ -2000,7 +1957,7 @@ SSGEDECL void SSGE_StopAudio(int channel) {
  * Closes an audio by id
  * \param id The id of the audio
  */
-SSGEDECL void SSGE_CloseAudio(Uint32 id) {
+SSGEDECL void SSGE_CloseAudio(uint32_t id) {
     _assert_engine_init();
     SSGE_Audiolist *current = _audio_list;
     SSGE_Audiolist *prev = NULL;

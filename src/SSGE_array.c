@@ -57,15 +57,10 @@ uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
  */
 void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
     if (idx >= array->size) {
-        fprintf(stderr, "[SSGE][CORE] Invalid index (idx > size)");
+        fprintf(stderr, "[SSGE][CORE] Invalid index");
         exit(1);
     }
-    void *ret = array->array[idx];
-    if (ret == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Invalid index (NULL)");
-        exit(1);
-    }
-    return ret;
+    return array->array[idx];
 }
 
 /**
@@ -75,8 +70,12 @@ void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
  * \param destroyData The function to destroy the element to remove from the array
  */
 void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *)) {
-    if (idx >= array->count || array->array[idx] == NULL) {
+    if (idx >= array->count) {
         fprintf(stderr, "[SSGE][CORE] Index out of bound");
+        exit(1);
+    }
+    if (array->array[idx] == NULL) {
+        fprintf(stderr, "[SSGE][CORE] Invalid index");
         exit(1);
     }
 
@@ -103,7 +102,7 @@ void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void
  * \return The pointer to the popped element
  */
 void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
-    if (idx >= array->count || array->array[idx] == NULL) {
+    if (idx >= array->count) {
         fprintf(stderr, "[SSGE][CORE] Index out of bound");
         exit(1);
     }
@@ -123,4 +122,64 @@ void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
     }
     array->indexes[array->idxCount++] = idx;
     return element;
+}
+
+/**
+ * Finds an element from an array with a condition
+ * \param array The array to find the element from
+ * \param condition The condition to find the element. Must be `bool condition(void *element, void *argument)`
+ * \param argument The argument to pass to the condition function
+ * \return The pointer to the first element that matches the condition, or NULL if not found
+ */
+void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
+    uint32_t i = 0, count = 0;
+    while (count < array->count || count >= array->size) {
+        void *element = array->array[i++];
+
+        if (element == NULL) continue;
+        if (condition(element, argument)) return element;
+
+        count++;
+    }
+    return NULL;
+}
+
+/**
+ * Finds an element from array with a condition and pops it
+ * \param array The array to find and pop the element from
+ * \param condition The condition to find the element. Must be `bool condition(void *element, void *argument)`
+ * \param argument The argument to pass to the condition function
+ * \return The pointer to the first element that matches the condition, or NULL if not found
+ */
+void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
+    uint32_t i = 0, count = 0;
+    while (count < array->count || count >= array->size) {
+        void *element = array->array[i++];
+
+        if (element == NULL) continue;
+        if (condition(element, argument)) return SSGE_Array_Pop(array, i);
+
+        ++count;
+    }
+    return NULL;
+}
+
+/**
+ * Destroys an array
+ * \param array The array to destroy
+ * \param destroyData The function to destroy the elements of the array
+ */
+void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *)) {
+    uint32_t i = 0, count = 0;
+    while (count < array->count || count >= array->size) {
+        void *element = array->array[i++];
+
+        if (element == NULL) continue;
+        destroyData(element);
+
+        ++count;
+    }
+    free(array->array);
+    free(array->indexes);
+    free(array);
 }

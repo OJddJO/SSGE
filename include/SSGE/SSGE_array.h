@@ -18,6 +18,8 @@ uint32_t SSGE_Array_Add(SSGE_Array *array, void *element);
 void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx);
 void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *));
 void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx);
-void *SSGE_Array_Find(SSGE_Array * array, void *element, bool (*condition)(void *));
+void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *argument);
+void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *argument);
+void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *));
 
 #endif // __SSGE_ARRAY_H__
