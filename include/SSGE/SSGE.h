@@ -156,74 +156,6 @@ typedef struct _SSGE_Tile {
     int col;
 } SSGE_Tile;
 
-/**
- * Object template list structure
- * \param id The id of the object template list item
- * \param name The name of the object template
- * \param object_template The object template
- * \param next The next object template list item
- */
-typedef struct _SSGE_ObjectTemplateList {
-    Uint32 id;
-    char *name;
-    SSGE_ObjectTemplate *object_template;
-    struct _SSGE_ObjectTemplateList *next;
-} SSGE_ObjectTemplateList;
-
-/**
- * Object list structure
- * \param id The id of the object list item
- * \param name The name of the object
- * \param object The object
- * \param next The next object list item
- */
-typedef struct _SSGE_ObjectList {
-    Uint32 id;
-    char *name;
-    SSGE_Object *object;
-    struct _SSGE_ObjectList *next;
-} SSGE_ObjectList;
-
-/**
- * Texture list structure
- * \param id The id of the texture list item
- * \param name The name of the texture
- * \param texture The texture
- * \param next The next texture list item
- */
-typedef struct _SSGE_TextureList {
-    Uint32 id;
-    char *name;
-    SSGE_Texture *texture;
-    struct _SSGE_TextureList *next;
-} SSGE_TextureList;
-
-/**
- * Audio list structure
- * \param id The id of the audio list item
- * \param name The name of the audio
- * \param audio The audio
- * \param next The next audio list item
- */
-typedef struct _SSGE_Audiolist {
-    Uint32 id;
-    char *name;
-    SSGE_Audio *audio;
-    struct _SSGE_Audiolist *next;
-} SSGE_Audiolist;
-
-/**
- * Font structure
- * \param name The name of the font
- * \param font The font
- * \param next The next font
- */
-typedef struct _SSGE_FontList {
-    char *name;
-    SSGE_Font *font;
-    struct _SSGE_FontList *next;
-} SSGE_FontList;
-
 typedef enum _SSGE_Anchor {
     SSGE_NW,
     SSGE_N,
@@ -240,9 +172,9 @@ typedef enum _SSGE_Anchor {
  * SSGE Functions
  ************************************************/
 
-SSGEDECL void SSGE_EngineInit(const char *title, int width, int height, int fps);
-SSGEDECL void SSGE_EngineQuit();
-SSGEDECL void SSGE_EngineRun(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SSGE_Event, Game *), Game *data);
+SSGEDECL void SSGE_Init(const char *title, int width, int height, int fps);
+SSGEDECL void SSGE_Quit();
+SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SSGE_Event, Game *), Game *data);
 
 // Window functions
 

@@ -2,6 +2,7 @@
 #define __SSGE_ARRAY_H__
 
 #include <stdint.h>
+#include <stdbool.h>
 
 typedef struct _SSGE_Array {
     void **array; // Pointer to the array of pointers
@@ -17,5 +18,6 @@ uint32_t SSGE_Array_Add(SSGE_Array *array, void *element);
 void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx);
 void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *));
 void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx);
+void *SSGE_Array_Find(SSGE_Array * array, void *element, bool (*condition)(void *));
 
 #endif // __SSGE_ARRAY_H__

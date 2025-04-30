@@ -2,18 +2,19 @@
 #include <stdlib.h>
 
 #include "SSGE/SSGE.h"
+#include "SSGE/SSGE_array.h"
 #include "SDL2/SDL2_gfxPrimitives.h"
 
 static SSGE_Engine *_engine = NULL;
 static Uint32 _object_count = 0;
-static SSGE_ObjectList *_object_list = NULL;
+static SSGE_Array *_object_list = NULL;
 static Uint32 _object_template_count = 0;
-static SSGE_ObjectTemplateList *_object_template_list = NULL;
+static SSGE_Array*_object_template_list = NULL;
 static Uint32 _texture_count = 0;
-static SSGE_TextureList *_texture_list = NULL;
+static SSGE_Array *_texture_list = NULL;
 static Uint32 _audio_count = 0;
-static SSGE_Audiolist *_audio_list = NULL;
-static SSGE_FontList *_font = NULL;
+static SSGE_Array *_audio_list = NULL;
+static SSGE_Array *_font = NULL;
 static SSGE_Event _event;
 static SSGE_Color _color = {0, 0, 0, 255};
 static SSGE_Color _clear_color = {0, 0, 0, 255};
@@ -38,7 +39,7 @@ static void _assert_engine_init() {
  * \param height The height of the window
  * \param fps The frames per second
  */
-SSGEDECL void SSGE_EngineInit(const char *title, int width, int height, int fps) {
+SSGEDECL void SSGE_Init(const char *title, int width, int height, int fps) {
     if (_engine != NULL) {
         fprintf(stderr, "[SSGE][CORE] Engine already initialized\n");
         exit(1);
@@ -101,7 +102,7 @@ SSGEDECL void SSGE_EngineInit(const char *title, int width, int height, int fps)
  * \warning You must free them manually, using the destroy functions
  * \note This function must be called at the end of the program
  */
-SSGEDECL void SSGE_EngineQuit() {
+SSGEDECL void SSGE_Quit() {
     _assert_engine_init();
     SDL_DestroyRenderer(_engine->renderer);
     SDL_DestroyWindow(_engine->window);
@@ -120,7 +121,7 @@ SSGEDECL void SSGE_EngineQuit() {
  * \warning The engine runs in an infinite loop until the window is closed
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
  */
-SSGEDECL void SSGE_EngineRun(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SSGE_Event, Game *), Game *data) {
+SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SSGE_Event, Game *), Game *data) {
     _assert_engine_init();
 
     Uint32 frameStart;
@@ -203,7 +204,7 @@ SSGEDECL void SSGE_WindowFullscreen(bool fullscreen) {
 /**
  * Sets the manual update mode
  * \param manual_update True if the manual update mode should be enabled, false otherwise
- * \note This function should be called before the `SSGE_EngineRun` function
+ * \note This function should be called before the `SSGE_Run` function
  * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `SSGE_ManualUpdate` function is called.
  * \note Setting the manual update mode may be more efficient when the screen does not need to be updated every frame
  */
