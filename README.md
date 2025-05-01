@@ -13,10 +13,10 @@ SSGE is a simple game engine written in C. It is designed to be used with the SD
 
 ## Usage
 To use the engine, download the release and copy the files into your project. You will need to link against `SDL2` and `SSGE` libraries.
-See [`makefile`](./example/makefile)
+See [`example/makefile`](./example/makefile)
 
 ## Example
-See the [`example.c`](./example/src/tictactoe.c) and [`game.c`](./example/src/game.c) files for an example of how to use the engine.
+See the [`example/src/tictactoe.c`](./example/src/tictactoe.c) and [`example/src/game.c`](./example/src/game.c) files for an example of how to use the engine.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
