@@ -946,7 +946,7 @@ int _aalineRGBA(SDL_Renderer *renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 
 	Sint32 xx0, yy0, xx1, yy1;
 	int result;
 	Uint32 intshift, erracc, erradj;
-	Uint32 erracctmp, wgt, wgtcompmask;
+	Uint32 erracctmp, wgt;
 	int dx, dy, tmp, xdir, y0p1, x0pxdir;
 
 	/*
@@ -1056,11 +1056,6 @@ int _aalineRGBA(SDL_Renderer *renderer, Sint16 x1, Sint16 y1, Sint16 x2, Sint16 
 	 * # of bits by which to shift erracc to get intensity level
 	 */
 	intshift = 32 - AAbits;
-
-	/*
-	 * Mask used to flip all bits in an intensity weighting
-	 */
-	wgtcompmask = AAlevels - 1;
 
 	/*
 	 * Draw the initial pixel in the foreground color
@@ -2754,7 +2749,6 @@ int polygonRGBA(SDL_Renderer *renderer, const Sint16 *vx, const Sint16 *vy, int 
 	 * Draw
 	 */
 	int result;
-	const Sint16 *x1, *y1, *x2, *y2;
 
 	/*
 	 * Vertex array NULL check
@@ -2775,14 +2769,6 @@ int polygonRGBA(SDL_Renderer *renderer, const Sint16 *vx, const Sint16 *vy, int 
 	{
 		return (-1);
 	}
-
-	/*
-	 * Pointer setup
-	 */
-	x1 = x2 = vx;
-	y1 = y2 = vy;
-	x2++;
-	y2++;
 
 	/*
 	 * Set color

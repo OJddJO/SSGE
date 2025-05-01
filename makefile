@@ -17,7 +17,7 @@ build/%.o: src/%.c
 	gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(EXTRA)
 
 clean:
-	rm -f $(OBJ)
+	erase /q $(subst /,\,$(OBJ))
 
 create_dirs:
 	if not exist bin mkdir bin

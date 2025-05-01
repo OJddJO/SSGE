@@ -6,6 +6,10 @@
 
 #include "SSGE/SSGE_decl.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _SSGE_Array {
     void **array; // Pointer to the array of pointers
     uint32_t size; // Size of the array
@@ -23,5 +27,9 @@ SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx);
 SSGEDECL void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *argument);
 SSGEDECL void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *argument);
 SSGEDECL void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *));
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // __SSGE_ARRAY_H__
