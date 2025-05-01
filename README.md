@@ -10,6 +10,7 @@ SSGE is a simple game engine written in C. It is made on top of the [`SDL2`](htt
 - Tilemap support
 - Audio support
 - Font and text rendering
+- ... and more
 
 ## Usage
 To use the engine, download the release and copy the files into your project. You will need to link against `SDL2` and `SSGE` libraries.
