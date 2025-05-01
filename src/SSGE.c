@@ -28,6 +28,7 @@ static void _destroy_texture(void *ptr) {
     SSGE_Texture *texture = (SSGE_Texture *)ptr;
     SDL_DestroyTexture(texture->texture);
     free(texture->name);
+    free(texture);
 }
 
 static void _destroy_object(void *ptr) {
@@ -414,6 +415,7 @@ SSGEDECL void SSGE_DestroyTexture(uint32_t id) {
     }
     SDL_DestroyTexture(texture->texture);
     free(texture->name);
+    free(texture);
 }
 
 /**
@@ -429,6 +431,7 @@ SSGEDECL void SSGE_DestroyTextureByName(char *name) {
     }
     SDL_DestroyTexture(texture->texture);
     free(texture->name);
+    free(texture);
 }
 
 /**

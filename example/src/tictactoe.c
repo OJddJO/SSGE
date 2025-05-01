@@ -126,15 +126,13 @@ void event_handler(SSGE_Event event, Game *game) {
 
                 // check if a hitbox is clicked
                 SSGE_Object *hitbox = SSGE_GetHoveredObject();
-                if (hitbox != NULL) {
+                if (hitbox != NULL && game->matrix[i][j] == 0) {
                     // play the click sound
                     SSGE_PlayAudioByName("click", -1);
                     // update the game datas
                     game->matrix[i][j] = game->current_player;
                     game->current_player = game->current_player == 1 ? 2 : 1;
                     game->turn++;
-                    // destroy the hitbox to prevent further clicks
-                    SSGE_DestroyObject(hitbox->id);
                     // update the game
                     SSGE_ManualUpdate(); // note that we used SSGE_SetManualUpdate(true) in the main function
                 }
