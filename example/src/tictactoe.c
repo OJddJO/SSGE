@@ -9,7 +9,7 @@ static void create_hitboxes();
 
 int main(int argc, char *argv[]) {
     // Initialize the engine
-    SSGE_EngineInit("TicTacToe", WIN_W, WIN_H, FPS);
+    SSGE_Init("TicTacToe", WIN_W, WIN_H, FPS);
     // Load fonts with sizes 32 and 64
     SSGE_LoadFont("assets/font.ttf", 32, "font_32");
     SSGE_LoadFont("assets/font.ttf", 64, "font_64");
@@ -40,15 +40,10 @@ int main(int argc, char *argv[]) {
 
     // Run the engine
     SSGE_PlayAudioByName("start", -1);
-    SSGE_EngineRun(update, draw, event_handler, game);
+    SSGE_Run(update, draw, event_handler, game);
 
     // Quit the engine
-    SSGE_DestroyAllObjects();
-    SSGE_DestroyAllTextures();
-    SSGE_DestroyAllTemplates();
-    SSGE_CloseAllAudios();
-    SSGE_CloseAllFonts();
-    SSGE_EngineQuit();
+    SSGE_Quit();
 
     // Free the game structure
     free(game);
@@ -128,11 +123,10 @@ void event_handler(SSGE_Event event, Game *game) {
                 SSGE_GetMousePosition(&x, &y);
                 int i = x / TILE_SIZE;
                 int j = y / TILE_SIZE;
-                char name[30];
 
-                // check if an hitbox is clicked
-                sprintf(name, "hitbox_%d_%d", i, j);
-                if (SSGE_ObjectIsHoveredByName(name)) { // if the hitbox is clicked
+                // check if a hitbox is clicked
+                SSGE_Object *hitbox = SSGE_GetHoveredObject();
+                if (hitbox != NULL) {
                     // play the click sound
                     SSGE_PlayAudioByName("click", -1);
                     // update the game datas
@@ -140,7 +134,7 @@ void event_handler(SSGE_Event event, Game *game) {
                     game->current_player = game->current_player == 1 ? 2 : 1;
                     game->turn++;
                     // destroy the hitbox to prevent further clicks
-                    SSGE_DestroyObjectByName(name);
+                    SSGE_DestroyObject(hitbox->id);
                     // update the game
                     SSGE_ManualUpdate(); // note that we used SSGE_SetManualUpdate(true) in the main function
                 }

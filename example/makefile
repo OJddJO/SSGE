@@ -2,14 +2,14 @@ EXE		    = ./bin/tictactoe
 SRC         = $(wildcard src/*.c)
 OBJ         = $(subst src, build, $(patsubst %.c, %.o, $(SRC)))
 
-INCLUDE     = -I ./include # *.h files in ./include
+INCLUDE     = -I ./include # *.h files in ./include and ../include
 SSGE_LIB	= -L lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSSGE # must include when using SSGE
 LIB         = -L lib -lmingw32 # other libraries
 EXTRA       = -Werror -Wall -O3
 
 all: setup create_dirs link
 
-remake: clean cleanSetup all
+remake: clean all
 
 setup:
 	erase /q .\bin\SSGE.dll
@@ -28,6 +28,5 @@ create_dirs:
 
 build/%.o: src/%.c
 	gcc $(INCLUDE) -c src/$*.c -o build/$*.o $(DBG) $(EXTRA)
-
 link: $(OBJ)
 	gcc $(OBJ) -o $(EXE) $(LIB) $(SSGE_LIB) $(DBG) $(EXTRA)

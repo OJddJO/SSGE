@@ -2,6 +2,7 @@
 #define __SSGE_H__
 
 #include <stdbool.h>
+#include <stdint.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -17,10 +18,6 @@ extern "C" {
 /************************************************
  * SDL Structures
  ************************************************/
-
-// Texture structure (SDL_Texture)
-typedef struct SDL_Texture SSGE_Texture;
-
 /**
  * Color structure (SDL_Color)
  * \param r `Uint8` The red component of the color
@@ -54,12 +51,6 @@ typedef enum {
 // Event structure (SDL_Event)
 typedef union SDL_Event SSGE_Event;
 
-// Font structure (TTF_Font)
-typedef struct _TTF_Font SSGE_Font;
-
-// Audio structure (Mix_Chunk)
-typedef struct Mix_Chunk SSGE_Audio;
-
 
 /************************************************
  * Prototypes
@@ -91,22 +82,40 @@ typedef struct _SSGE_Engine {
 } SSGE_Engine;
 
 /**
+ * Texture structure
+ * \param id The id of the texture
+ * \param name The name of the texture
+ * \param texture The SDL_Texture
+ */
+typedef struct _SSGE_Texture {
+    uint32_t id;
+    char *name;
+    SDL_Texture *texture;
+} SSGE_Texture;
+
+/**
  * Object template structure
- * \param texture The filename of the texture
+ * \param id The id of the template
+ * \param name The name of the template
+ * \param texture The texture for the template
  * \param width The width of the object
  * \param height The height of the object
  * \param hitbox If objects created from this template have a hitbox
  */
 typedef struct _SSGE_ObjectTemplate {
+    uint32_t id;
+    char *name;
     SSGE_Texture *texture;
     int width;
     int height;
     bool hitbox;
-    void (*destroy_data)(void *);
+    void (*destroyData)(void *);
 } SSGE_ObjectTemplate;
 
 /**
  * Object structure
+ * \param id The id of the object
+ * \param name The name of the object
  * \param texture The texture of the object
  * \param x The x position of the object
  * \param y The y position of the object
@@ -116,32 +125,34 @@ typedef struct _SSGE_ObjectTemplate {
  * \param data The data of the object
  */
 typedef struct _SSGE_Object {
-    SSGE_Texture *texture;
+    uint32_t id;
+    char *name;
+    SDL_Texture *texture;
     int x;
     int y;
     int width;
     int height;
     bool hitbox;
     void *data;
-    void (*destroy_data)(void *);
+    void (*destroyData)(void *);
 } SSGE_Object;
 
 /**
  * Tilemap structure
  * \param texture The texture of the tilemap
- * \param tile_width The width of the tiles
- * \param tile_height The height of the tiles
+ * \param tileWidth The width of the tiles
+ * \param tileHeight The height of the tiles
  * \param spacing The spacing between the tiles
- * \param nb_rows The number of rows in the tilemap
- * \param nb_cols The number of columns in the tilemap
+ * \param nbRows The number of rows in the tilemap
+ * \param nbCols The number of columns in the tilemap
  */
 typedef struct _SSGE_Tilemap {
-    SSGE_Texture *texture;
-    int tile_width;
-    int tile_height;
+    SDL_Texture *texture;
+    int tileWidth;
+    int tileHeight;
     int spacing;
-    int nb_rows;
-    int nb_cols;
+    int nbRows;
+    int nbCols;
 } SSGE_Tilemap;
 
 /**
@@ -157,72 +168,25 @@ typedef struct _SSGE_Tile {
 } SSGE_Tile;
 
 /**
- * Object template list structure
- * \param id The id of the object template list item
- * \param name The name of the object template
- * \param object_template The object template
- * \param next The next object template list item
- */
-typedef struct _SSGE_ObjectTemplateList {
-    Uint64 id;
-    char *name;
-    SSGE_ObjectTemplate *object_template;
-    struct _SSGE_ObjectTemplateList *next;
-} SSGE_ObjectTemplateList;
-
-/**
- * Object list structure
- * \param id The id of the object list item
- * \param name The name of the object
- * \param object The object
- * \param next The next object list item
- */
-typedef struct _SSGE_ObjectList {
-    Uint64 id;
-    char *name;
-    SSGE_Object *object;
-    struct _SSGE_ObjectList *next;
-} SSGE_ObjectList;
-
-/**
- * Texture list structure
- * \param id The id of the texture list item
- * \param name The name of the texture
- * \param texture The texture
- * \param next The next texture list item
- */
-typedef struct _SSGE_TextureList {
-    Uint64 id;
-    char *name;
-    SSGE_Texture *texture;
-    struct _SSGE_TextureList *next;
-} SSGE_TextureList;
-
-/**
- * Audio list structure
- * \param id The id of the audio list item
- * \param name The name of the audio
- * \param audio The audio
- * \param next The next audio list item
- */
-typedef struct _SSGE_Audiolist {
-    Uint64 id;
-    char *name;
-    SSGE_Audio *audio;
-    struct _SSGE_Audiolist *next;
-} SSGE_Audiolist;
-
-/**
  * Font structure
  * \param name The name of the font
- * \param font The font
- * \param next The next font
+ * \param font The TTF_Font 
  */
-typedef struct _SSGE_FontList {
+typedef struct _SSGE_Font {
     char *name;
-    SSGE_Font *font;
-    struct _SSGE_FontList *next;
-} SSGE_FontList;
+    TTF_Font *font;
+} SSGE_Font;
+
+/**
+ * Audio structure
+ * \param name The name of the audio
+ * \param audio The Mix_Chunk
+ */
+typedef struct _SSGE_Audio {
+    uint32_t id;
+    char *name;
+    Mix_Chunk *audio;
+} SSGE_Audio;
 
 typedef enum _SSGE_Anchor {
     SSGE_NW,
@@ -240,9 +204,9 @@ typedef enum _SSGE_Anchor {
  * SSGE Functions
  ************************************************/
 
-SSGEDECL void SSGE_EngineInit(const char *title, int width, int height, int fps);
-SSGEDECL void SSGE_EngineQuit();
-SSGEDECL void SSGE_EngineRun(void (*update)(Game *), void (*draw)(Game *), void (*event_handler)(SSGE_Event, Game *), Game *data);
+SSGEDECL void SSGE_Init(char *title, int width, int height, int fps);
+SSGEDECL void SSGE_Quit();
+SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*eventHandler)(SSGE_Event, Game *), Game *data);
 
 // Window functions
 
@@ -250,58 +214,58 @@ SSGEDECL void SSGE_SetWindowTitle(char *title);
 SSGEDECL void SSGE_SetWindowIcon(char *filename);
 SSGEDECL void SSGE_WindowResizable(bool resizable);
 SSGEDECL void SSGE_WindowFullscreen(bool fullscreen);
-SSGEDECL void SSGE_SetManualUpdate(bool manual_update);
+SSGEDECL void SSGE_SetManualUpdate(bool manualUpdate);
 SSGEDECL void SSGE_ManualUpdate();
 
 // Texture functions
 
-SSGEDECL Uint64 SSGE_LoadTexture(char *filename, char *name);
-SSGEDECL SSGE_Texture *SSGE_GetTexture(Uint64 id);
+SSGEDECL uint32_t SSGE_LoadTexture(char *filename, char *name);
+SSGEDECL SSGE_Texture *SSGE_GetTexture(uint32_t id);
 SSGEDECL SSGE_Texture *SSGE_GetTextureByName(char *name);
 SSGEDECL void SSGE_DrawTexture(SSGE_Texture *texture, int x, int y, int width, int height);
 SSGEDECL void SSGE_DrawTextureEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip);
 SSGEDECL void SSGE_DrawTextureFromPath(char *filename, int x, int y, int width, int height);
-SSGEDECL void SSGE_DestroyTexture(Uint64 id);
+SSGEDECL void SSGE_DestroyTexture(uint32_t id);
 SSGEDECL void SSGE_DestroyTextureByName(char *name);
 SSGEDECL void SSGE_DestroyAllTextures();
 
 // Tilemap functions
 
-SSGEDECL SSGE_Tilemap *SSGE_LoadTilemap(char *filename, int tile_width, int tile_height, int spacing, int nb_rows, int nb_cols);
-SSGEDECL SSGE_Tile *SSGE_GetTile(SSGE_Tilemap *tilemap, int tile_row, int tile_col);
-SSGEDECL Uint64 SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int tile_row, int tile_col);
+SSGEDECL SSGE_Tilemap *SSGE_LoadTilemap(char *filename, int tileWidth, int tileHeight, int spacing, int nbRows, int nbCols);
+SSGEDECL SSGE_Tile *SSGE_GetTile(SSGE_Tilemap *tilemap, int tileRow, int tileCol);
+SSGEDECL uint32_t SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int tileRow, int tileCol);
 SSGEDECL void SSGE_DrawTile(SSGE_Tile *tile, int x, int y);
 SSGEDECL void SSGE_DrawTileWithSize(SSGE_Tile *tile, int x, int y, int width, int height);
-SSGEDECL void SSGE_DrawTileFromTilemap(SSGE_Tilemap *tilemap, int tile_row, int tile_col, int x, int y);
+SSGEDECL void SSGE_DrawTileFromTilemap(SSGE_Tilemap *tilemap, int tileRow, int tileCol, int x, int y);
 SSGEDECL void SSGE_DestroyTile(SSGE_Tile *tile);
 SSGEDECL void SSGE_DestroyTilemap(SSGE_Tilemap *tilemap);
 
 // Object functions
 
-SSGEDECL Uint64 SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data, void (*destroy_data)(void *));
-SSGEDECL Uint64 SSGE_InstantiateObject(SSGE_ObjectTemplate *object_template, char *name, int x, int y, void *data);
-SSGEDECL bool SSGE_ObjectExists(Uint64 id);
+SSGEDECL uint32_t SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *));
+SSGEDECL uint32_t SSGE_InstantiateObject(SSGE_ObjectTemplate *template, char *name, int x, int y, void *data);
+SSGEDECL bool SSGE_ObjectExists(uint32_t id);
 SSGEDECL bool SSGE_ObjectExistsByName(char *name);
 SSGEDECL void SSGE_DrawObject(SSGE_Object *object);
 SSGEDECL void SSGE_ChangeObjectTexture(SSGE_Object *object, SSGE_Texture *texture);
-SSGEDECL SSGE_Object *SSGE_GetObject(Uint64 id);
+SSGEDECL SSGE_Object *SSGE_GetObject(uint32_t id);
 SSGEDECL SSGE_Object *SSGE_GetObjectByName(char *name);
-SSGEDECL void SSGE_DestroyObject(Uint64 id);
+SSGEDECL void SSGE_DestroyObject(uint32_t id);
 SSGEDECL void SSGE_DestroyObjectByName(char *name);
 SSGEDECL void SSGE_DestroyAllObjects();
 
 // Object template functions
 
-SSGEDECL Uint64 SSGE_CreateObjectTemplate(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroy_data)(void *));
-SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplate(Uint64 id);
+SSGEDECL uint32_t SSGE_CreateObjectTemplate(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroyData)(void *));
+SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplate(uint32_t id);
 SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplateByName(char *name);
-SSGEDECL void SSGE_DestroyObjectTemplate(Uint64 id);
+SSGEDECL void SSGE_DestroyObjectTemplate(uint32_t id);
 SSGEDECL void SSGE_DestroyObjectTemplateByName(char *name);
 SSGEDECL void SSGE_DestroyAllTemplates();
 
 // Hitbox functions
 
-SSGEDECL Uint64 SSGE_CreateHitbox(char *name, int x, int y, int width, int height);
+SSGEDECL uint32_t SSGE_CreateHitbox(char *name, int x, int y, int width, int height);
 SSGEDECL bool SSGE_HitboxIsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2);
 
 // Geometry functions
@@ -322,15 +286,15 @@ SSGEDECL void SSGE_FillEllipse(int x, int y, int rx, int ry, SSGE_Color color);
 
 SSGEDECL void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y);
 
-SSGEDECL Uint64 SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SSGE_Color color);
-SSGEDECL Uint64 SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SSGE_Color color);
-SSGEDECL Uint64 SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_Color color);
-SSGEDECL Uint64 SSGE_CreateEllipse(char *name, int x, int y, int rx, int ry, SSGE_Color color);
+SSGEDECL uint32_t SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SSGE_Color color);
+SSGEDECL uint32_t SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SSGE_Color color);
+SSGEDECL uint32_t SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_Color color);
+SSGEDECL uint32_t SSGE_CreateEllipse(char *name, int x, int y, int rx, int ry, SSGE_Color color);
 
-SSGEDECL Uint64 SSGE_CreateLineThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
-SSGEDECL Uint64 SSGE_CreateRectThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
-SSGEDECL Uint64 SSGE_CreateCircleThick(char *name, int x, int y, int radius, SSGE_Color color, int thickness);
-SSGEDECL Uint64 SSGE_CreateEllipseThick(char *name, int x, int y, int rx, int ry, SSGE_Color color, int thickness);
+SSGEDECL uint32_t SSGE_CreateLineThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
+SSGEDECL uint32_t SSGE_CreateRectThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
+SSGEDECL uint32_t SSGE_CreateCircleThick(char *name, int x, int y, int radius, SSGE_Color color, int thickness);
+SSGEDECL uint32_t SSGE_CreateEllipseThick(char *name, int x, int y, int rx, int ry, SSGE_Color color, int thickness);
 
 // Utility functions
 
@@ -340,30 +304,27 @@ SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color);
 // Event functions
 
 SSGEDECL void SSGE_GetMousePosition(int *x, int *y);
-SSGEDECL bool SSGE_AnyKeyPressed();
 SSGEDECL bool SSGE_ObjectIsHovered(SSGE_Object *object);
-SSGEDECL bool SSGE_ObjectIsHoveredByName(char *name);
-SSGEDECL void SSGE_GetHoveredObjects(SSGE_Object *objects[], int size);
-SSGEDECL void SSGE_GetHoveredObjectsIds(Uint64 ids[], int size);
+SSGEDECL SSGE_Object *SSGE_GetHoveredObject();
+SSGEDECL uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size);
 
 // Text functions
 
 SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name);
-SSGEDECL void SSGE_DrawText(char *font_name, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor);
-SSGEDECL Uint64 SSGE_CreateText(char *font_name, char *text, SSGE_Color color, char *texture_name);
+SSGEDECL void SSGE_DrawText(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor);
+SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, char *textureName);
 SSGEDECL void SSGE_CloseFont(char *name);
 SSGEDECL void SSGE_CloseAllFonts();
 
 // Audio functions
 
-SSGEDECL Uint64 SSGE_LoadAudio(char *filename, char *name);
-SSGEDECL SSGE_Audio *SSGE_GetAudio(Uint64 id);
-SSGEDECL SSGE_Audio *SSGE_GetAudioByName(char *name);
-SSGEDECL void SSGE_PlayAudio(SSGE_Audio *audio, int channel);
+SSGEDECL uint32_t SSGE_LoadAudio(char *filename, char *name);
+SSGEDECL void SSGE_PlayAudio(uint32_t id, int channel);
 SSGEDECL void SSGE_PlayAudioByName(char *name, int channel);
+SSGEDECL void SSGE_ResumeAudio(int channel);
 SSGEDECL void SSGE_PauseAudio(int channel);
 SSGEDECL void SSGE_StopAudio(int channel);
-SSGEDECL void SSGE_CloseAudio(Uint64 id);
+SSGEDECL void SSGE_CloseAudio(uint32_t id);
 SSGEDECL void SSGE_CloseAudioByName(char *name);
 SSGEDECL void SSGE_CloseAllAudios();
 

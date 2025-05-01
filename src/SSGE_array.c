@@ -11,14 +11,28 @@
  * Creates a new array
  * \return The pointer to the new array
  */
-SSGE_Array *SSGE_Array_Create() {
+SSGEDECL SSGE_Array *SSGE_Array_Create() {
     SSGE_Array *array = (SSGE_Array *)malloc(sizeof(SSGE_Array));
+    if (array == NULL) {
+        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for array\n");
+        exit(1);
+    }
     array->array = (void **)calloc(_INITIAL_SIZE, sizeof(void *));
+    if (array->array == NULL) {
+        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for array\n");
+        exit(1);
+    }
     array->size = _INITIAL_SIZE;
     array->count = 0;
     array->indexes = (uint32_t *)malloc(sizeof(uint32_t) * _IDX_PILE_INITIAL_SIZE);
+    if (array->indexes == NULL) {
+        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for array indexes pile\n");
+        exit(1);
+    }
     array->idxSize = _IDX_PILE_INITIAL_SIZE;
     array->idxCount = 0;
+
+    return array;
 }
 
 /**
@@ -26,11 +40,11 @@ SSGE_Array *SSGE_Array_Create() {
  * \param array The array to add the element to
  * \return The index of the element
  */
-uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
+SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
     if (array->size <= array->count) { // if the array is full, extend
         void **newArray = (void **)realloc(array->array, sizeof(void *) * array->size * _GROWTH_FACTOR);
         if (newArray == NULL) {
-            fprintf(stderr, "[SSGE][CORE] Failed to realloc array");
+            fprintf(stderr, "[SSGE][CORE] Failed to realloc array\n");
             exit(1);
         }
         // Set new memory to NULL
@@ -55,9 +69,9 @@ uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
  * \param idx The index of the element to get
  * \return The pointer to the element
  */
-void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
+SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
     if (idx >= array->size) {
-        fprintf(stderr, "[SSGE][CORE] Invalid index");
+        fprintf(stderr, "[SSGE][CORE] Invalid out of bound\n");
         exit(1);
     }
     return array->array[idx];
@@ -69,13 +83,13 @@ void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
  * \param idx The index of the element to remove
  * \param destroyData The function to destroy the element to remove from the array
  */
-void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *)) {
-    if (idx >= array->count) {
-        fprintf(stderr, "[SSGE][CORE] Index out of bound");
+SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *)) {
+    if (idx >= array->size) {
+        fprintf(stderr, "[SSGE][CORE] Index out of bound\n");
         exit(1);
     }
     if (array->array[idx] == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Invalid index");
+        fprintf(stderr, "[SSGE][CORE] Invalid index\n");
         exit(1);
     }
 
@@ -86,7 +100,7 @@ void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void
     if (array->idxSize <= array->idxCount) {
         uint32_t *newIndexes = (uint32_t *)realloc(array->indexes, sizeof(uint32_t) * array->idxSize * _GROWTH_FACTOR);
         if (newIndexes == NULL) {
-            fprintf(stderr, "[SSGE][CORE] Failed to realloc array indexes");
+            fprintf(stderr, "[SSGE][CORE] Failed to realloc array indexes pile\n");
             exit(1);
         }
         array->indexes = newIndexes;
@@ -101,9 +115,9 @@ void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void
  * \param idx The index of the element to pop
  * \return The pointer to the popped element
  */
-void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
-    if (idx >= array->count) {
-        fprintf(stderr, "[SSGE][CORE] Index out of bound");
+SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
+    if (idx >= array->size) {
+        fprintf(stderr, "[SSGE][CORE] Index out of bound\n");
         exit(1);
     }
 
@@ -114,7 +128,7 @@ void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
     if (array->idxSize <= array->idxCount) {
         uint32_t *newIndexes = (uint32_t *)realloc(array->indexes, sizeof(uint32_t) * array->idxSize * _GROWTH_FACTOR);
         if (newIndexes == NULL) {
-            fprintf(stderr, "[SSGE][CORE] Failed to realloc array indexes");
+            fprintf(stderr, "[SSGE][CORE] Failed to realloc array indexes pile\n");
             exit(1);
         }
         array->indexes = newIndexes;
@@ -131,7 +145,7 @@ void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
  * \param argument The argument to pass to the condition function
  * \return The pointer to the first element that matches the condition, or NULL if not found
  */
-void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
+SSGEDECL void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
     uint32_t i = 0, count = 0;
     while (count < array->count || count >= array->size) {
         void *element = array->array[i++];
@@ -151,7 +165,7 @@ void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void
  * \param argument The argument to pass to the condition function
  * \return The pointer to the first element that matches the condition, or NULL if not found
  */
-void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
+SSGEDECL void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
     uint32_t i = 0, count = 0;
     while (count < array->count || count >= array->size) {
         void *element = array->array[i++];
@@ -169,7 +183,7 @@ void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), v
  * \param array The array to destroy
  * \param destroyData The function to destroy the elements of the array
  */
-void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *)) {
+SSGEDECL void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *)) {
     uint32_t i = 0, count = 0;
     while (count < array->count || count >= array->size) {
         void *element = array->array[i++];
