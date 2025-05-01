@@ -12,7 +12,7 @@ SSGE is a simple game engine written in C. It is designed to be used with the SD
 - Simple entity system
 
 ## Usage
-To use the engine, download the release and copy the files into your project. You will need to link against SDL2 and SSGE library.
+To use the engine, download the release and copy the files into your project. You will need to link against `SDL2` and `SSGE` libraries.
 See [`makefile`](./example/makefile)
 
 ## Example
