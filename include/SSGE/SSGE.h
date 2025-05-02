@@ -14,6 +14,7 @@
 #include "SSGE/SSGE_geometry.h"
 #include "SSGE/SSGE_text.h"
 #include "SSGE/SSGE_audio.h"
+#include "SSGE/SSGE_keyboard.h"
 
 #ifdef __cplusplus
 extern "C" {

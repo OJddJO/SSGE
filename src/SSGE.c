@@ -14,7 +14,6 @@ static int _event_filter(void *userdata, SDL_Event *event) {
     switch (event->type) {
         case SSGE_FIRSTEVENT:
         case SSGE_QUIT:
-        case SSGE_DISPLAYEVENT:
         case SSGE_WINDOWEVENT:
         case SSGE_KEYDOWN:
         case SSGE_KEYUP:
