@@ -1,8 +1,6 @@
 #ifndef __SSGE_TILEMAP_H__
 #define __SSGE_TILEMAP_H__
 
-#define SSGE_WANT_FAKE_SDL2
-
 #include "SSGE/SSGE_config.h"
 #include "SSGE/SSGE_types.h"
 

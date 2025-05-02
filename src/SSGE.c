@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SSGE_WANT_SDL2
+#define SSGE_GET_SDL
 
 #include "SSGE/SSGE.h"
 #include "SSGE/SSGE_local.h"
@@ -9,6 +9,24 @@
 /***********************************************
  * Engine functions
  ***********************************************/
+
+static int _event_filter(void *userdata, SDL_Event *event) {
+    switch (event->type) {
+        case SSGE_FIRSTEVENT:
+        case SSGE_QUIT:
+        case SSGE_DISPLAYEVENT:
+        case SSGE_WINDOWEVENT:
+        case SSGE_KEYDOWN:
+        case SSGE_KEYUP:
+        case SSGE_MOUSEMOTION:
+        case SSGE_MOUSEBUTTONDOWN:
+        case SSGE_MOUSEBUTTONUP:
+        case SSGE_MOUSEWHEEL:
+            return 1;
+        default:
+            return 0;
+    }
+}
 
 /**
  * Initializes the engine
@@ -66,11 +84,7 @@ SSGEDECL void SSGE_Init(char *title, int width, int height, int fps) {
         exit(1);
     }
 
-    _event = (SSGE_Event)malloc(sizeof(SDL_Event));
-    if (_event == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for event\n");
-        exit(1);
-    }
+    SDL_SetEventFilter(_event_filter, NULL);
 
     SDL_SetRenderDrawColor(_engine->renderer, 0, 0, 0, 255);
 
@@ -99,7 +113,6 @@ SSGEDECL void SSGE_Quit() {
     SSGE_Array_Destroy(_font_list, _destroy_font);
     SSGE_Array_Destroy(_audio_list, _destroy_audio);
 
-    free(_event);
     SDL_DestroyRenderer(_engine->renderer);
     SDL_DestroyWindow(_engine->window);
     Mix_CloseAudio();
@@ -126,8 +139,8 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
     while (_engine->isRunning) {
         frameStart = SDL_GetTicks();
 
-        while (SDL_PollEvent(_event)) {
-            if (_event->type == SDL_QUIT) {
+        while (SDL_PollEvent((SDL_Event *)&_event)) {
+            if (_event.type == SDL_QUIT) {
                 _engine->isRunning = false;
             }
             if (eventHandler) eventHandler(_event, data);

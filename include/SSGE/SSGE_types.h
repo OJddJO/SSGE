@@ -1,13 +1,12 @@
 #ifndef __SSGE_TYPES_H__
 #define __SSGE_TYPES_H__
 
-#define SSGE_WANT_FAKE_SDL2
-
 #include <stdbool.h>
 #include <stdint.h>
 
 #include "SSGE/SSGE_config.h"
 #include "SSGE/SSGE_array.h"
+#include "SSGE/SSGE_events.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,8 +53,6 @@ typedef enum {
     SSGE_FLIP_VERTICAL   = 0x00000002,   // flip vertically
     SSGE_FLIP_HOR_VER    = 0x00000003    // flip horizontally and vertically
 } SSGE_Flip;
-
-typedef union SDL_Event* SSGE_Event;
 
 /************************************************
  * Prototypes

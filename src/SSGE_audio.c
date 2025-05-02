@@ -1,6 +1,6 @@
 #include <stdio.h>
 
-#define SSGE_WANT_SDL2
+#define SSGE_GET_SDL
 
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_audio.h"

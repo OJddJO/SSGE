@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "game.h"
 
 static void update(Game *game);
@@ -115,8 +116,8 @@ void draw(Game *game) {
  * \param game The game structure
  */
 void event_handler(SSGE_Event event, Game *game) {
-    switch (event->type) {
-        case SDL_MOUSEBUTTONDOWN: // handle mouse click
+    switch (event.type) {
+        case SSGE_MOUSEBUTTONDOWN: // handle mouse click
             if (game->winner == 0) { // if the game is not over
                 // get the mouse position
                 int x, y;

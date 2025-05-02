@@ -7,26 +7,12 @@
     #define SSGEDECL
 #endif
 
-#ifdef SSGE_WANT_SDL2
+#ifdef SSGE_GET_SDL
     #include <SDL2/SDL.h>
     #include <SDL2/SDL_image.h>
     #include <SDL2/SDL_ttf.h>
     #include <SDL2/SDL_mixer.h>
-#elif defined(SSGE_WANT_FAKE_SDL2)
-    typedef union SDL_Event;
-    typedef struct SDL_Window;
-    typedef struct SDL_Renderer;
-    typedef struct SDL_Texture;
-    typedef struct SDL_Surface;
-    typedef struct _TTF_Font;
-    typedef struct Mix_Chunk;
-#endif
-
-#ifdef SSGE_WANT_SDL2
-#undef SSGE_WANT_SDL2
-#endif
-#ifdef SSGE_WANT_FAKE_SDL2
-#undef SSGE_WANT_FAKE_SDL2
+    #undef SSGE_GET_SDL
 #endif
 
 #endif // __SSGE_CONFIG_H__

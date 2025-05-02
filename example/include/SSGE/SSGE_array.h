@@ -4,8 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define SSGE_WANT_FAKE_SDL2
-
 #include "SSGE/SSGE_config.h"
 
 #ifdef __cplusplus
