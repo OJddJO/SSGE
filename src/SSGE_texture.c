@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+
+#define SSGE_WANT_SDL2
 
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_texture.h"
@@ -103,7 +103,7 @@ SSGEDECL void SSGE_DrawTexture(SSGE_Texture *texture, int x, int y, int width, i
 SSGEDECL void SSGE_DrawTextureEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip) {
     _assert_engine_init();
     SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopyEx(_engine->renderer, texture->texture, NULL, &rect, angle, center, (SDL_RendererFlip)flip);
+    SDL_RenderCopyEx(_engine->renderer, texture->texture, NULL, &rect, angle, (SDL_Point *)&center, (SDL_RendererFlip)flip);
 }
 
 /**

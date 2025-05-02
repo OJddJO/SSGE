@@ -1,7 +1,9 @@
 #ifndef __SSGE_TEXT_H__
 #define __SSGE_TEXT_H__
 
-#include "SSGE/SSGE_decl.h"
+#define SSGE_WANT_FAKE_SDL2
+
+#include "SSGE/SSGE_config.h"
 #include "SSGE/SSGE_types.h"
 
 #ifdef __cplusplus

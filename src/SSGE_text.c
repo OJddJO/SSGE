@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
+
+#define SSGE_WANT_SDL2
 
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_text.h"
@@ -67,7 +67,7 @@ SSGEDECL void SSGE_DrawText(char *fontName, char *text, int x, int y, SSGE_Color
     if (color.a == 0) return;
 
     SSGE_Font *font_struct = _get_font(fontName);
-    SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
+    SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, *(SDL_Color *)&color);
     if (surface == NULL) {
         fprintf(stderr, "[SSGE][CORE] Failed to draw text: %s\n", TTF_GetError());
         exit(1);
@@ -136,7 +136,7 @@ SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, 
 
     if (color.a != 0) {
         SSGE_Font *font_struct = _get_font(fontName);
-        SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, color);
+        SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, *(SDL_Color *)&color);
         if (surface == NULL) {
             fprintf(stderr, "[SSGE][CORE] Failed to render text: %s\n", TTF_GetError());
             exit(1);

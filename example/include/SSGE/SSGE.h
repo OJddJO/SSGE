@@ -4,12 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_mixer.h>
-#include <SDL2/SDL_ttf.h>
-
-#include "SSGE/SSGE_decl.h"
+#include "SSGE/SSGE_config.h"
 #include "SSGE/SSGE_types.h"
 
 #include "SSGE/SSGE_texture.h"

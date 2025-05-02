@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
+
+#define SSGE_WANT_SDL2
 
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_audio.h"

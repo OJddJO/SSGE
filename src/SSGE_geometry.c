@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include <SDL2/SDL.h>
+
+#define SSGE_WANT_SDL2
 
 #include "SDL2/SDL2_gfxPrimitives.h"
 

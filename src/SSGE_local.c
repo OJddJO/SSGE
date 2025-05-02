@@ -11,7 +11,7 @@ SSGE_Array *_object_list = NULL;
 SSGE_Array *_object_template_list = NULL;
 SSGE_Array *_font_list = NULL;
 SSGE_Array *_audio_list = NULL;
-SSGE_Event _event;
+SSGE_Event _event = NULL;
 SSGE_Color _color = {0, 0, 0, 255};
 SSGE_Color _clear_color = {0, 0, 0, 255};
 bool _manual_update_frame = false;
