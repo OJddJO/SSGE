@@ -33,8 +33,9 @@ static int _event_filter(void *userdata, SDL_Event *event) {
  * \param width The width of the window
  * \param height The height of the window
  * \param fps The frames per second
+ * \return The engine struct
  */
-SSGEDECL void SSGE_Init(char *title, int width, int height, int fps) {
+SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
     if (_engine != NULL) {
         fprintf(stderr, "[SSGE][CORE] Engine already initialized\n");
         exit(1);
@@ -97,6 +98,8 @@ SSGEDECL void SSGE_Init(char *title, int width, int height, int fps) {
     _engine->width = width;
     _engine->height = height;
     _engine->fps = fps;
+
+    return _engine;
 }
 
 /**
