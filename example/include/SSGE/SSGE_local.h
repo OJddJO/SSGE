@@ -27,10 +27,10 @@ void _destroy_template(void *ptr);
 void _destroy_font(void *ptr);
 void _destroy_audio(void *ptr);
 
-uint32_t _add_texture_to_list(SSGE_Texture *texture, char *name);
-uint32_t _add_object_to_list(SSGE_Object *object, char *name);
-uint32_t _add_object_template_to_list(SSGE_ObjectTemplate *template, char *name);
-uint32_t _add_audio_to_list(SSGE_Audio *audio, char *name);
+uint32_t _add_texture_to_list(SSGE_Texture *texture, char *name, char *funcname);
+uint32_t _add_object_to_list(SSGE_Object *object, char *name, char *funcname);
+uint32_t _add_object_template_to_list(SSGE_ObjectTemplate *template, char *name, char *funcname);
+uint32_t _add_audio_to_list(SSGE_Audio *audio, char *name, char *funcname);
 
 #ifdef __cplusplus
 }

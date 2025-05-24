@@ -14,6 +14,7 @@
 #include "SSGE/SSGE_geometry.h"
 #include "SSGE/SSGE_text.h"
 #include "SSGE/SSGE_audio.h"
+#include "SSGE/SSGE_keyboard.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -29,8 +30,9 @@ extern "C" {
  * \param width The width of the window
  * \param height The height of the window
  * \param fps The frames per second
+ * \return The engine struct
  */
-SSGEDECL void SSGE_Init(char *title, int width, int height, int fps);
+SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps);
 
 /**
  * Quits the engine
