@@ -19,17 +19,17 @@ SSGEDECL uint32_t SSGE_LoadAudio(char *filename, char *name) {
     _assert_engine_init();
     SSGE_Audio *audio = (SSGE_Audio *)malloc(sizeof(SSGE_Audio));
     if (audio == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for audio\n");
+        fprintf(stderr, "[SSGE][SSGE_LoadAudio] Failed to allocate memory for audio\n");
         exit(1);
     }
 
     audio->audio = Mix_LoadWAV(filename);
     if (audio->audio == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Failed to load audio: %s\n", Mix_GetError());
+        fprintf(stderr, "[SSGE][SSGE_LoadAudio] Failed to load audio: %s\n", Mix_GetError());
         exit(1);
     }
 
-    return _add_audio_to_list(audio, name);
+    return _add_audio_to_list(audio, name, "SSGE_LoadAudio");
 }
 
 /**
@@ -41,12 +41,12 @@ SSGEDECL void SSGE_PlayAudio(uint32_t id, int channel) {
     _assert_engine_init();
     SSGE_Audio *audio = SSGE_Array_Get(_audio_list, id);
     if (audio == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Audio not found: %u\n", id);
+        fprintf(stderr, "[SSGE][SSGE_PlayAudio] Audio not found: %u\n", id);
         exit(1);
     }
 
     if (Mix_PlayChannel(channel, audio->audio, 0) == -1) {
-        fprintf(stderr, "[SSGE][ENGINE] Audio could not be played: %s", Mix_GetError());
+        fprintf(stderr, "[SSGE][SSGE_PlayAudio] Audio could not be played: %s", Mix_GetError());
     }
 }
 
@@ -63,12 +63,12 @@ SSGEDECL void SSGE_PlayAudioByName(char *name, int channel) {
     _assert_engine_init();
     SSGE_Audio *audio = SSGE_Array_Find(_audio_list, _find_audio_name, name);
     if (audio == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Audio not found: %s\n", name);
+        fprintf(stderr, "[SSGE][SSGE_PlayAudioByName] Audio not found: %s\n", name);
         exit(1);
     }
 
     if (Mix_PlayChannel(channel, audio->audio, 0) == -1) {
-        fprintf(stderr, "[SSGE][ENGINE] Audio could not be played: %s", Mix_GetError());
+        fprintf(stderr, "[SSGE][SSGE_PlayAudioByName] Audio could not be played: %s", Mix_GetError());
     }
 }
 
@@ -107,7 +107,7 @@ SSGEDECL void SSGE_CloseAudio(uint32_t id) {
     _assert_engine_init();
     SSGE_Audio *audio = SSGE_Array_Pop(_audio_list, id);
     if (audio == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Audio not found: %d", id);
+        fprintf(stderr, "[SSGE][SSGE_CloseAudio] Audio not found: %d", id);
         exit(1);
     }
     Mix_FreeChunk(audio->audio);
@@ -123,7 +123,7 @@ SSGEDECL void SSGE_CloseAudioByName(char *name) {
     _assert_engine_init();
     SSGE_Audio *audio = SSGE_Array_FindPop(_audio_list, _find_audio_name, name);
     if (audio == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Audio not found: %s", name);
+        fprintf(stderr, "[SSGE][SSGE_CloseAudioByName] Audio not found: %s", name);
         exit(1);
     }
     Mix_FreeChunk(audio->audio);

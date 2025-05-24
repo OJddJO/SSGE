@@ -37,50 +37,50 @@ static int _event_filter(void *userdata, SDL_Event *event) {
  */
 SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
     if (_engine != NULL) {
-        fprintf(stderr, "[SSGE][CORE] Engine already initialized\n");
+        fprintf(stderr, "[SSGE][SSGE_Init] Engine already initialized\n");
         exit(1);
     }
 
     _engine = (SSGE_Engine *)malloc(sizeof(SSGE_Engine));
     if (_engine == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for engine\n");
+        fprintf(stderr, "[SSGE][SSGE_Init] Failed to allocate memory for engine\n");
         exit(1);
     }
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        fprintf(stderr, "[SSGE][CORE] Failed to initialize SDL: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE][SSGE_Init] Failed to initialize SDL: %s\n", SDL_GetError());
         exit(1);
     }
 
     if (TTF_Init() != 0) {
-        fprintf(stderr, "[SSGE][CORE] Failed to initialize TTF: %s\n", TTF_GetError());
+        fprintf(stderr, "[SSGE][SSGE_Init] Failed to initialize TTF: %s\n", TTF_GetError());
         exit(1);
     }
 
     _engine->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     if (_engine->window == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to create window: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE][SSGE_Init] Failed to create window: %s\n", SDL_GetError());
         exit(1);
     }
 
     _engine->renderer = SDL_CreateRenderer(_engine->window, -1, SDL_RENDERER_ACCELERATED);
     if (_engine->renderer == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to create renderer: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE][SSGE_Init] Failed to create renderer: %s\n", SDL_GetError());
         exit(1);
     }
 
     if (SDL_SetRenderDrawBlendMode(_engine->renderer, SDL_BLENDMODE_BLEND) != 0) {
-        fprintf(stderr, "[SSGE][CORE] Failed to set render draw blend mode: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE][SSGE_Init] Failed to set render draw blend mode: %s\n", SDL_GetError());
         exit(1);
     }
 
     if (Mix_Init(MIX_INIT_MP3 || MIX_INIT_OGG || MIX_INIT_WAVPACK) == 0) {
-        fprintf(stderr, "[SSGE][CORE] Failed to initialize audio mixer: %s\n", Mix_GetError());
+        fprintf(stderr, "[SSGE][SSGE_Init] Failed to initialize audio mixer: %s\n", Mix_GetError());
         exit(1);
     }
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) {
-        fprintf(stderr, "[SSGE][CORE] Failed to open audio device for playback: %s\n", Mix_GetError());
+        fprintf(stderr, "[SSGE][SSGE_Init] Failed to open audio device for playback: %s\n", Mix_GetError());
         exit(1);
     }
 
@@ -187,7 +187,7 @@ SSGEDECL void SSGE_SetWindowIcon(char *filename) {
     _assert_engine_init();
     SDL_Surface *icon = IMG_Load(filename);
     if (icon == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Failed to load icon: %s\n", IMG_GetError());
+        fprintf(stderr, "[SSGE][SSGE_SetWindowIcon] Failed to load icon: %s\n", IMG_GetError());
         exit(1);
     }
     SDL_SetWindowIcon(_engine->window, icon);

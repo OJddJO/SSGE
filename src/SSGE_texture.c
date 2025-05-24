@@ -22,23 +22,23 @@ SSGEDECL uint32_t SSGE_LoadTexture(char *filename, char *name) {
     // Load texture
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for texture");
+        fprintf(stderr, "[SSGE][SSGE_LoadTexture] Failed to allocate memory for texture");
         exit(1);
     }
     texture->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (texture->name == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allcoate memory for texture name");
+        fprintf(stderr, "[SSGE][SSGE_LoadTexture] Failed to allcoate memory for texture name");
         exit(1);
     }
     strcpy(texture->name, name);
     texture->texture = IMG_LoadTexture(_engine->renderer, filename);
     if (texture == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Failed to load image: %s\n", IMG_GetError());
+        fprintf(stderr, "[SSGE][SSGE_LoadTexture] Failed to load image: %s\n", IMG_GetError());
         exit(1);
     }
 
     // Add texture to texture list
-    return _add_texture_to_list(texture, name);
+    return _add_texture_to_list(texture, name, "SSGE_LoadTexture");
 }
 
 /**
@@ -50,7 +50,7 @@ SSGEDECL SSGE_Texture *SSGE_GetTexture(uint32_t id) {
     _assert_engine_init();
     SSGE_Texture *ptr = SSGE_Array_Get(_texture_list, id);
     if (ptr == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Texture not found: %u\n", id);
+        fprintf(stderr, "[SSGE][SSGE_GetTexture] Texture not found: %u\n", id);
         exit(1);
     }
     return ptr;
@@ -69,7 +69,7 @@ SSGEDECL SSGE_Texture *SSGE_GetTextureByName(char *name) {
     _assert_engine_init();
     SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(_texture_list, _find_texture_name, name);
     if (ptr == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Texture not found: %s\n", name);
+        fprintf(stderr, "[SSGE][SSGE_GetTextureByName] Texture not found: %s\n", name);
         exit(1);
     }
     return ptr;
@@ -132,7 +132,7 @@ SSGEDECL void SSGE_DestroyTexture(uint32_t id) {
     _assert_engine_init();
     SSGE_Texture *texture = SSGE_Array_Pop(_texture_list, id);
     if (texture == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Texture not found: %u\n", id);
+        fprintf(stderr, "[SSGE][SSGE_DestroyTexture] Texture not found: %u\n", id);
         exit(1);
     }
     SDL_DestroyTexture(texture->texture);
@@ -148,7 +148,7 @@ SSGEDECL void SSGE_DestroyTextureByName(char *name) {
     _assert_engine_init();
     SSGE_Texture *texture = SSGE_Array_FindPop(_texture_list, _find_texture_name, name);
     if (texture == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Texture not found: %s\n", name);
+        fprintf(stderr, "[SSGE][SSGE_DestroyTextureByName] Texture not found: %s\n", name);
         exit(1);
     }
     SDL_DestroyTexture(texture->texture);

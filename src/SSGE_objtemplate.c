@@ -20,11 +20,11 @@
  * \return The object template id
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_CreateObjectTemplate(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroyData)(void *)) {
+SSGEDECL uint32_t SSGE_CreateTemplate(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroyData)(void *)) {
     _assert_engine_init();
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for object template\n");
+        fprintf(stderr, "[SSGE][SSGE_CreateTemplate] Failed to allocate memory for object template\n");
         exit(1);
     }
     template->texture = texture;
@@ -33,7 +33,7 @@ SSGEDECL uint32_t SSGE_CreateObjectTemplate(char *name, SSGE_Texture *texture, i
     template->hitbox = hitbox;
     template->destroyData = destroyData;
 
-    return _add_object_template_to_list(template, name);
+    return _add_object_template_to_list(template, name, "SSGE_CreateTemplate");
 }
 
 /**
@@ -45,7 +45,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplate(uint32_t id) {
     _assert_engine_init();
     SSGE_ObjectTemplate *ptr = SSGE_Array_Get(_object_template_list, id);
     if (ptr == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Object template not found: %u\n", id);
+        fprintf(stderr, "[SSGE][SSGE_GetTemplate] Object template not found: %u\n", id);
         exit(1);
     }
     return ptr;
@@ -64,7 +64,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplateByName(char *name) {
     _assert_engine_init();
     SSGE_ObjectTemplate *ptr = SSGE_Array_Find(_object_template_list, _find_template_name, name);
     if (ptr == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Object template not found: %s\n", name);
+        fprintf(stderr, "[SSGE][SSGE_GetTemplateByName] Object template not found: %s\n", name);
         exit(1);
     }
     return ptr;
@@ -74,11 +74,11 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplateByName(char *name) {
  * Destroys an object template by id
  * \param id The id of the object template
  */
-SSGEDECL void SSGE_DestroyObjectTemplate(uint32_t id) {
+SSGEDECL void SSGE_DestroyTemplate(uint32_t id) {
     _assert_engine_init();
     SSGE_ObjectTemplate *template = SSGE_Array_Pop(_object_template_list, id);
     if (template == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Object template not found: %u\n", id);
+        fprintf(stderr, "[SSGE][SSGE_DestroyTemplate] Object template not found: %u\n", id);
         exit(1);
     }
     free(template->name);
@@ -89,11 +89,11 @@ SSGEDECL void SSGE_DestroyObjectTemplate(uint32_t id) {
  * Destroys an object template by name
  * \param name The name of the object template
  */
-SSGEDECL void SSGE_DestroyObjectTemplateByName(char *name) {
+SSGEDECL void SSGE_DestroyTemplateByName(char *name) {
     _assert_engine_init();
     SSGE_ObjectTemplate *template = SSGE_Array_FindPop(_object_template_list, _find_template_name, name);
     if (template == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Object template not found: %s\n", name);
+        fprintf(stderr, "[SSGE][SSGE_DestroyTemplateByName] Object template not found: %s\n", name);
         exit(1);
     }
     free(template->name);

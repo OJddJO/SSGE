@@ -19,19 +19,19 @@ SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name) {
     _assert_engine_init();
     SSGE_Font *font = (SSGE_Font *)malloc(sizeof(SSGE_Font));
     if (font == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for font\n");
+        fprintf(stderr, "[SSGE][SSGE_LoadFont] Failed to allocate memory for font\n");
         exit(1);
     }
 
     font->font = TTF_OpenFont(filename, size);
     if (font->font == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Failed to load font: %s\n", TTF_GetError());
+        fprintf(stderr, "[SSGE][SSGE_LoadFont] Failed to load font: %s\n", TTF_GetError());
         exit(1);
     }
 
     font->name = (char *)malloc(sizeof(char) * strlen(filename) + 1);
     if (font->name == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for font name\n");
+        fprintf(stderr, "[SSGE][SSGE_LoadFont] Failed to allocate memory for font name\n");
         exit(1);
     }
     strcpy(font->name, name);
@@ -43,10 +43,10 @@ static bool _find_font_name(void *ptr, void *name) {
     return strcmp(((SSGE_Font *)ptr)->name, (char *)name) == 0 ? 1 : 0;
 }
 
-static SSGE_Font *_get_font(char *name) {
+static SSGE_Font *_get_font(char *name, char *funcname) {
     SSGE_Font *ptr = SSGE_Array_Find(_font_list, _find_font_name, name);
     if (ptr == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Font not found: %s\n", name);
+        fprintf(stderr, "[SSGE][%s] Font not found: %s\n", funcname, name);
         exit(1);
     }
     return ptr;
@@ -66,16 +66,16 @@ SSGEDECL void SSGE_DrawText(char *fontName, char *text, int x, int y, SSGE_Color
 
     if (color.a == 0) return;
 
-    SSGE_Font *font_struct = _get_font(fontName);
+    SSGE_Font *font_struct = _get_font(fontName, "SSGE_DrawText");
     SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, *(SDL_Color *)&color);
     if (surface == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to draw text: %s\n", TTF_GetError());
+        fprintf(stderr, "[SSGE][SSGE_DrawText] Failed to draw text: %s\n", TTF_GetError());
         exit(1);
     }
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
     if (texture == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to draw text: %s\n", SDL_GetError());
+        fprintf(stderr, "[SSGE][SSGE_DrawText] Failed to draw text: %s\n", SDL_GetError());
         exit(1);
     }
 
@@ -130,21 +130,21 @@ SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, 
     _assert_engine_init();
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for texture\n");
+        fprintf(stderr, "[SSGE][SSGE_CreateText] Failed to allocate memory for texture\n");
         exit(1);
     }
 
     if (color.a != 0) {
-        SSGE_Font *font_struct = _get_font(fontName);
+        SSGE_Font *font_struct = _get_font(fontName, "SSGE_CreateText");
         SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, *(SDL_Color *)&color);
         if (surface == NULL) {
-            fprintf(stderr, "[SSGE][CORE] Failed to render text: %s\n", TTF_GetError());
+            fprintf(stderr, "[SSGE][SSGE_CreateText] Failed to render text: %s\n", TTF_GetError());
             exit(1);
         }
 
         texture->texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
         if (texture->texture == NULL) {
-            fprintf(stderr, "[SSGE][CORE] Failed to create texture from surface: %s\n", SDL_GetError());
+            fprintf(stderr, "[SSGE][SSGE_CreateText] Failed to create texture from surface: %s\n", SDL_GetError());
             exit(1);
         }
 
@@ -153,7 +153,7 @@ SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, 
         texture->texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
     }
 
-    return _add_texture_to_list(texture, textureName);
+    return _add_texture_to_list(texture, textureName, "SSGE_CreateText");
 }
 
 /**
@@ -164,7 +164,7 @@ SSGEDECL void SSGE_CloseFont(char *name) {
     _assert_engine_init();
     SSGE_Font *font = SSGE_Array_FindPop(_font_list, _find_font_name, name);
     if (font == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Font not found: %s\n", name);
+        fprintf(stderr, "[SSGE][SSGE_CloseFont] Font not found: %s\n", name);
         exit(1);
     }
     TTF_CloseFont(font->font);

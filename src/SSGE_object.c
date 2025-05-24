@@ -27,7 +27,7 @@ SSGEDECL uint32_t SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, in
     _assert_engine_init();
     SSGE_Object *object = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (object == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for object\n");
+        fprintf(stderr, "[SSGE][SSGE_CreateObject] Failed to allocate memory for object\n");
         exit(1);
     }
 
@@ -40,7 +40,7 @@ SSGEDECL uint32_t SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, in
     object->data = data;
     object->destroyData = destroyData;
 
-    return _add_object_to_list(object, name);
+    return _add_object_to_list(object, name, "SSGE_CreateObject");
 }
 
 /**
@@ -112,7 +112,7 @@ SSGEDECL SSGE_Object *SSGE_GetObject(uint32_t id) {
     _assert_engine_init();
     SSGE_Object *ptr = SSGE_Array_Get(_object_list, id);
     if (ptr == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Object not found: %u\n", id);
+        fprintf(stderr, "[SSGE][SSGE_GetObject] Object not found: %u\n", id);
         exit(1);
     }
     return ptr;
@@ -127,7 +127,7 @@ SSGEDECL SSGE_Object *SSGE_GetObjectByName(char *name) {
     _assert_engine_init();
     SSGE_Object *ptr = SSGE_Array_Find(_object_list, _find_object_name, name);
     if (ptr == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Object not found: %s\n", name);
+        fprintf(stderr, "[SSGE][SSGE_GetObjectByName] Object not found: %s\n", name);
         exit(1);
     }
     return ptr;
@@ -141,7 +141,7 @@ SSGEDECL void SSGE_DestroyObject(uint32_t id) {
     _assert_engine_init();
     SSGE_Object *object = SSGE_Array_Pop(_object_list, id);
     if (object == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Object not found: %u\n", id);
+        fprintf(stderr, "[SSGE][SSGE_DestroyObject] Object not found: %u\n", id);
         exit(1);
     }
     free(object->name);
@@ -158,7 +158,7 @@ SSGEDECL void SSGE_DestroyObjectByName(char *name) {
     _assert_engine_init();
     SSGE_Object *object = SSGE_Array_FindPop(_object_list, _find_object_name, name);
     if (object == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Object not found: %s\n", name);
+        fprintf(stderr, "[SSGE][SSGE_DestroyObjectByName] Object not found: %s\n", name);
         exit(1);
     }
     free(object->name);
@@ -196,7 +196,7 @@ SSGEDECL uint32_t SSGE_CreateHitbox(char *name, int x, int y, int width, int hei
     _assert_engine_init();
     SSGE_Object *new_hitbox = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (new_hitbox == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for hitbox\n");
+        fprintf(stderr, "[SSGE][SSGE_CreateHitbox] Failed to allocate memory for hitbox\n");
         exit(1);
     }
     new_hitbox->x = x;
@@ -208,7 +208,7 @@ SSGEDECL uint32_t SSGE_CreateHitbox(char *name, int x, int y, int width, int hei
     new_hitbox->data = NULL;
     new_hitbox->destroyData = NULL; // No data to destroy for hitbox
 
-    return _add_object_to_list(new_hitbox, name);
+    return _add_object_to_list(new_hitbox, name, "SSGE_CreateHitbox");
 }
 
 /**

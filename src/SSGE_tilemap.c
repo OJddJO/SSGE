@@ -23,13 +23,13 @@ SSGEDECL SSGE_Tilemap *SSGE_LoadTilemap(char *filename, int tileWidth, int tileH
     _assert_engine_init();
     SSGE_Tilemap *tilemap = (SSGE_Tilemap *)malloc(sizeof(SSGE_Tilemap));
     if (tilemap == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for tilemap\n");
+        fprintf(stderr, "[SSGE][SSGE_LoadTilemap] Failed to allocate memory for tilemap\n");
         exit(1);
     }
 
     tilemap->texture = IMG_LoadTexture(_engine->renderer, filename);
     if (tilemap->texture == NULL) {
-        fprintf(stderr, "[SSGE][ENGINE] Failed to load tilemap: %s\n", IMG_GetError());
+        fprintf(stderr, "[SSGE][SSGE_LoadTilemap] Failed to load tilemap: %s\n", IMG_GetError());
         exit(1);
     }
 
@@ -53,13 +53,13 @@ SSGEDECL SSGE_Tilemap *SSGE_LoadTilemap(char *filename, int tileWidth, int tileH
 SSGEDECL SSGE_Tile *SSGE_GetTile(SSGE_Tilemap *tilemap, int tileRow, int tileCol) {
     _assert_engine_init();
     if (tileRow >= tilemap->nbRows || tileCol >= tilemap->nbCols) {
-        fprintf(stderr, "[SSGE][ENGINE] Tile out of bounds\n");
+        fprintf(stderr, "[SSGE][SSGE_GetTile] Tile out of bounds\n");
         exit(1);
     }
 
     SSGE_Tile *tile = (SSGE_Tile *)malloc(sizeof(SSGE_Tile));
     if (tile == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for tile\n");
+        fprintf(stderr, "[SSGE][SSGE_GetTile] Failed to allocate memory for tile\n");
         exit(1);
     }
 
@@ -89,7 +89,7 @@ SSGEDECL uint32_t SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int t
     SDL_SetRenderTarget(_engine->renderer, NULL);
     SSGE_DestroyTile(tile);
 
-    return _add_texture_to_list(texture, name);
+    return _add_texture_to_list(texture, name, "SSGE_GetTileAsTexture");
 }
 
 /**
@@ -131,7 +131,7 @@ SSGEDECL void SSGE_DrawTileWithSize(SSGE_Tile *tile, int x, int y, int width, in
 SSGEDECL void SSGE_DrawTileFromTilemap(SSGE_Tilemap *tilemap, int tileRow, int tileCol, int x, int y) {
     _assert_engine_init();
     if (tileRow >= tilemap->nbRows || tileCol >= tilemap->nbCols) {
-        fprintf(stderr, "[SSGE][ENGINE] Tile out of bounds\n");
+        fprintf(stderr, "[SSGE][SSGE_DrawTileFromTilemap] Tile out of bounds\n");
         exit(1);
     }
 
