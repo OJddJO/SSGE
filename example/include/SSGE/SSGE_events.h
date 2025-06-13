@@ -3,6 +3,10 @@
 #ifndef __SSGE_EVENTS_H__
 #define __SSGE_EVENTS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 typedef enum _SSGE_EventType {
@@ -193,5 +197,9 @@ typedef union _SSGE_Event {
     SSGE_QuitEvent quit;
     uint8_t padding[sizeof(void *) <= 8 ? 56 : sizeof(void *) == 16 ? 64 : 3 * sizeof(void *)];
 } SSGE_Event;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //__SSGE_EVENTS_H__

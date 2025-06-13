@@ -15,7 +15,7 @@ extern SSGE_Array *_font_list;
 extern SSGE_Array *_audio_list;
 extern SSGE_Event _event;
 extern SSGE_Color _color;
-extern SSGE_Color _clear_color;
+extern SSGE_Color _bg_color;
 extern bool _manual_update_frame;
 extern bool _update_frame;
 

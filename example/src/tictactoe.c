@@ -28,12 +28,8 @@ int main(int argc, char *argv[]) {
     SSGE_SetBackgroundColor((SSGE_Color){23, 15, 71, 255});
 
     // Create the game structure
-    Game *game = (Game *)malloc(sizeof(Game));
-    if (game == NULL) {
-        fprintf(stderr, "[GAME] Failed to allocate memory for game\n");
-        exit(1);
-    }
-    init_game(game);
+    Game game;
+    init_game(&game);
 
     // Create hitboxes for the tic-tac-toe grid
     // The hitboxes are invisible buttons that will be used to detect mouse clicks
@@ -41,13 +37,10 @@ int main(int argc, char *argv[]) {
 
     // Run the engine
     SSGE_PlayAudioByName("start", -1);
-    SSGE_Run(update, draw, event_handler, game);
+    SSGE_Run(update, draw, event_handler, &game);
 
     // Quit the engine
     SSGE_Quit();
-
-    // Free the game structure
-    free(game);
 
     return 0;
 }

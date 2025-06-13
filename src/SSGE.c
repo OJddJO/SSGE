@@ -22,8 +22,10 @@ static int _event_filter(void *userdata, SDL_Event *event) {
         case SSGE_MOUSEBUTTONUP:
         case SSGE_MOUSEWHEEL:
             return 1;
+            break;
         default:
             return 0;
+            break;
     }
 }
 
@@ -150,7 +152,7 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
 
         if (update) update(data);
         if (_update_frame || !_manual_update_frame) {
-            SDL_SetRenderDrawColor(_engine->renderer, _clear_color.r, _clear_color.g, _clear_color.b, _clear_color.a);
+            SDL_SetRenderDrawColor(_engine->renderer, _bg_color.r, _bg_color.g, _bg_color.b, _bg_color.a);
             SDL_RenderClear(_engine->renderer);
             SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
             if (draw) draw(data);
@@ -255,7 +257,7 @@ SSGEDECL void SSGE_SetColor(SSGE_Color color) {
  */
 SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color) {
     _assert_engine_init();
-    _clear_color = color;
+    _bg_color = color;
 }
 
 /***********************************************

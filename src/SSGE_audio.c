@@ -35,7 +35,7 @@ SSGEDECL uint32_t SSGE_LoadAudio(char *filename, char *name) {
 /**
  * Plays an audio by id
  * \param id The id of the audio
- * \param channel The channel to play the audio on, -1 for first free channel. Channels must be a number between 0 and 3
+ * \param channel The channel to play the audio on, -1 for first free channel.
  */
 SSGEDECL void SSGE_PlayAudio(uint32_t id, int channel) {
     _assert_engine_init();
@@ -57,7 +57,7 @@ static bool _find_audio_name(void *audio, void *name) {
 /**
  * Plays an audio by name
  * \param name The name of the audio
- * \param channel The channel to play the audio on, -1 for first free channel. Channels must be a number between 0 and 3
+ * \param channel The channel to play the audio on, -1 for first free channel.
  */
 SSGEDECL void SSGE_PlayAudioByName(char *name, int channel) {
     _assert_engine_init();

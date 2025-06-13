@@ -13,7 +13,7 @@ SSGE_Array *_font_list = NULL;
 SSGE_Array *_audio_list = NULL;
 SSGE_Event _event;
 SSGE_Color _color = {0, 0, 0, 255};
-SSGE_Color _clear_color = {0, 0, 0, 255};
+SSGE_Color _bg_color = {0, 0, 0, 255};
 bool _manual_update_frame = false;
 bool _update_frame = true; // set to true to draw the first frame
 
