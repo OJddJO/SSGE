@@ -77,7 +77,7 @@ SSGEDECL SSGE_Tile *SSGE_GetTile(SSGE_Tilemap *tilemap, int tileRow, int tileCol
  * \param tileRow The row of the tile
  * \param tileCol The column of the tile
  * \return The texture id
- * \note The texture is stored internally and can be accessed by its name
+ * \note The texture is stored internally and can be accessed by its name or its id
  */
 SSGEDECL uint32_t SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int tileRow, int tileCol) {
     _assert_engine_init();
