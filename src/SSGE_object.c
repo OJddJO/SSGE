@@ -64,7 +64,7 @@ SSGEDECL uint32_t SSGE_InstantiateObject(SSGE_ObjectTemplate *template, char *na
  */
 SSGEDECL bool SSGE_ObjectExists(uint32_t id) {
     _assert_engine_init();
-    SSGE_Object *ptr = SSGE_Array_Get(_object_list, id);
+    SSGE_Object *ptr = SSGE_Array_Get(&_object_list, id);
     return ptr == NULL ? false : true;
 }
 
@@ -79,7 +79,7 @@ static bool _find_object_name(void *ptr, void *name) {
  */
 SSGEDECL bool SSGE_ObjectExistsByName(char *name) {
     _assert_engine_init();
-    SSGE_Object *ptr = SSGE_Array_Find(_object_list, _find_object_name, name);
+    SSGE_Object *ptr = SSGE_Array_Find(&_object_list, _find_object_name, name);
     return ptr == NULL ? false : true;
 }
 
@@ -110,7 +110,7 @@ SSGEDECL void SSGE_ChangeObjectTexture(SSGE_Object *object, SSGE_Texture *textur
  */
 SSGEDECL SSGE_Object *SSGE_GetObject(uint32_t id) {
     _assert_engine_init();
-    SSGE_Object *ptr = SSGE_Array_Get(_object_list, id);
+    SSGE_Object *ptr = SSGE_Array_Get(&_object_list, id);
     if (ptr == NULL) {
         fprintf(stderr, "[SSGE][SSGE_GetObject] Object not found: %u\n", id);
         exit(1);
@@ -125,7 +125,7 @@ SSGEDECL SSGE_Object *SSGE_GetObject(uint32_t id) {
  */
 SSGEDECL SSGE_Object *SSGE_GetObjectByName(char *name) {
     _assert_engine_init();
-    SSGE_Object *ptr = SSGE_Array_Find(_object_list, _find_object_name, name);
+    SSGE_Object *ptr = SSGE_Array_Find(&_object_list, _find_object_name, name);
     if (ptr == NULL) {
         fprintf(stderr, "[SSGE][SSGE_GetObjectByName] Object not found: %s\n", name);
         exit(1);
@@ -139,7 +139,7 @@ SSGEDECL SSGE_Object *SSGE_GetObjectByName(char *name) {
  */
 SSGEDECL void SSGE_DestroyObject(uint32_t id) {
     _assert_engine_init();
-    SSGE_Object *object = SSGE_Array_Pop(_object_list, id);
+    SSGE_Object *object = SSGE_Array_Pop(&_object_list, id);
     if (object == NULL) {
         fprintf(stderr, "[SSGE][SSGE_DestroyObject] Object not found: %u\n", id);
         exit(1);
@@ -156,7 +156,7 @@ SSGEDECL void SSGE_DestroyObject(uint32_t id) {
  */
 SSGEDECL void SSGE_DestroyObjectByName(char *name) {
     _assert_engine_init();
-    SSGE_Object *object = SSGE_Array_FindPop(_object_list, _find_object_name, name);
+    SSGE_Object *object = SSGE_Array_FindPop(&_object_list, _find_object_name, name);
     if (object == NULL) {
         fprintf(stderr, "[SSGE][SSGE_DestroyObjectByName] Object not found: %s\n", name);
         exit(1);
@@ -172,8 +172,8 @@ SSGEDECL void SSGE_DestroyObjectByName(char *name) {
  */
 SSGEDECL void SSGE_DestroyAllObjects() {
     _assert_engine_init();
-    SSGE_Array_Destroy(_object_list, _destroy_object);
-    _object_list = SSGE_Array_Create();
+    SSGE_Array_Destroy(&_object_list, _destroy_object);
+    SSGE_Array_Create(&_object_list);
 }
 
 /***********************************************

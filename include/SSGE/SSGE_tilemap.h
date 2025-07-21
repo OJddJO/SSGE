@@ -8,6 +8,44 @@
 extern "C" {
 #endif
 
+/******************************
+ * Structs
+ ******************************/
+
+/**
+ * Tilemap structure
+ * \param texture The texture of the tilemap
+ * \param tileWidth The width of the tiles
+ * \param tileHeight The height of the tiles
+ * \param spacing The spacing between the tiles
+ * \param nbRows The number of rows in the tilemap
+ * \param nbCols The number of columns in the tilemap
+ */
+typedef struct _SSGE_Tilemap {
+    struct SDL_Texture *texture;
+    int tileWidth;
+    int tileHeight;
+    int spacing;
+    int nbRows;
+    int nbCols;
+} SSGE_Tilemap;
+
+/**
+ * Tile structure
+ * \param tilemap The tilemap of the tile
+ * \param row The row of the tile
+ * \param col The column of the tile
+ */
+typedef struct _SSGE_Tile {
+    struct _SSGE_Tilemap *tilemap;
+    int row;
+    int col;
+} SSGE_Tile;
+
+/******************************
+ * Functions
+ ******************************/
+
 /**
  * Creates a tilemap
  * \param filename The path to the tilemap

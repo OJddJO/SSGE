@@ -9,14 +9,9 @@
 
 /**
  * Creates a new array
- * \return The pointer to the new array
+ * \param array The array to initialize
  */
-SSGEDECL SSGE_Array *SSGE_Array_Create() {
-    SSGE_Array *array = (SSGE_Array *)malloc(sizeof(SSGE_Array));
-    if (array == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for array\n");
-        exit(1);
-    }
+SSGEDECL void SSGE_Array_Create(SSGE_Array *array) {
     array->array = (void **)calloc(_INITIAL_SIZE, sizeof(void *));
     if (array->array == NULL) {
         fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for array\n");
@@ -31,8 +26,6 @@ SSGEDECL SSGE_Array *SSGE_Array_Create() {
     }
     array->idxSize = _IDX_PILE_INITIAL_SIZE;
     array->idxCount = 0;
-
-    return array;
 }
 
 /**
@@ -189,11 +182,10 @@ SSGEDECL void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *))
         void *element = array->array[i++];
 
         if (element == NULL) continue;
-        destroyData(element);
+        if (destroyData) destroyData(element);
 
         ++count;
     }
     free(array->array);
     free(array->indexes);
-    free(array);
 }

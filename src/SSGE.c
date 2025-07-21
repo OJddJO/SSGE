@@ -90,11 +90,11 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
 
     SDL_SetRenderDrawColor(_engine->renderer, 0, 0, 0, 255);
 
-    _texture_list = SSGE_Array_Create();
-    _object_list = SSGE_Array_Create();
-    _object_template_list = SSGE_Array_Create();
-    _font_list = SSGE_Array_Create();
-    _audio_list = SSGE_Array_Create();
+    SSGE_Array_Create(&_texture_list);
+    SSGE_Array_Create(&_object_list);
+    SSGE_Array_Create(&_object_template_list);
+    SSGE_Array_Create(&_font_list);
+    SSGE_Array_Create(&_audio_list);
 
     _engine->isRunning = true;
     _engine->width = width;
@@ -111,11 +111,11 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
 SSGEDECL void SSGE_Quit() {
     _assert_engine_init();
 
-    SSGE_Array_Destroy(_texture_list, _destroy_texture);
-    SSGE_Array_Destroy(_object_list, _destroy_object);
-    SSGE_Array_Destroy(_object_template_list, _destroy_template);
-    SSGE_Array_Destroy(_font_list, _destroy_font);
-    SSGE_Array_Destroy(_audio_list, _destroy_audio);
+    SSGE_Array_Destroy(&_texture_list, _destroy_texture);
+    SSGE_Array_Destroy(&_object_list, _destroy_object);
+    SSGE_Array_Destroy(&_object_template_list, _destroy_template);
+    SSGE_Array_Destroy(&_font_list, _destroy_font);
+    SSGE_Array_Destroy(&_audio_list, _destroy_audio);
 
     SDL_DestroyRenderer(_engine->renderer);
     SDL_DestroyWindow(_engine->window);
@@ -286,10 +286,9 @@ SSGEDECL bool SSGE_ObjectIsHovered(SSGE_Object *object) {
     return mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height;
 }
 
-static bool _is_hovered(void *ptr, void *mousePos) {
+static bool _is_hovered(SSGE_Object *ptr, void *mousePos) {
     int mouseX = ((int *)mousePos)[0], mouseY = ((int *)mousePos)[1];
-    SSGE_Object *object = (SSGE_Object *)ptr;
-    return mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height;
+    return mouseX >= ptr->x && mouseX <= ptr->x + ptr->width && mouseY >= ptr->y && mouseY <= ptr->y + ptr->height;
 }
 
 /**
@@ -302,7 +301,10 @@ SSGEDECL SSGE_Object *SSGE_GetHoveredObject() {
     int mousePos[2];
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);
 
-    return SSGE_Array_Find(_object_list, _is_hovered, mousePos);
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+    return SSGE_Array_Find(&_object_list, _is_hovered, mousePos);
+    #pragma GCC diagnostic pop
 }
 
 /**
@@ -317,8 +319,8 @@ SSGEDECL uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) 
     SDL_GetMouseState(&mouseX, &mouseY);
     
     uint32_t i = 0, count = 0;
-    while ((count < _object_list->count || count >= _object_list->size) && count < size) {
-        SSGE_Object *obj = _object_list->array[i++];
+    while ((count < _object_list.count || count >= _object_list.size) && count < size) {
+        SSGE_Object *obj = _object_list.array[i++];
 
         if (obj == NULL) continue;
         objects[count] = obj;

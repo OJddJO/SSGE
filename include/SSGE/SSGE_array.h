@@ -19,7 +19,7 @@ typedef struct _SSGE_Array {
     uint32_t idxCount; // Number of unused indexes
 } SSGE_Array;
 
-SSGEDECL SSGE_Array *SSGE_Array_Create();
+SSGEDECL void SSGE_Array_Create(SSGE_Array *array);
 SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element);
 SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx);
 SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *));

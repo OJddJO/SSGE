@@ -39,7 +39,7 @@ SSGEDECL uint32_t SSGE_LoadAudio(char *filename, char *name) {
  */
 SSGEDECL void SSGE_PlayAudio(uint32_t id, int channel) {
     _assert_engine_init();
-    SSGE_Audio *audio = SSGE_Array_Get(_audio_list, id);
+    SSGE_Audio *audio = SSGE_Array_Get(&_audio_list, id);
     if (audio == NULL) {
         fprintf(stderr, "[SSGE][SSGE_PlayAudio] Audio not found: %u\n", id);
         exit(1);
@@ -61,7 +61,7 @@ static bool _find_audio_name(void *audio, void *name) {
  */
 SSGEDECL void SSGE_PlayAudioByName(char *name, int channel) {
     _assert_engine_init();
-    SSGE_Audio *audio = SSGE_Array_Find(_audio_list, _find_audio_name, name);
+    SSGE_Audio *audio = SSGE_Array_Find(&_audio_list, _find_audio_name, name);
     if (audio == NULL) {
         fprintf(stderr, "[SSGE][SSGE_PlayAudioByName] Audio not found: %s\n", name);
         exit(1);
@@ -105,7 +105,7 @@ SSGEDECL void SSGE_StopAudio(int channel) {
  */
 SSGEDECL void SSGE_CloseAudio(uint32_t id) {
     _assert_engine_init();
-    SSGE_Audio *audio = SSGE_Array_Pop(_audio_list, id);
+    SSGE_Audio *audio = SSGE_Array_Pop(&_audio_list, id);
     if (audio == NULL) {
         fprintf(stderr, "[SSGE][SSGE_CloseAudio] Audio not found: %d", id);
         exit(1);
@@ -121,7 +121,7 @@ SSGEDECL void SSGE_CloseAudio(uint32_t id) {
  */
 SSGEDECL void SSGE_CloseAudioByName(char *name) {
     _assert_engine_init();
-    SSGE_Audio *audio = SSGE_Array_FindPop(_audio_list, _find_audio_name, name);
+    SSGE_Audio *audio = SSGE_Array_FindPop(&_audio_list, _find_audio_name, name);
     if (audio == NULL) {
         fprintf(stderr, "[SSGE][SSGE_CloseAudioByName] Audio not found: %s", name);
         exit(1);
@@ -136,6 +136,6 @@ SSGEDECL void SSGE_CloseAudioByName(char *name) {
  */
 SSGEDECL void SSGE_CloseAllAudios() {
     _assert_engine_init();
-    SSGE_Array_Destroy(_audio_list, _destroy_audio);
-    _audio_list = SSGE_Array_Create();
+    SSGE_Array_Destroy(&_audio_list, _destroy_audio);
+    SSGE_Array_Create(&_audio_list);
 }

@@ -8,6 +8,33 @@
 extern "C" {
 #endif
 
+/******************************
+ * Structs
+ ******************************/
+
+/**
+ * Object template structure
+ * \param id The id of the template
+ * \param name The name of the template
+ * \param texture The texture for the template
+ * \param width The width of the object
+ * \param height The height of the object
+ * \param hitbox If objects created from this template have a hitbox
+ */
+typedef struct _SSGE_ObjectTemplate {
+    uint32_t id;
+    char *name;
+    struct _SSGE_Texture *texture;
+    int width;
+    int height;
+    bool hitbox;
+    void (*destroyData)(void *);
+} SSGE_ObjectTemplate;
+
+/******************************
+ * Functions
+ ******************************/
+
 /**
  * Creates an object template
  * \param name The name of the object template

@@ -6,12 +6,12 @@
 #include "SSGE/SSGE_local.h"
 
 SSGE_Engine *_engine = NULL;
-SSGE_Array *_texture_list = NULL;
-SSGE_Array *_object_list = NULL;
-SSGE_Array *_object_template_list = NULL;
-SSGE_Array *_font_list = NULL;
-SSGE_Array *_audio_list = NULL;
-SSGE_Event _event;
+SSGE_Array _texture_list = {0};
+SSGE_Array _object_list = {0};
+SSGE_Array _object_template_list = {0};
+SSGE_Array _font_list = {0};
+SSGE_Array _audio_list = {0};
+SSGE_Event _event = {0};
 SSGE_Color _color = {0, 0, 0, 255};
 SSGE_Color _bg_color = {0, 0, 0, 255};
 bool _manual_update_frame = false;
@@ -67,7 +67,7 @@ uint32_t _add_texture_to_list(SSGE_Texture *texture, char *name, char *funcname)
     }
     strcpy(texture->name, name);
 
-    texture->id = SSGE_Array_Add(_texture_list, texture);
+    texture->id = SSGE_Array_Add(&_texture_list, texture);
     return texture->id;
 }
 
@@ -79,7 +79,7 @@ uint32_t _add_object_to_list(SSGE_Object *object, char *name, char *funcname) {
     }
     strcpy(object->name, name);
 
-    object->id = SSGE_Array_Add(_object_list, object);
+    object->id = SSGE_Array_Add(&_object_list, object);
     return object->id;
 }
 
@@ -91,7 +91,7 @@ uint32_t _add_object_template_to_list(SSGE_ObjectTemplate *template, char *name,
     }
     strcpy(template->name, name);
 
-    template->id = SSGE_Array_Add(_object_template_list, template);
+    template->id = SSGE_Array_Add(&_object_template_list, template);
     return template->id;
 }
 
@@ -103,6 +103,6 @@ uint32_t _add_audio_to_list(SSGE_Audio *audio, char *name, char *funcname) {
     }
     strcpy(audio->name, name);
 
-    audio->id = SSGE_Array_Add(_audio_list, audio);
+    audio->id = SSGE_Array_Add(&_audio_list, audio);
     return audio->id;
 }

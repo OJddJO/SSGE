@@ -8,6 +8,27 @@
 extern "C" {
 #endif
 
+
+/******************************
+ * Structs
+ ******************************/
+
+/**
+ * Texture structure
+ * \param id The id of the texture
+ * \param name The name of the texture
+ * \param texture The SDL_Texture
+ */
+typedef struct _SSGE_Texture {
+    uint32_t id;
+    char *name;
+    struct SDL_Texture *texture;
+} SSGE_Texture;
+
+/******************************
+ * Functions
+ ******************************/
+
 /**
  * Creates a texture
  * \param filename The path to the texture

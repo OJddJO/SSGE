@@ -20,8 +20,30 @@
 extern "C" {
 #endif
 
+/******************************
+ * Structs
+ ******************************/
+
+/**
+ * Engine structure
+ * \param window The window
+ * \param renderer The renderer
+ * \param isRunning The running state of the engine
+ * \param width The width of the window
+ * \param height The height of the window
+ * \param fps The frames per second
+ */
+typedef struct _SSGE_Engine {
+    struct SDL_Window *window;
+    struct SDL_Renderer *renderer;
+    bool isRunning;
+    int width;
+    int height;
+    int fps;
+} SSGE_Engine;
+
 /************************************************
- * SSGE Functions
+ * Functions
  ************************************************/
 
 /**

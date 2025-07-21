@@ -8,11 +8,11 @@ extern "C" {
 #endif
 
 extern SSGE_Engine *_engine;
-extern SSGE_Array *_texture_list;
-extern SSGE_Array *_object_list;
-extern SSGE_Array *_object_template_list;
-extern SSGE_Array *_font_list;
-extern SSGE_Array *_audio_list;
+extern SSGE_Array _texture_list;
+extern SSGE_Array _object_list;
+extern SSGE_Array _object_template_list;
+extern SSGE_Array _font_list;
+extern SSGE_Array _audio_list;
 extern SSGE_Event _event;
 extern SSGE_Color _color;
 extern SSGE_Color _bg_color;

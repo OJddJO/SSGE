@@ -48,7 +48,7 @@ SSGEDECL uint32_t SSGE_LoadTexture(char *filename, char *name) {
  */
 SSGEDECL SSGE_Texture *SSGE_GetTexture(uint32_t id) {
     _assert_engine_init();
-    SSGE_Texture *ptr = SSGE_Array_Get(_texture_list, id);
+    SSGE_Texture *ptr = SSGE_Array_Get(&_texture_list, id);
     if (ptr == NULL) {
         fprintf(stderr, "[SSGE][SSGE_GetTexture] Texture not found: %u\n", id);
         exit(1);
@@ -67,7 +67,7 @@ static bool _find_texture_name(void *ptr, void *name) {
  */
 SSGEDECL SSGE_Texture *SSGE_GetTextureByName(char *name) {
     _assert_engine_init();
-    SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(_texture_list, _find_texture_name, name);
+    SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(&_texture_list, _find_texture_name, name);
     if (ptr == NULL) {
         fprintf(stderr, "[SSGE][SSGE_GetTextureByName] Texture not found: %s\n", name);
         exit(1);
@@ -130,7 +130,7 @@ SSGEDECL void SSGE_DrawTextureFromFile(char *filename, int x, int y, int width, 
  */
 SSGEDECL void SSGE_DestroyTexture(uint32_t id) {
     _assert_engine_init();
-    SSGE_Texture *texture = SSGE_Array_Pop(_texture_list, id);
+    SSGE_Texture *texture = SSGE_Array_Pop(&_texture_list, id);
     if (texture == NULL) {
         fprintf(stderr, "[SSGE][SSGE_DestroyTexture] Texture not found: %u\n", id);
         exit(1);
@@ -146,7 +146,7 @@ SSGEDECL void SSGE_DestroyTexture(uint32_t id) {
  */
 SSGEDECL void SSGE_DestroyTextureByName(char *name) {
     _assert_engine_init();
-    SSGE_Texture *texture = SSGE_Array_FindPop(_texture_list, _find_texture_name, name);
+    SSGE_Texture *texture = SSGE_Array_FindPop(&_texture_list, _find_texture_name, name);
     if (texture == NULL) {
         fprintf(stderr, "[SSGE][SSGE_DestroyTextureByName] Texture not found: %s\n", name);
         exit(1);
@@ -161,6 +161,6 @@ SSGEDECL void SSGE_DestroyTextureByName(char *name) {
  */
 SSGEDECL void SSGE_DestroyAllTextures() {
     _assert_engine_init();
-    SSGE_Array_Destroy(_texture_list, _destroy_texture);
-    _texture_list = SSGE_Array_Create();
+    SSGE_Array_Destroy(&_texture_list, _destroy_texture);
+    SSGE_Array_Create(&_texture_list);
 }

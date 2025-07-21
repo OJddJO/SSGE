@@ -43,7 +43,7 @@ SSGEDECL uint32_t SSGE_CreateTemplate(char *name, SSGE_Texture *texture, int wid
  */
 SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplate(uint32_t id) {
     _assert_engine_init();
-    SSGE_ObjectTemplate *ptr = SSGE_Array_Get(_object_template_list, id);
+    SSGE_ObjectTemplate *ptr = SSGE_Array_Get(&_object_template_list, id);
     if (ptr == NULL) {
         fprintf(stderr, "[SSGE][SSGE_GetTemplate] Object template not found: %u\n", id);
         exit(1);
@@ -62,7 +62,7 @@ static bool _find_template_name(void *ptr, void *name) {
  */
 SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplateByName(char *name) {
     _assert_engine_init();
-    SSGE_ObjectTemplate *ptr = SSGE_Array_Find(_object_template_list, _find_template_name, name);
+    SSGE_ObjectTemplate *ptr = SSGE_Array_Find(&_object_template_list, _find_template_name, name);
     if (ptr == NULL) {
         fprintf(stderr, "[SSGE][SSGE_GetTemplateByName] Object template not found: %s\n", name);
         exit(1);
@@ -76,7 +76,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplateByName(char *name) {
  */
 SSGEDECL void SSGE_DestroyTemplate(uint32_t id) {
     _assert_engine_init();
-    SSGE_ObjectTemplate *template = SSGE_Array_Pop(_object_template_list, id);
+    SSGE_ObjectTemplate *template = SSGE_Array_Pop(&_object_template_list, id);
     if (template == NULL) {
         fprintf(stderr, "[SSGE][SSGE_DestroyTemplate] Object template not found: %u\n", id);
         exit(1);
@@ -91,7 +91,7 @@ SSGEDECL void SSGE_DestroyTemplate(uint32_t id) {
  */
 SSGEDECL void SSGE_DestroyTemplateByName(char *name) {
     _assert_engine_init();
-    SSGE_ObjectTemplate *template = SSGE_Array_FindPop(_object_template_list, _find_template_name, name);
+    SSGE_ObjectTemplate *template = SSGE_Array_FindPop(&_object_template_list, _find_template_name, name);
     if (template == NULL) {
         fprintf(stderr, "[SSGE][SSGE_DestroyTemplateByName] Object template not found: %s\n", name);
         exit(1);
@@ -105,6 +105,6 @@ SSGEDECL void SSGE_DestroyTemplateByName(char *name) {
  */
 SSGEDECL void SSGE_DestroyAllTemplates() {
     _assert_engine_init();
-    SSGE_Array_Destroy(_object_template_list, _destroy_template);
-    _object_template_list = SSGE_Array_Create();
+    SSGE_Array_Destroy(&_object_template_list, _destroy_template);
+    SSGE_Array_Create(&_object_template_list);
 }

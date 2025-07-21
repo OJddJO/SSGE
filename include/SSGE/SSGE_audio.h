@@ -8,6 +8,25 @@
 extern "C" {
 #endif
 
+/******************************
+ * Structs
+ ******************************/
+
+/**
+ * Audio structure
+ * \param name The name of the audio
+ * \param audio The Mix_Chunk
+ */
+typedef struct _SSGE_Audio {
+    uint32_t id;
+    char *name;
+    struct Mix_Chunk *audio;
+} SSGE_Audio;
+
+/******************************
+ * Functions
+ ******************************/
+
 /**
  * Loads an audio
  * \param filename The path to the audio

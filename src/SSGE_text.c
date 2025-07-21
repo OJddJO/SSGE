@@ -36,7 +36,7 @@ SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name) {
     }
     strcpy(font->name, name);
 
-    SSGE_Array_Add(_font_list, font);
+    SSGE_Array_Add(&_font_list, font);
 }
 
 static bool _find_font_name(void *ptr, void *name) {
@@ -44,7 +44,7 @@ static bool _find_font_name(void *ptr, void *name) {
 }
 
 static SSGE_Font *_get_font(char *name, char *funcname) {
-    SSGE_Font *ptr = SSGE_Array_Find(_font_list, _find_font_name, name);
+    SSGE_Font *ptr = SSGE_Array_Find(&_font_list, _find_font_name, name);
     if (ptr == NULL) {
         fprintf(stderr, "[SSGE][%s] Font not found: %s\n", funcname, name);
         exit(1);
@@ -162,7 +162,7 @@ SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, 
  */
 SSGEDECL void SSGE_CloseFont(char *name) {
     _assert_engine_init();
-    SSGE_Font *font = SSGE_Array_FindPop(_font_list, _find_font_name, name);
+    SSGE_Font *font = SSGE_Array_FindPop(&_font_list, _find_font_name, name);
     if (font == NULL) {
         fprintf(stderr, "[SSGE][SSGE_CloseFont] Font not found: %s\n", name);
         exit(1);
@@ -177,6 +177,6 @@ SSGEDECL void SSGE_CloseFont(char *name) {
  */
 SSGEDECL void SSGE_CloseAllFonts() {
     _assert_engine_init();
-    SSGE_Array_Destroy(_font_list, _destroy_font);
-    _font_list = SSGE_Array_Create();
+    SSGE_Array_Destroy(&_font_list, _destroy_font);
+    SSGE_Array_Create(&_font_list);
 }
