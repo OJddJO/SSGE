@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "SSGE/SSGE_array.h"
+#include "SSGE/SSGE_error.h"
 
 #define _INITIAL_SIZE 256
 #define _IDX_PILE_INITIAL_SIZE 64
@@ -13,17 +14,13 @@
  */
 SSGEDECL void SSGE_Array_Create(SSGE_Array *array) {
     array->array = (void **)calloc(_INITIAL_SIZE, sizeof(void *));
-    if (array->array == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for array\n");
-        exit(1);
-    }
+    if (array->array == NULL) 
+        SSGE_Error("Failed to allocate memory for array");
     array->size = _INITIAL_SIZE;
     array->count = 0;
     array->indexes = (uint32_t *)malloc(sizeof(uint32_t) * _IDX_PILE_INITIAL_SIZE);
-    if (array->indexes == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Failed to allocate memory for array indexes pile\n");
-        exit(1);
-    }
+    if (array->indexes == NULL) 
+        SSGE_Error("Failed to allocate memory for array indexes pile");
     array->idxSize = _IDX_PILE_INITIAL_SIZE;
     array->idxCount = 0;
 }
@@ -36,10 +33,8 @@ SSGEDECL void SSGE_Array_Create(SSGE_Array *array) {
 SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
     if (array->size <= array->count) { // if the array is full, extend
         void **newArray = (void **)realloc(array->array, sizeof(void *) * array->size * _GROWTH_FACTOR);
-        if (newArray == NULL) {
-            fprintf(stderr, "[SSGE][CORE] Failed to realloc array\n");
-            exit(1);
-        }
+        if (newArray == NULL) 
+            SSGE_Error("Failed to realloc array");
         array->array = newArray;
         // Set new memory to NULL
         for (uint32_t i = array->size; i < array->size * _GROWTH_FACTOR; i++) {
@@ -63,10 +58,10 @@ SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
  * \return The pointer to the element
  */
 SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
-    if (idx >= array->size) {
-        fprintf(stderr, "[SSGE][CORE] Invalid out of bound\n");
-        exit(1);
-    }
+    if (idx >= array->size) 
+        SSGE_Error("Index out of bound");
+    if (array->array[idx] == NULL)
+        SSGE_Error("Invalid index");
     return array->array[idx];
 }
 
@@ -77,14 +72,10 @@ SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
  * \param destroyData The function to destroy the element to remove from the array
  */
 SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *)) {
-    if (idx >= array->size) {
-        fprintf(stderr, "[SSGE][CORE] Index out of bound\n");
-        exit(1);
-    }
-    if (array->array[idx] == NULL) {
-        fprintf(stderr, "[SSGE][CORE] Invalid index\n");
-        exit(1);
-    }
+    if (idx >= array->size) 
+        SSGE_Error("Index out of bound");
+    if (array->array[idx] == NULL) 
+        SSGE_Error("Invalid index");
 
     if (destroyData != NULL) destroyData(array->array[idx]);
     array->array[idx] = NULL;
@@ -92,10 +83,8 @@ SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyD
 
     if (array->idxSize <= array->idxCount) {
         uint32_t *newIndexes = (uint32_t *)realloc(array->indexes, sizeof(uint32_t) * array->idxSize * _GROWTH_FACTOR);
-        if (newIndexes == NULL) {
-            fprintf(stderr, "[SSGE][CORE] Failed to realloc array indexes pile\n");
-            exit(1);
-        }
+        if (newIndexes == NULL) 
+            SSGE_Error("Failed to realloc array indexes pile");
         array->indexes = newIndexes;
         array->idxSize *= _GROWTH_FACTOR;
     }
@@ -109,10 +98,8 @@ SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyD
  * \return The pointer to the popped element
  */
 SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
-    if (idx >= array->size) {
-        fprintf(stderr, "[SSGE][CORE] Index out of bound\n");
-        exit(1);
-    }
+    if (idx >= array->size) 
+        SSGE_Error("Index out of bound");
 
     void *element = array->array[idx];
     array->array[idx] = NULL;
@@ -120,10 +107,8 @@ SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
 
     if (array->idxSize <= array->idxCount) {
         uint32_t *newIndexes = (uint32_t *)realloc(array->indexes, sizeof(uint32_t) * array->idxSize * _GROWTH_FACTOR);
-        if (newIndexes == NULL) {
-            fprintf(stderr, "[SSGE][CORE] Failed to realloc array indexes pile\n");
-            exit(1);
-        }
+        if (newIndexes == NULL) 
+            SSGE_Error("Failed to realloc array indexes pile");
         array->indexes = newIndexes;
         array->idxSize *= _GROWTH_FACTOR;
     }

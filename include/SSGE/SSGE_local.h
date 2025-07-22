@@ -1,7 +1,11 @@
+// This file should not be included
+// It is used internally by the SSGE library
+
 #ifndef __SSGE_LOCAL_H__
 #define __SSGE_LOCAL_H__
 
 #include "SSGE/SSGE_types.h"
+#include "SSGE/SSGE_error.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,18 +24,26 @@ extern SSGE_Color _bg_color;
 extern bool _manual_update_frame;
 extern bool _update_frame;
 
-void _assert_engine_init();
+#define _assert_engine_init \
+if (!_engine.initialized) {\
+    fprintf(stderr, "[SSGE][%s] Engine not initialized\n", __func__);\
+    exit(1);\
+}\
+
+// Dummy type
+typedef struct _DummyType {
+    char *name;
+    uint32_t id;
+} DummyType;
 
 void _destroy_texture(void *ptr);
 void _destroy_object(void *ptr);
 void _destroy_template(void *ptr);
 void _destroy_font(void *ptr);
 void _destroy_audio(void *ptr);
+void _destroy_animation(void *ptr);
 
-uint32_t _add_texture_to_list(SSGE_Texture *texture, char *name, char *funcname);
-uint32_t _add_object_to_list(SSGE_Object *object, char *name, char *funcname);
-uint32_t _add_object_template_to_list(SSGE_ObjectTemplate *template, char *name, char *funcname);
-uint32_t _add_audio_to_list(SSGE_Audio *audio, char *name, char *funcname);
+uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, char *funcname);
 
 #ifdef __cplusplus
 }

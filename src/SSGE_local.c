@@ -11,17 +11,22 @@ SSGE_Array _object_list = {0};
 SSGE_Array _object_template_list = {0};
 SSGE_Array _font_list = {0};
 SSGE_Array _audio_list = {0};
+SSGE_Array _animation_list = {0};
 SSGE_Event _event = {0};
 SSGE_Color _color = {0, 0, 0, 255};
 SSGE_Color _bg_color = {0, 0, 0, 255};
 bool _manual_update_frame = false;
 bool _update_frame = true; // set to true to draw the first frame
 
-void _assert_engine_init() {
-    if (!_engine.initialized) {
-        fprintf(stderr, "[SSGE][FATAL] Engine not initialized\n");
+uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, char *funcname) {
+    ((DummyType *)element)->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (((DummyType *)element)->name == NULL) {
+        fprintf(stderr, "[SSGE][%s] Failed to allocate memory for name\n", funcname);
         exit(1);
     }
+    strcpy(((DummyType *)element)->name, name);
+
+    return ((DummyType *)element)->id = SSGE_Array_Add(list, element);
 }
 
 void _destroy_texture(void *ptr) {
@@ -59,50 +64,16 @@ void _destroy_audio(void *ptr) {
     free(audio);
 }
 
-uint32_t _add_texture_to_list(SSGE_Texture *texture, char *name, char *funcname) {
-    texture->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
-    if (texture->name == NULL) {
-        fprintf(stderr, "[SSGE][%s] Failed to allocate memory for texture name\n", funcname);
-        exit(1);
+void _destroy_animation(void *ptr) {
+    SSGE_Animation *animation = (SSGE_Animation *)ptr;
+    if (animation->type == SSGE_ANIM_FRAMES) {
+        for (uint32_t i = 0; i < animation->data.frameCount; i++) {
+            if (animation->data.frames[i] != NULL) {
+                SDL_DestroyTexture(animation->data.frames[i]);
+            }
+        }
+        free(animation->data.frames);
     }
-    strcpy(texture->name, name);
-
-    texture->id = SSGE_Array_Add(&_texture_list, texture);
-    return texture->id;
-}
-
-uint32_t _add_object_to_list(SSGE_Object *object, char *name, char *funcname) {
-    object->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
-    if (object->name == NULL) {
-        fprintf(stderr, "[SSGE][%s] Failed to allocate memory for object name\n", funcname);
-        exit(1);
-    }
-    strcpy(object->name, name);
-
-    object->id = SSGE_Array_Add(&_object_list, object);
-    return object->id;
-}
-
-uint32_t _add_object_template_to_list(SSGE_ObjectTemplate *template, char *name, char *funcname) {
-    template->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
-    if (template->name == NULL) {
-        fprintf(stderr, "[SSGE][%s] Failed to allocate memory for object template name\n", funcname);
-        exit(1);
-    }
-    strcpy(template->name, name);
-
-    template->id = SSGE_Array_Add(&_object_template_list, template);
-    return template->id;
-}
-
-uint32_t _add_audio_to_list(SSGE_Audio *audio, char *name, char *funcname) {
-    audio->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
-    if (audio->name == NULL) {
-        fprintf(stderr, "[SSGE][%s] Failed to allocate memory for audio name\n", funcname);
-        exit(1);
-    }
-    strcpy(audio->name, name);
-
-    audio->id = SSGE_Array_Add(&_audio_list, audio);
-    return audio->id;
+    free(animation->name);
+    free(animation);
 }

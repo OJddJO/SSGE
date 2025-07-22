@@ -20,18 +20,14 @@
  * \return The tilemap
  */
 SSGEDECL SSGE_Tilemap *SSGE_CreateTilemap(char *filename, int tileWidth, int tileHeight, int spacing, int nbRows, int nbCols) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Tilemap *tilemap = (SSGE_Tilemap *)malloc(sizeof(SSGE_Tilemap));
-    if (tilemap == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateTilemap] Failed to allocate memory for tilemap\n");
-        exit(1);
-    }
+    if (tilemap == NULL) 
+        SSGE_Error("Failed to allocate memory for tilemap");
 
     tilemap->texture = IMG_LoadTexture(_engine.renderer, filename);
-    if (tilemap->texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateTilemap] Failed to load tilemap: %s\n", IMG_GetError());
-        exit(1);
-    }
+    if (tilemap->texture == NULL) 
+        SSGE_ErrorEx("Failed to load tilemap: %s", IMG_GetError());
 
     tilemap->tileWidth = tileWidth;
     tilemap->tileHeight = tileHeight;
@@ -51,17 +47,13 @@ SSGEDECL SSGE_Tilemap *SSGE_CreateTilemap(char *filename, int tileWidth, int til
  * \note The tile must be destroyed after use
  */
 SSGEDECL SSGE_Tile *SSGE_GetTile(SSGE_Tilemap *tilemap, int tileRow, int tileCol) {
-    _assert_engine_init();
-    if (tileRow >= tilemap->nbRows || tileCol >= tilemap->nbCols) {
-        fprintf(stderr, "[SSGE][SSGE_GetTile] Tile out of bounds\n");
-        exit(1);
-    }
+    _assert_engine_init
+    if (tileRow >= tilemap->nbRows || tileCol >= tilemap->nbCols) 
+        SSGE_Error("Tile out of bounds");
 
     SSGE_Tile *tile = (SSGE_Tile *)malloc(sizeof(SSGE_Tile));
-    if (tile == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_GetTile] Failed to allocate memory for tile\n");
-        exit(1);
-    }
+    if (tile == NULL) 
+        SSGE_Error("Failed to allocate memory for tile");
 
     tile->tilemap = tilemap;
     tile->row = tileRow;
@@ -80,16 +72,17 @@ SSGEDECL SSGE_Tile *SSGE_GetTile(SSGE_Tilemap *tilemap, int tileRow, int tileCol
  * \note The texture is stored internally and can be accessed by its name or its id
  */
 SSGEDECL uint32_t SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int tileRow, int tileCol) {
-    _assert_engine_init();
-    SSGE_Tile *tile = SSGE_GetTile(tilemap, tileRow, tileCol);
+    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
+    if (texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture");
+
     texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tilemap->tileWidth, tilemap->tileHeight);
     SDL_SetRenderTarget(_engine.renderer, texture->texture);
-    SSGE_DrawTile(tile, 0, 0);
+    SSGE_DrawTileFromTilemap(tilemap, tileRow, tileCol, 0, 0);
     SDL_SetRenderTarget(_engine.renderer, NULL);
-    SSGE_DestroyTile(tile);
 
-    return _add_texture_to_list(texture, name, "SSGE_GetTileAsTexture");
+    return _add_to_list(&_texture_list, texture, name, "SSGE_GetTileAsTexture");
 }
 
 /**
@@ -99,7 +92,7 @@ SSGEDECL uint32_t SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int t
  * \param y The y position to draw the tile
  */
 SSGEDECL void SSGE_DrawTile(SSGE_Tile *tile, int x, int y) {
-    _assert_engine_init();
+    _assert_engine_init
     SDL_Rect src = {tile->col * (tile->tilemap->tileWidth + tile->tilemap->spacing), tile->row * (tile->tilemap->tileHeight + tile->tilemap->spacing), tile->tilemap->tileWidth, tile->tilemap->tileHeight};
     SDL_Rect dest = {x, y, tile->tilemap->tileWidth, tile->tilemap->tileHeight};
     SDL_RenderCopy(_engine.renderer, tile->tilemap->texture, &src, &dest);
@@ -114,7 +107,7 @@ SSGEDECL void SSGE_DrawTile(SSGE_Tile *tile, int x, int y) {
  * \param height The height of the tile
  */
 SSGEDECL void SSGE_DrawTileWithSize(SSGE_Tile *tile, int x, int y, int width, int height) {
-    _assert_engine_init();
+    _assert_engine_init
     SDL_Rect src = {tile->col * (tile->tilemap->tileWidth + tile->tilemap->spacing), tile->row * (tile->tilemap->tileHeight + tile->tilemap->spacing), tile->tilemap->tileWidth, tile->tilemap->tileHeight};
     SDL_Rect dest = {x, y, width, height};
     SDL_RenderCopy(_engine.renderer, tile->tilemap->texture, &src, &dest);
@@ -129,11 +122,9 @@ SSGEDECL void SSGE_DrawTileWithSize(SSGE_Tile *tile, int x, int y, int width, in
  * \param y The y position to draw the tile
  */
 SSGEDECL void SSGE_DrawTileFromTilemap(SSGE_Tilemap *tilemap, int tileRow, int tileCol, int x, int y) {
-    _assert_engine_init();
-    if (tileRow >= tilemap->nbRows || tileCol >= tilemap->nbCols) {
-        fprintf(stderr, "[SSGE][SSGE_DrawTileFromTilemap] Tile out of bounds\n");
-        exit(1);
-    }
+    _assert_engine_init
+    if (tileRow >= tilemap->nbRows || tileCol >= tilemap->nbCols) 
+        SSGE_Error("Tile out of bounds");
 
     SDL_Rect src = {tileCol * (tilemap->tileWidth + tilemap->spacing), tileRow * (tilemap->tileHeight + tilemap->spacing), tilemap->tileWidth, tilemap->tileHeight};
     SDL_Rect dest = {x, y, tilemap->tileWidth, tilemap->tileHeight};
@@ -154,7 +145,7 @@ SSGEDECL void SSGE_DestroyTile(SSGE_Tile *tile) {
  * \param tilemap The tilemap to destroy
  */
 SSGEDECL void SSGE_DestroyTilemap(SSGE_Tilemap *tilemap) {
-    _assert_engine_init();
+    _assert_engine_init
     SDL_DestroyTexture(tilemap->texture);
     free(tilemap);
 }

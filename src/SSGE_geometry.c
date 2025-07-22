@@ -20,7 +20,7 @@
  * \param color The color of the line
  */
 SSGEDECL void SSGE_DrawLine(int x1, int y1, int x2, int y2, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     lineRGBA(_engine.renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -35,7 +35,7 @@ SSGEDECL void SSGE_DrawLine(int x1, int y1, int x2, int y2, SSGE_Color color) {
  * \param color The color of the rectangle
  */
 SSGEDECL void SSGE_DrawRect(int x1, int y1, int x2, int y2, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     rectangleRGBA(_engine.renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -50,7 +50,7 @@ SSGEDECL void SSGE_DrawRect(int x1, int y1, int x2, int y2, SSGE_Color color) {
  * \param color The color of the ellipse
  */
 SSGEDECL void SSGE_DrawEllipse(int x, int y, int rx, int ry, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     ellipseRGBA(_engine.renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -64,7 +64,7 @@ SSGEDECL void SSGE_DrawEllipse(int x, int y, int rx, int ry, SSGE_Color color) {
  * \param color The color of the circle
  */
 SSGEDECL void SSGE_DrawCircle(int x, int y, int radius, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     circleRGBA(_engine.renderer, x, y, radius, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -80,7 +80,7 @@ SSGEDECL void SSGE_DrawCircle(int x, int y, int radius, SSGE_Color color) {
  * \param thickness The thickness of the line
  */
 SSGEDECL void SSGE_DrawLineThick(int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     thickLineRGBA(_engine.renderer, x1, y1, x2, y2, thickness, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -96,7 +96,7 @@ SSGEDECL void SSGE_DrawLineThick(int x1, int y1, int x2, int y2, SSGE_Color colo
  * \param thickness The thickness of the rectangle
  */
 SSGEDECL void SSGE_DrawRectThick(int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     for (int i = 0; i < thickness; i++) {
         rectangleRGBA(_engine.renderer, x1 + i, y1 + i, x2 - i, y2 - i, color.r, color.g, color.b, color.a);
@@ -113,7 +113,7 @@ SSGEDECL void SSGE_DrawRectThick(int x1, int y1, int x2, int y2, SSGE_Color colo
  * \param thickness The thickness of the circle
  */
 SSGEDECL void SSGE_DrawCircleThick(int x, int y, int radius, SSGE_Color color, int thickness) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     thickCircleRGBA(_engine.renderer, x, y, radius, color.r, color.g, color.b, color.a, thickness);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -129,7 +129,7 @@ SSGEDECL void SSGE_DrawCircleThick(int x, int y, int radius, SSGE_Color color, i
  * \param thickness The thickness of the ellipse
  */
 SSGEDECL void SSGE_DrawEllipseThick(int x, int y, int rx, int ry, SSGE_Color color, int thickness) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     thickEllipseRGBA(_engine.renderer, x, y, rx, ry, color.r, color.g, color.b, color.a, thickness);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -143,7 +143,7 @@ SSGEDECL void SSGE_DrawEllipseThick(int x, int y, int rx, int ry, SSGE_Color col
  * \param y2 The y position of the point at the bottom-right corner of the rectangle
  */
 SSGEDECL void SSGE_FillRect(int x1, int y1, int x2, int y2, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     boxRGBA(_engine.renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -157,7 +157,7 @@ SSGEDECL void SSGE_FillRect(int x1, int y1, int x2, int y2, SSGE_Color color) {
  * \param color The color of the circle
  */
 SSGEDECL void SSGE_FillCircle(int x, int y, int radius, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     filledCircleRGBA(_engine.renderer, x, y, radius, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -172,7 +172,7 @@ SSGEDECL void SSGE_FillCircle(int x, int y, int radius, SSGE_Color color) {
  * \param color The color of the ellipse
  */
 SSGEDECL void SSGE_FillEllipse(int x, int y, int rx, int ry, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     if (color.a == 0) return;
     filledEllipseRGBA(_engine.renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -185,7 +185,7 @@ SSGEDECL void SSGE_FillEllipse(int x, int y, int rx, int ry, SSGE_Color color) {
  * \param y The y position to draw the texture
  */
 SSGEDECL void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y) {
-    _assert_engine_init();
+    _assert_engine_init
     SDL_Rect rect = {x, y, _engine.width, _engine.height};
     SDL_RenderCopy(_engine.renderer, texture->texture, NULL, &rect);
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -203,18 +203,14 @@ SSGEDECL void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y) {
  * \note The texture is stored internally and can be accessed by its name
  */
 SSGEDECL uint32_t SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
-    if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateLine] Failed to allocate memory for texture\n");
-        exit(1);
-    }
+    if (texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture");
 
     texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
-    if (texture->texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateLine] Failed to allocate memory for texture name\n");
-        exit(1);
-    }
+    if (texture->texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture name")
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -225,7 +221,7 @@ SSGEDECL uint32_t SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SS
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_texture_to_list(texture, name, "SSGE_CreateLine");
+    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateLine");
 }
 
 /**
@@ -240,18 +236,14 @@ SSGEDECL uint32_t SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SS
  * \note The texture is stored internally and can be accessed by its name
  */
 SSGEDECL uint32_t SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
-    if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateRect] Failed to allocate memory for texture\n");
-        exit(1);
-    }
+    if (texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture");
 
     texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
-    if (texture->texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateRect] Failed to allocate memory for texture name\n");
-        exit(1);
-    }
+    if (texture->texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture name");
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -262,7 +254,7 @@ SSGEDECL uint32_t SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SS
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_texture_to_list(texture, name, "SSGE_CreateRect");
+    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateRect");
 }
 
 /**
@@ -276,18 +268,14 @@ SSGEDECL uint32_t SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SS
  * \note The texture is stored internally and can be accessed by its name
  */
 SSGEDECL uint32_t SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
-    if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateCircle] Failed to allocate memory for texture\n");
-        exit(1);
-    }
+    if (texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture");
 
     texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
-    if (texture->texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateCircle] Failed to allocate memory for texture name\n");
-        exit(1);
-    }
+    if (texture->texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture name");
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -298,7 +286,7 @@ SSGEDECL uint32_t SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_C
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_texture_to_list(texture, name, "SSGE_CreateCircle");
+    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateCircle");
 }
 
 /**
@@ -313,18 +301,14 @@ SSGEDECL uint32_t SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_C
  * \note The texture is stored internally and can be accessed by its name
  */
 SSGEDECL uint32_t SSGE_CreateEllipse(char *name, int x, int y, int rx, int ry, SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
-    if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateEllipse] Failed to allocate memory for texture\n");
-        exit(1);
-    }
+    if (texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture");
 
     texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
-    if (texture->texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateEllipse] Failed to allocate memory for texture name\n");
-        exit(1);
-    }
+    if (texture->texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture name");
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -335,7 +319,7 @@ SSGEDECL uint32_t SSGE_CreateEllipse(char *name, int x, int y, int rx, int ry, S
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_texture_to_list(texture, name, "SSGE_CreateEllipse");
+    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateEllipse");
 }
 
 /**
@@ -351,18 +335,14 @@ SSGEDECL uint32_t SSGE_CreateEllipse(char *name, int x, int y, int rx, int ry, S
  * \note The texture is stored internally and can be accessed by its name
  */
 SSGEDECL uint32_t SSGE_CreateLineThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
-    if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateLineThick] Failed to allocate memory for texture\n");
-        exit(1);
-    }
+    if (texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture");
 
     texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
-    if (texture->texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateLineThick] Failed to allocate memory for texture name\n");
-        exit(1);
-    }
+    if (texture->texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture name");
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -373,7 +353,7 @@ SSGEDECL uint32_t SSGE_CreateLineThick(char *name, int x1, int y1, int x2, int y
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_texture_to_list(texture, name, "SSGE_CreateLineThick");
+    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateLineThick");
 }
 
 /**
@@ -389,18 +369,14 @@ SSGEDECL uint32_t SSGE_CreateLineThick(char *name, int x1, int y1, int x2, int y
  * \note The texture is stored internally and can be accessed by its name
  */
 SSGEDECL uint32_t SSGE_CreateRectThick(char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
-    if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateRectThick] Failed to allocate memory for texture\n");
-        exit(1);
-    }
+    if (texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture");
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);    
-    if (texture->texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateRectThick] Failed to allocate memory for texture name\n");
-        exit(1);
-    }
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    if (texture->texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture name");
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -413,7 +389,7 @@ SSGEDECL uint32_t SSGE_CreateRectThick(char *name, int x1, int y1, int x2, int y
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_texture_to_list(texture, name, "SSGE_CreateRectThick");
+    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateRectThick");
 }
 
 /**
@@ -428,18 +404,14 @@ SSGEDECL uint32_t SSGE_CreateRectThick(char *name, int x1, int y1, int x2, int y
  * \note The texture is stored internally and can be accessed by its name
  */
 SSGEDECL uint32_t SSGE_CreateCircleThick(char *name, int x, int y, int radius, SSGE_Color color, int thickness) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
-    if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateCircleThick] Failed to allocate memory for texture\n");
-        exit(1);
-    }
+    if (texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture");
 
     texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
-    if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateCircleThick] Failed to allocate memory for texture name\n");
-        exit(1);
-    }
+    if (texture->texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture name");
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -450,7 +422,7 @@ SSGEDECL uint32_t SSGE_CreateCircleThick(char *name, int x, int y, int radius, S
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_texture_to_list(texture, name, "SSGE_CreateCircleThick");
+    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateCircleThick");
 }
 
 /**
@@ -466,18 +438,14 @@ SSGEDECL uint32_t SSGE_CreateCircleThick(char *name, int x, int y, int radius, S
  * \note The texture is stored internally and can be accessed by its name
  */
 SSGEDECL uint32_t SSGE_CreateEllipseThick(char *name, int x, int y, int rx, int ry, SSGE_Color color, int thickness) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
-    if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateEllipseThick] Failed to allocate memory for texture\n");
-        exit(1);
-    }
+    if (texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture");
 
     texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
-    if (texture->texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CreateEllipseThick] Failed to allocate memory for texture name\n");
-        exit(1);
-    }
+    if (texture->texture == NULL) 
+        SSGE_Error("Failed to allocate memory for texture name");
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -488,5 +456,5 @@ SSGEDECL uint32_t SSGE_CreateEllipseThick(char *name, int x, int y, int rx, int 
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_texture_to_list(texture, name, "SSGE_CreateEllipseThick");
+    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateEllipseThick");
 }

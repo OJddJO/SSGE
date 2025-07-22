@@ -16,20 +16,16 @@
  * \return The audio
  */
 SSGEDECL uint32_t SSGE_LoadAudio(char *filename, char *name) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Audio *audio = (SSGE_Audio *)malloc(sizeof(SSGE_Audio));
-    if (audio == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_LoadAudio] Failed to allocate memory for audio\n");
-        exit(1);
-    }
+    if (audio == NULL) 
+        SSGE_Error("Failed to allocate memory for audio")
 
     audio->audio = Mix_LoadWAV(filename);
-    if (audio->audio == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_LoadAudio] Failed to load audio: %s\n", Mix_GetError());
-        exit(1);
-    }
+    if (audio->audio == NULL) 
+        SSGE_ErrorEx("Failed to load audio: %s", Mix_GetError());
 
-    return _add_audio_to_list(audio, name, "SSGE_LoadAudio");
+    return _add_to_list(&_audio_list, audio, name, "SSGE_LoadAudio");
 }
 
 /**
@@ -38,16 +34,13 @@ SSGEDECL uint32_t SSGE_LoadAudio(char *filename, char *name) {
  * \param channel The channel to play the audio on, -1 for first free channel.
  */
 SSGEDECL void SSGE_PlayAudio(uint32_t id, int channel) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Audio *audio = SSGE_Array_Get(&_audio_list, id);
-    if (audio == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_PlayAudio] Audio not found: %u\n", id);
-        exit(1);
-    }
+    if (audio == NULL) 
+        SSGE_ErrorEx("Audio not found: %d", id);
 
-    if (Mix_PlayChannel(channel, audio->audio, 0) == -1) {
-        fprintf(stderr, "[SSGE][SSGE_PlayAudio] Audio could not be played: %s", Mix_GetError());
-    }
+    if (Mix_PlayChannel(channel, audio->audio, 0) == -1) 
+        SSGE_WarningEx("Audio could not be played: %s", Mix_GetError());
 }
 
 static bool _find_audio_name(void *audio, void *name) {
@@ -60,16 +53,13 @@ static bool _find_audio_name(void *audio, void *name) {
  * \param channel The channel to play the audio on, -1 for first free channel.
  */
 SSGEDECL void SSGE_PlayAudioByName(char *name, int channel) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Audio *audio = SSGE_Array_Find(&_audio_list, _find_audio_name, name);
-    if (audio == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_PlayAudioByName] Audio not found: %s\n", name);
-        exit(1);
-    }
+    if (audio == NULL) 
+        SSGE_ErrorEx("Audio not found: %s", name);
 
-    if (Mix_PlayChannel(channel, audio->audio, 0) == -1) {
-        fprintf(stderr, "[SSGE][SSGE_PlayAudioByName] Audio could not be played: %s", Mix_GetError());
-    }
+    if (Mix_PlayChannel(channel, audio->audio, 0) == -1) 
+        SSGE_WarningEx("Audio could not be played: %s", Mix_GetError());
 }
 
 /**
@@ -77,7 +67,7 @@ SSGEDECL void SSGE_PlayAudioByName(char *name, int channel) {
  * \param channel The channel to resume the audio on, -1 for all
  */
 SSGEDECL void SSGE_ResumeAudio(int channel) {
-    _assert_engine_init();
+    _assert_engine_init
     Mix_Resume(channel);
 }
 
@@ -86,7 +76,7 @@ SSGEDECL void SSGE_ResumeAudio(int channel) {
  * \param channel The channel to pause the audio on, -1 for all
  */
 SSGEDECL void SSGE_PauseAudio(int channel) {
-    _assert_engine_init();
+    _assert_engine_init
     Mix_Pause(channel);
 }
 
@@ -95,7 +85,7 @@ SSGEDECL void SSGE_PauseAudio(int channel) {
  * \param channel The channel to stop the audio on, -1 for all
  */
 SSGEDECL void SSGE_StopAudio(int channel) {
-    _assert_engine_init();
+    _assert_engine_init
     Mix_HaltChannel(channel);
 }
 
@@ -104,12 +94,10 @@ SSGEDECL void SSGE_StopAudio(int channel) {
  * \param id The id of the audio
  */
 SSGEDECL void SSGE_CloseAudio(uint32_t id) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Audio *audio = SSGE_Array_Pop(&_audio_list, id);
-    if (audio == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CloseAudio] Audio not found: %d", id);
-        exit(1);
-    }
+    if (audio == NULL) 
+        SSGE_ErrorEx("Audio not found: %u", id);
     Mix_FreeChunk(audio->audio);
     free(audio->name);
     free(audio);
@@ -120,12 +108,10 @@ SSGEDECL void SSGE_CloseAudio(uint32_t id) {
  * \param name The name of the audio
  */
 SSGEDECL void SSGE_CloseAudioByName(char *name) {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Audio *audio = SSGE_Array_FindPop(&_audio_list, _find_audio_name, name);
-    if (audio == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_CloseAudioByName] Audio not found: %s", name);
-        exit(1);
-    }
+    if (audio == NULL) 
+        SSGE_ErrorEx("Audio not found: %s", name);
     Mix_FreeChunk(audio->audio);
     free(audio->name);
     free(audio);
@@ -135,7 +121,7 @@ SSGEDECL void SSGE_CloseAudioByName(char *name) {
  * Closes all audios
  */
 SSGEDECL void SSGE_CloseAllAudios() {
-    _assert_engine_init();
+    _assert_engine_init
     SSGE_Array_Destroy(&_audio_list, _destroy_audio);
     SSGE_Array_Create(&_audio_list);
 }

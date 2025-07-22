@@ -10,7 +10,7 @@ static void create_hitboxes();
 
 int main(int argc, char *argv[]) {
     // Initialize the engine
-    SSGE_Init("TicTacToe", WIN_W, WIN_H, FPS);
+    // SSGE_Init("TicTacToe", WIN_W, WIN_H, FPS);
     // Load fonts with sizes 32 and 64
     SSGE_LoadFont("assets/font.ttf", 32, "font_32");
     SSGE_LoadFont("assets/font.ttf", 64, "font_64");

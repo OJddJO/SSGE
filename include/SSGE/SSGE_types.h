@@ -92,8 +92,8 @@ typedef struct _SSGE_Engine {
  * \param texture The SDL_Texture
  */
 typedef struct _SSGE_Texture {
-    uint32_t id;
     char *name;
+    uint32_t id;
     struct SDL_Texture *texture;
 } SSGE_Texture;
 
@@ -107,8 +107,8 @@ typedef struct _SSGE_Texture {
  * \param hitbox If objects created from this template have a hitbox
  */
 typedef struct _SSGE_ObjectTemplate {
-    uint32_t id;
     char *name;
+    uint32_t id;
     SSGE_Texture *texture;
     int width;
     int height;
@@ -129,8 +129,8 @@ typedef struct _SSGE_ObjectTemplate {
  * \param data The data of the object
  */
 typedef struct _SSGE_Object {
-    uint32_t id;
     char *name;
+    uint32_t id;
     struct SDL_Texture *texture;
     int x;
     int y;
@@ -183,10 +183,10 @@ typedef enum _SSGE_AnimationType {
  * \param id The id of the animation
  * \param name The name of the animation
  * \param type The animation type
- * \param data The data of the animation, if `type` is `SSGE_ANIM_FRAMES`
+ * \param data The data of the animation if `type` is `SSGE_ANIM_FRAMES`
  * \param data.frames An array of the animation frames
  * \param data.frameCount The number of animation frames
- * \param draw The animation function, if `type` is `SSGE_ANIM_FUNCTION`. Must take in an `SSGE_AnimationState` pointer
+ * \param draw The animation function if `type` is `SSGE_ANIM_FUNCTION`. Must take in an `SSGE_AnimationState` pointer
  */
 typedef struct _SSGE_Animation {
     char *name;
@@ -194,7 +194,7 @@ typedef struct _SSGE_Animation {
     SSGE_AnimationType type;
     union {
         struct _SSGE_AnimationData {
-            struct SDL_Texture *frames;
+            struct SDL_Texture **frames;
             uint32_t frameCount;
         } data;
         void (*draw)(SSGE_AnimationState *);
@@ -255,8 +255,8 @@ typedef struct _SSGE_Font {
  * \param audio The Mix_Chunk
  */
 typedef struct _SSGE_Audio {
-    uint32_t id;
     char *name;
+    uint32_t id;
     struct Mix_Chunk *audio;
 } SSGE_Audio;
 

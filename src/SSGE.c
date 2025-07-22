@@ -38,47 +38,31 @@ static int _event_filter(void *userdata, SDL_Event *event) {
  * \return The engine struct
  */
 SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
-    if (_engine.initialized) {
-        fprintf(stderr, "[SSGE][SSGE_Init] Engine already initialized\n");
-        exit(1);
-    }
+    if (_engine.initialized)
+        SSGE_Error("Engine already initialized");
 
-    if (SDL_Init(SDL_INIT_VIDEO) != 0) {
-        fprintf(stderr, "[SSGE][SSGE_Init] Failed to initialize SDL: %s\n", SDL_GetError());
-        exit(1);
-    }
+    if (SDL_Init(SDL_INIT_VIDEO) != 0)
+        SSGE_ErrorEx("Failed to initialize SDL: %s", SDL_GetError());
 
-    if (TTF_Init() != 0) {
-        fprintf(stderr, "[SSGE][SSGE_Init] Failed to initialize TTF: %s\n", TTF_GetError());
-        exit(1);
-    }
+    if (TTF_Init() != 0)
+        SSGE_ErrorEx("Failed to initialize TTF: %s", TTF_GetError());
 
     _engine.window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if (_engine.window == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_Init] Failed to create window: %s\n", SDL_GetError());
-        exit(1);
-    }
+    if (_engine.window == NULL)
+        SSGE_ErrorEx("Failed to create window: %s", SDL_GetError());
 
     _engine.renderer = SDL_CreateRenderer(_engine.window, -1, SDL_RENDERER_ACCELERATED);
-    if (_engine.renderer == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_Init] Failed to create renderer: %s\n", SDL_GetError());
-        exit(1);
-    }
+    if (_engine.renderer == NULL)
+        SSGE_ErrorEx("Failed to create renderer: %s", SDL_GetError());
 
-    if (SDL_SetRenderDrawBlendMode(_engine.renderer, SDL_BLENDMODE_BLEND) != 0) {
-        fprintf(stderr, "[SSGE][SSGE_Init] Failed to set render draw blend mode: %s\n", SDL_GetError());
-        exit(1);
-    }
+    if (SDL_SetRenderDrawBlendMode(_engine.renderer, SDL_BLENDMODE_BLEND) != 0)
+        SSGE_ErrorEx("Failed to set renderer to blend mode: %s", SDL_GetError());
 
-    if (Mix_Init(MIX_INIT_MP3 || MIX_INIT_OGG || MIX_INIT_WAVPACK) == 0) {
-        fprintf(stderr, "[SSGE][SSGE_Init] Failed to initialize audio mixer: %s\n", Mix_GetError());
-        exit(1);
-    }
+    if (Mix_Init(MIX_INIT_MP3 || MIX_INIT_OGG || MIX_INIT_WAVPACK) == 0) 
+        SSGE_ErrorEx("Failed to initialize audio mixer: %s", SDL_GetError());
 
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) {
-        fprintf(stderr, "[SSGE][SSGE_Init] Failed to open audio device for playback: %s\n", Mix_GetError());
-        exit(1);
-    }
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) 
+        SSGE_ErrorEx("Failed to open audio device for playback: %s", SDL_GetError());
 
     SDL_SetEventFilter(_event_filter, NULL);
 
@@ -89,11 +73,13 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
     SSGE_Array_Create(&_object_template_list);
     SSGE_Array_Create(&_font_list);
     SSGE_Array_Create(&_audio_list);
+    SSGE_Array_Create(&_animation_list);
 
     _engine.isRunning = false;
     _engine.width = width;
     _engine.height = height;
     _engine.fps = fps;
+    _engine.initialized = true;
 
     return &_engine;
 }
@@ -103,13 +89,14 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
  * \note This function must be called at the end of the program
  */
 SSGEDECL void SSGE_Quit() {
-    _assert_engine_init();
+    _assert_engine_init
 
     SSGE_Array_Destroy(&_texture_list, _destroy_texture);
     SSGE_Array_Destroy(&_object_list, _destroy_object);
     SSGE_Array_Destroy(&_object_template_list, _destroy_template);
     SSGE_Array_Destroy(&_font_list, _destroy_font);
     SSGE_Array_Destroy(&_audio_list, _destroy_audio);
+    SSGE_Array_Destroy(&_animation_list, _destroy_animation);
 
     SDL_DestroyRenderer(_engine.renderer);
     SDL_DestroyWindow(_engine.window);
@@ -128,7 +115,7 @@ SSGEDECL void SSGE_Quit() {
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
  */
 SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*eventHandler)(SSGE_Event, Game *), Game *data) {
-    _assert_engine_init();
+    _assert_engine_init
 
     uint32_t frameStart;
     int frameTime;
@@ -171,7 +158,7 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
  * \param title The title of the window
  */
 SSGEDECL void SSGE_SetWindowTitle(char *title) {
-    _assert_engine_init();
+    _assert_engine_init
     SDL_SetWindowTitle(_engine.window, title);
 }
 
@@ -180,12 +167,10 @@ SSGEDECL void SSGE_SetWindowTitle(char *title) {
  * \param filename The path to the icon
  */
 SSGEDECL void SSGE_SetWindowIcon(char *filename) {
-    _assert_engine_init();
+    _assert_engine_init
     SDL_Surface *icon = IMG_Load(filename);
-    if (icon == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_SetWindowIcon] Failed to load icon: %s\n", IMG_GetError());
-        exit(1);
-    }
+    if (icon == NULL) 
+        SSGE_ErrorEx("Failed to load icon: %s", IMG_GetError());
     SDL_SetWindowIcon(_engine.window, icon);
     SDL_FreeSurface(icon);
 }
@@ -195,7 +180,7 @@ SSGEDECL void SSGE_SetWindowIcon(char *filename) {
  * \param resizable True if the window should be resizable, false otherwise
  */
 SSGEDECL void SSGE_WindowResizable(bool resizable) {
-    _assert_engine_init();
+    _assert_engine_init
     SDL_SetWindowResizable(_engine.window, resizable ? SDL_TRUE : SDL_FALSE);
 }
 
@@ -204,7 +189,7 @@ SSGEDECL void SSGE_WindowResizable(bool resizable) {
  * \param fullscreen True if the window should be fullscreen, false otherwise
  */
 SSGEDECL void SSGE_WindowFullscreen(bool fullscreen) {
-    _assert_engine_init();
+    _assert_engine_init
     SDL_SetWindowFullscreen(_engine.window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
@@ -216,7 +201,7 @@ SSGEDECL void SSGE_WindowFullscreen(bool fullscreen) {
  * \note Setting the manual update mode may be more efficient when the screen does not need to be updated every frame
  */
 SSGEDECL void SSGE_SetManualUpdate(bool manualUpdate) {
-    _assert_engine_init();
+    _assert_engine_init
     _manual_update_frame = manualUpdate;
 }
 
@@ -240,7 +225,7 @@ SSGEDECL void SSGE_ManualUpdate() {
  * \param color The color to set
  */
 SSGEDECL void SSGE_SetColor(SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     _color = color;
     SDL_SetRenderDrawColor(_engine.renderer, color.r, color.g, color.b, color.a);
 }
@@ -250,7 +235,7 @@ SSGEDECL void SSGE_SetColor(SSGE_Color color) {
  * \param color The color to set
  */
 SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color) {
-    _assert_engine_init();
+    _assert_engine_init
     _bg_color = color;
 }
 
@@ -264,7 +249,7 @@ SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color) {
  * \param y The variable to store the y position of the mouse
  */
 SSGEDECL void SSGE_GetMousePosition(int *x, int *y) {
-    _assert_engine_init();
+    _assert_engine_init
     SDL_GetMouseState(x, y);
 }
 
@@ -274,7 +259,7 @@ SSGEDECL void SSGE_GetMousePosition(int *x, int *y) {
  * \return True if the object is hovered, false otherwise
  */
 SSGEDECL bool SSGE_ObjectIsHovered(SSGE_Object *object) {
-    _assert_engine_init();
+    _assert_engine_init
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     return mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height;
@@ -291,7 +276,7 @@ static bool _is_hovered(SSGE_Object *ptr, void *mousePos) {
  * \warning If multiple objects are hovered, returns the hovered object with the smallest id
  */
 SSGEDECL SSGE_Object *SSGE_GetHoveredObject() {
-    _assert_engine_init();
+    _assert_engine_init
     int mousePos[2];
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);
 
@@ -308,7 +293,7 @@ SSGEDECL SSGE_Object *SSGE_GetHoveredObject() {
  * \return The number of objects retrieved
  */
 SSGEDECL uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {
-    _assert_engine_init();
+    _assert_engine_init
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     
