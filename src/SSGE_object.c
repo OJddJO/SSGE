@@ -90,7 +90,7 @@ SSGEDECL bool SSGE_ObjectExistsByName(char *name) {
 SSGEDECL void SSGE_DrawObject(SSGE_Object *object) {
     _assert_engine_init();
     SDL_Rect rect = {object->x, object->y, object->width, object->height};
-    SDL_RenderCopy(_engine->renderer, object->texture, NULL, &rect);
+    SDL_RenderCopy(_engine.renderer, object->texture, NULL, &rect);
 }
 
 /**

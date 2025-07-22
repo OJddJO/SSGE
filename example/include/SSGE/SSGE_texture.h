@@ -15,7 +15,7 @@ extern "C" {
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_LoadTexture(char *filename, char *name);
+SSGEDECL uint32_t SSGE_CreateTexture(char *filename, char *name);
 
 /**
  * Gets a texture by id

@@ -8,39 +8,6 @@
 extern "C" {
 #endif
 
-/******************************
- * Structs
- ******************************/
-
-/**
- * Object structure
- * \param id The id of the object
- * \param name The name of the object
- * \param texture The texture of the object
- * \param x The x position of the object
- * \param y The y position of the object
- * \param width The width of the object
- * \param height The height of the object
- * \param hitbox If the object has a hitbox
- * \param data The data of the object
- */
-typedef struct _SSGE_Object {
-    uint32_t id;
-    char *name;
-    struct SDL_Texture *texture;
-    int x;
-    int y;
-    int width;
-    int height;
-    bool hitbox;
-    void *data;
-    void (*destroyData)(void *);
-} SSGE_Object;
-
-/******************************
- * Functions
- ******************************/
-
 /**
  * Creates an object
  * \param name The name of the object

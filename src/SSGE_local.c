@@ -5,7 +5,7 @@
 
 #include "SSGE/SSGE_local.h"
 
-SSGE_Engine *_engine = NULL;
+SSGE_Engine _engine = {0};
 SSGE_Array _texture_list = {0};
 SSGE_Array _object_list = {0};
 SSGE_Array _object_template_list = {0};
@@ -18,7 +18,7 @@ bool _manual_update_frame = false;
 bool _update_frame = true; // set to true to draw the first frame
 
 void _assert_engine_init() {
-    if (_engine == NULL) {
+    if (!_engine.initialized) {
         fprintf(stderr, "[SSGE][FATAL] Engine not initialized\n");
         exit(1);
     }

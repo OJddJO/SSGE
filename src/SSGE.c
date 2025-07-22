@@ -38,14 +38,8 @@ static int _event_filter(void *userdata, SDL_Event *event) {
  * \return The engine struct
  */
 SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
-    if (_engine != NULL) {
+    if (_engine.initialized) {
         fprintf(stderr, "[SSGE][SSGE_Init] Engine already initialized\n");
-        exit(1);
-    }
-
-    _engine = (SSGE_Engine *)malloc(sizeof(SSGE_Engine));
-    if (_engine == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_Init] Failed to allocate memory for engine\n");
         exit(1);
     }
 
@@ -59,19 +53,19 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
         exit(1);
     }
 
-    _engine->window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
-    if (_engine->window == NULL) {
+    _engine.window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
+    if (_engine.window == NULL) {
         fprintf(stderr, "[SSGE][SSGE_Init] Failed to create window: %s\n", SDL_GetError());
         exit(1);
     }
 
-    _engine->renderer = SDL_CreateRenderer(_engine->window, -1, SDL_RENDERER_ACCELERATED);
-    if (_engine->renderer == NULL) {
+    _engine.renderer = SDL_CreateRenderer(_engine.window, -1, SDL_RENDERER_ACCELERATED);
+    if (_engine.renderer == NULL) {
         fprintf(stderr, "[SSGE][SSGE_Init] Failed to create renderer: %s\n", SDL_GetError());
         exit(1);
     }
 
-    if (SDL_SetRenderDrawBlendMode(_engine->renderer, SDL_BLENDMODE_BLEND) != 0) {
+    if (SDL_SetRenderDrawBlendMode(_engine.renderer, SDL_BLENDMODE_BLEND) != 0) {
         fprintf(stderr, "[SSGE][SSGE_Init] Failed to set render draw blend mode: %s\n", SDL_GetError());
         exit(1);
     }
@@ -88,7 +82,7 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
 
     SDL_SetEventFilter(_event_filter, NULL);
 
-    SDL_SetRenderDrawColor(_engine->renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(_engine.renderer, 0, 0, 0, 255);
 
     SSGE_Array_Create(&_texture_list);
     SSGE_Array_Create(&_object_list);
@@ -96,12 +90,12 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
     SSGE_Array_Create(&_font_list);
     SSGE_Array_Create(&_audio_list);
 
-    _engine->isRunning = true;
-    _engine->width = width;
-    _engine->height = height;
-    _engine->fps = fps;
+    _engine.isRunning = false;
+    _engine.width = width;
+    _engine.height = height;
+    _engine.fps = fps;
 
-    return _engine;
+    return &_engine;
 }
 
 /**
@@ -117,12 +111,11 @@ SSGEDECL void SSGE_Quit() {
     SSGE_Array_Destroy(&_font_list, _destroy_font);
     SSGE_Array_Destroy(&_audio_list, _destroy_audio);
 
-    SDL_DestroyRenderer(_engine->renderer);
-    SDL_DestroyWindow(_engine->window);
+    SDL_DestroyRenderer(_engine.renderer);
+    SDL_DestroyWindow(_engine.window);
     Mix_CloseAudio();
     Mix_Quit();
     SDL_Quit();
-    free(_engine);
 }
 
 /**
@@ -140,30 +133,31 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
     uint32_t frameStart;
     int frameTime;
 
-    while (_engine->isRunning) {
+    _engine.isRunning = true;
+    while (_engine.isRunning) {
         frameStart = SDL_GetTicks();
 
         while (SDL_PollEvent((SDL_Event *)&_event)) {
             if (_event.type == SDL_QUIT) {
-                _engine->isRunning = false;
+                _engine.isRunning = false;
             }
             if (eventHandler) eventHandler(_event, data);
         }
 
         if (update) update(data);
         if (_update_frame || !_manual_update_frame) {
-            SDL_SetRenderDrawColor(_engine->renderer, _bg_color.r, _bg_color.g, _bg_color.b, _bg_color.a);
-            SDL_RenderClear(_engine->renderer);
-            SDL_SetRenderDrawColor(_engine->renderer, _color.r, _color.g, _color.b, _color.a);
+            SDL_SetRenderDrawColor(_engine.renderer, _bg_color.r, _bg_color.g, _bg_color.b, _bg_color.a);
+            SDL_RenderClear(_engine.renderer);
+            SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
             if (draw) draw(data);
             _update_frame = false;
         }
 
-        SDL_RenderPresent(_engine->renderer);
+        SDL_RenderPresent(_engine.renderer);
 
         frameTime = SDL_GetTicks() - frameStart;
-        if (frameTime < 1000 / _engine->fps) {
-            SDL_Delay((1000 / _engine->fps) - frameTime);
+        if (frameTime < 1000 / _engine.fps) {
+            SDL_Delay((1000 / _engine.fps) - frameTime);
         }
     }
 }
@@ -178,7 +172,7 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
  */
 SSGEDECL void SSGE_SetWindowTitle(char *title) {
     _assert_engine_init();
-    SDL_SetWindowTitle(_engine->window, title);
+    SDL_SetWindowTitle(_engine.window, title);
 }
 
 /**
@@ -192,7 +186,7 @@ SSGEDECL void SSGE_SetWindowIcon(char *filename) {
         fprintf(stderr, "[SSGE][SSGE_SetWindowIcon] Failed to load icon: %s\n", IMG_GetError());
         exit(1);
     }
-    SDL_SetWindowIcon(_engine->window, icon);
+    SDL_SetWindowIcon(_engine.window, icon);
     SDL_FreeSurface(icon);
 }
 
@@ -202,7 +196,7 @@ SSGEDECL void SSGE_SetWindowIcon(char *filename) {
  */
 SSGEDECL void SSGE_WindowResizable(bool resizable) {
     _assert_engine_init();
-    SDL_SetWindowResizable(_engine->window, resizable ? SDL_TRUE : SDL_FALSE);
+    SDL_SetWindowResizable(_engine.window, resizable ? SDL_TRUE : SDL_FALSE);
 }
 
 /**
@@ -211,7 +205,7 @@ SSGEDECL void SSGE_WindowResizable(bool resizable) {
  */
 SSGEDECL void SSGE_WindowFullscreen(bool fullscreen) {
     _assert_engine_init();
-    SDL_SetWindowFullscreen(_engine->window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+    SDL_SetWindowFullscreen(_engine.window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
 /**
@@ -248,7 +242,7 @@ SSGEDECL void SSGE_ManualUpdate() {
 SSGEDECL void SSGE_SetColor(SSGE_Color color) {
     _assert_engine_init();
     _color = color;
-    SDL_SetRenderDrawColor(_engine->renderer, color.r, color.g, color.b, color.a);
+    SDL_SetRenderDrawColor(_engine.renderer, color.r, color.g, color.b, color.a);
 }
 
 /**

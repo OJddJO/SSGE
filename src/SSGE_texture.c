@@ -16,29 +16,29 @@
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_LoadTexture(char *filename, char *name) {
+SSGEDECL uint32_t SSGE_CreateTexture(char *filename, char *name) {
     _assert_engine_init();
 
     // Load texture
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_LoadTexture] Failed to allocate memory for texture");
+        fprintf(stderr, "[SSGE][SSGE_CreateTexture] Failed to allocate memory for texture");
         exit(1);
     }
     texture->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (texture->name == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_LoadTexture] Failed to allcoate memory for texture name");
+        fprintf(stderr, "[SSGE][SSGE_CreateTexture] Failed to allcoate memory for texture name");
         exit(1);
     }
     strcpy(texture->name, name);
-    texture->texture = IMG_LoadTexture(_engine->renderer, filename);
+    texture->texture = IMG_LoadTexture(_engine.renderer, filename);
     if (texture == NULL) {
-        fprintf(stderr, "[SSGE][SSGE_LoadTexture] Failed to load image: %s\n", IMG_GetError());
+        fprintf(stderr, "[SSGE][SSGE_CreateTexture] Failed to load image: %s\n", IMG_GetError());
         exit(1);
     }
 
     // Add texture to texture list
-    return _add_texture_to_list(texture, name, "SSGE_LoadTexture");
+    return _add_texture_to_list(texture, name, "SSGE_CreateTexture");
 }
 
 /**
@@ -86,7 +86,7 @@ SSGEDECL SSGE_Texture *SSGE_GetTextureByName(char *name) {
 SSGEDECL void SSGE_DrawTexture(SSGE_Texture *texture, int x, int y, int width, int height) {
     _assert_engine_init();
     SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopy(_engine->renderer, texture->texture, NULL, &rect);
+    SDL_RenderCopy(_engine.renderer, texture->texture, NULL, &rect);
 }
 
 /**
@@ -103,7 +103,7 @@ SSGEDECL void SSGE_DrawTexture(SSGE_Texture *texture, int x, int y, int width, i
 SSGEDECL void SSGE_DrawTextureEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip) {
     _assert_engine_init();
     SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopyEx(_engine->renderer, texture->texture, NULL, &rect, angle, (SDL_Point *)&center, (SDL_RendererFlip)flip);
+    SDL_RenderCopyEx(_engine.renderer, texture->texture, NULL, &rect, angle, (SDL_Point *)&center, (SDL_RendererFlip)flip);
 }
 
 /**
@@ -116,10 +116,10 @@ SSGEDECL void SSGE_DrawTextureEx(SSGE_Texture *texture, int x, int y, int width,
  */
 SSGEDECL void SSGE_DrawTextureFromFile(char *filename, int x, int y, int width, int height) {
     _assert_engine_init();
-    SDL_Texture *texture = IMG_LoadTexture(_engine->renderer, filename);
+    SDL_Texture *texture = IMG_LoadTexture(_engine.renderer, filename);
 
     SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
+    SDL_RenderCopy(_engine.renderer, texture, NULL, &rect);
 
     SDL_DestroyTexture(texture);
 }

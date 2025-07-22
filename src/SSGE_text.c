@@ -73,7 +73,7 @@ SSGEDECL void SSGE_DrawText(char *fontName, char *text, int x, int y, SSGE_Color
         exit(1);
     }
 
-    SDL_Texture *texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
+    SDL_Texture *texture = SDL_CreateTextureFromSurface(_engine.renderer, surface);
     if (texture == NULL) {
         fprintf(stderr, "[SSGE][SSGE_DrawText] Failed to draw text: %s\n", SDL_GetError());
         exit(1);
@@ -113,7 +113,7 @@ SSGEDECL void SSGE_DrawText(char *fontName, char *text, int x, int y, SSGE_Color
             break;
     }
 
-    SDL_RenderCopy(_engine->renderer, texture, NULL, &rect);
+    SDL_RenderCopy(_engine.renderer, texture, NULL, &rect);
 
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
@@ -142,7 +142,7 @@ SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, 
             exit(1);
         }
 
-        texture->texture = SDL_CreateTextureFromSurface(_engine->renderer, surface);
+        texture->texture = SDL_CreateTextureFromSurface(_engine.renderer, surface);
         if (texture->texture == NULL) {
             fprintf(stderr, "[SSGE][SSGE_CreateText] Failed to create texture from surface: %s\n", SDL_GetError());
             exit(1);
@@ -150,7 +150,7 @@ SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, 
 
         SDL_FreeSurface(surface);
     } else {
-        texture->texture = SDL_CreateTexture(_engine->renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine->width, _engine->height);
+        texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
     }
 
     return _add_texture_to_list(texture, textureName, "SSGE_CreateText");

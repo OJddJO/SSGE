@@ -8,36 +8,6 @@
 extern "C" {
 #endif
 
-/******************************
- * Structs
- ******************************/
-
-/**
- * Font structure
- * \param name The name of the font
- * \param font The TTF_Font 
- */
-typedef struct _SSGE_Font {
-    char *name;
-    struct _TTF_Font *font;
-} SSGE_Font;
-
-typedef enum _SSGE_Anchor {
-    SSGE_NW,
-    SSGE_N,
-    SSGE_NE,
-    SSGE_W,
-    SSGE_CENTER,
-    SSGE_E,
-    SSGE_SW,
-    SSGE_S,
-    SSGE_SE
-} SSGE_Anchor;
-
-/******************************
- * Functions
- ******************************/
-
 /**
  * Loads a font
  * \param filename The path to the font

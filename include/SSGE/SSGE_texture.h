@@ -8,27 +8,6 @@
 extern "C" {
 #endif
 
-
-/******************************
- * Structs
- ******************************/
-
-/**
- * Texture structure
- * \param id The id of the texture
- * \param name The name of the texture
- * \param texture The SDL_Texture
- */
-typedef struct _SSGE_Texture {
-    uint32_t id;
-    char *name;
-    struct SDL_Texture *texture;
-} SSGE_Texture;
-
-/******************************
- * Functions
- ******************************/
-
 /**
  * Creates a texture
  * \param filename The path to the texture
@@ -36,7 +15,7 @@ typedef struct _SSGE_Texture {
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_LoadTexture(char *filename, char *name);
+SSGEDECL uint32_t SSGE_CreateTexture(char *filename, char *name);
 
 /**
  * Gets a texture by id

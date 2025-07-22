@@ -69,18 +69,20 @@ typedef struct _Game Game;
  * Engine structure
  * \param window The window
  * \param renderer The renderer
- * \param isRunning The running state of the engine
  * \param width The width of the window
  * \param height The height of the window
  * \param fps The frames per second
+ * \param isRunning The running state of the engine
+ * \param initialized If the `SSGE_Engine` has been initialized
  */
 typedef struct _SSGE_Engine {
     struct SDL_Window *window;
     struct SDL_Renderer *renderer;
-    bool isRunning;
     int width;
     int height;
     int fps;
+    bool isRunning;
+    bool initialized;
 } SSGE_Engine;
 
 /**
@@ -169,6 +171,74 @@ typedef struct _SSGE_Tile {
     int col;
 } SSGE_Tile;
 
+typedef struct _SSGE_AnimationState SSGE_AnimationState;
+
+typedef enum _SSGE_AnimationType {
+    SSGE_ANIM_FRAMES = 0,
+    SSGE_ANIM_FUNCTION
+} SSGE_AnimationType;
+
+/**
+ * Animation structure
+ * \param id The id of the animation
+ * \param name The name of the animation
+ * \param type The animation type
+ * \param data The data of the animation, if `type` is `SSGE_ANIM_FRAMES`
+ * \param data.frames An array of the animation frames
+ * \param data.frameCount The number of animation frames
+ * \param draw The animation function, if `type` is `SSGE_ANIM_FUNCTION`. Must take in an `SSGE_AnimationState` pointer
+ */
+typedef struct _SSGE_Animation {
+    char *name;
+    uint32_t id;
+    SSGE_AnimationType type;
+    union {
+        struct _SSGE_AnimationData {
+            struct SDL_Texture *frames;
+            uint32_t frameCount;
+        } data;
+        void (*draw)(SSGE_AnimationState *);
+    };
+} SSGE_Animation;
+
+/**
+ * Animation state structure
+ * \param animation The animation to track the animation state
+ * \param currentFrame The index of the current frame
+ * \param startFrame The index of the start frame
+ * \param elapsedFrame The number of frame elapsed since the animation start
+ * \param loop If the animation should loop
+ * \param pingpong If the animation should pingpong (normal -> reversed)
+ * \param isPlaying If the animation is playing or not
+ * \param reverse If the animation is reversed or not
+ * \param callback The function to call at the end of the animation
+ * \param callbackData The data passed to the callback function
+ */
+typedef struct _SSGE_AnimationState {
+    SSGE_Animation *animation;
+    uint32_t currentFrame;
+    uint32_t startFrame;
+    uint32_t elpasedFrame;
+    bool loop;
+    bool pingpong;
+    bool isPlaying;
+    bool reverse;
+    void (*callback)(void *);
+    void *callbackData;
+} SSGE_AnimationState;
+
+typedef enum _SSGE_Anchor {
+    SSGE_NW,
+    SSGE_N,
+    SSGE_NE,
+    SSGE_W,
+    SSGE_CENTER,
+    SSGE_E,
+    SSGE_SW,
+    SSGE_S,
+    SSGE_SE
+} SSGE_Anchor;
+
 /**
  * Font structure
  * \param name The name of the font
@@ -189,18 +259,6 @@ typedef struct _SSGE_Audio {
     char *name;
     struct Mix_Chunk *audio;
 } SSGE_Audio;
-
-typedef enum _SSGE_Anchor {
-    SSGE_NW,
-    SSGE_N,
-    SSGE_NE,
-    SSGE_W,
-    SSGE_CENTER,
-    SSGE_E,
-    SSGE_SW,
-    SSGE_S,
-    SSGE_SE
-} SSGE_Anchor;
 
 #ifdef __cplusplus
 }
