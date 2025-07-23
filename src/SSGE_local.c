@@ -5,18 +5,18 @@
 
 #include "SSGE/SSGE_local.h"
 
-SSGE_Engine _engine = {0};
-SSGE_Array _texture_list = {0};
-SSGE_Array _object_list = {0};
+SSGE_Engine _engine             = {0};
+SSGE_Array _texture_list        = {0};
+SSGE_Array _object_list         = {0};
 SSGE_Array _object_template_list = {0};
-SSGE_Array _font_list = {0};
-SSGE_Array _audio_list = {0};
-SSGE_Array _animation_list = {0};
-SSGE_Event _event = {0};
-SSGE_Color _color = {0, 0, 0, 255};
-SSGE_Color _bg_color = {0, 0, 0, 255};
-bool _manual_update_frame = false;
-bool _update_frame = true; // set to true to draw the first frame
+SSGE_Array _font_list           = {0};
+SSGE_Array _audio_list          = {0};
+SSGE_Array _animation_list      = {0};
+SSGE_Event _event               = {0};
+SSGE_Color _color               = {0, 0, 0, 255};
+SSGE_Color _bg_color            = {0, 0, 0, 255};
+bool _manual_update_frame       = false;
+bool _update_frame              = true; // set to true to draw the first frame
 
 uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, const char *funcname) {
     ((DummyType *)element)->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
