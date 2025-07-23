@@ -36,6 +36,17 @@ typedef struct _DummyType {
     uint32_t id;
 } DummyType;
 
+inline uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, const char *funcname) {
+    ((DummyType *)element)->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    if (((DummyType *)element)->name == NULL) {
+        fprintf(stderr, "[SSGE][%s] Failed to allocate memory for name\n", funcname);
+        exit(1);
+    }
+    strcpy(((DummyType *)element)->name, name);
+
+    return ((DummyType *)element)->id = SSGE_Array_Add(list, element);
+}
+
 void _destroy_texture(void *ptr);
 void _destroy_object(void *ptr);
 void _destroy_template(void *ptr);
@@ -43,10 +54,8 @@ void _destroy_font(void *ptr);
 void _destroy_audio(void *ptr);
 void _destroy_animation(void *ptr);
 
-uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, const char *funcname);
-
 #ifdef __cplusplus
 }
 #endif
 
-#endif // __SSGE_LOCALVAR_H__
+#endif // __SSGE_LOCAL_H__

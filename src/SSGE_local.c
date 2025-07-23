@@ -18,17 +18,6 @@ SSGE_Color _bg_color            = {0, 0, 0, 255};
 bool _manual_update_frame       = false;
 bool _update_frame              = true; // set to true to draw the first frame
 
-uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, const char *funcname) {
-    ((DummyType *)element)->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
-    if (((DummyType *)element)->name == NULL) {
-        fprintf(stderr, "[SSGE][%s] Failed to allocate memory for name\n", funcname);
-        exit(1);
-    }
-    strcpy(((DummyType *)element)->name, name);
-
-    return ((DummyType *)element)->id = SSGE_Array_Add(list, element);
-}
-
 void _destroy_texture(void *ptr) {
     SSGE_Texture *texture = (SSGE_Texture *)ptr;
     SDL_DestroyTexture(texture->texture);
