@@ -1,7 +1,11 @@
+// This file should not be included
+// It is used internally by the SSGE library
+
 #ifndef __SSGE_LOCAL_H__
 #define __SSGE_LOCAL_H__
 
 #include "SSGE/SSGE_types.h"
+#include "SSGE/SSGE_error.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,16 +24,6 @@ extern SSGE_Color _bg_color;
 extern bool _manual_update_frame;
 extern bool _update_frame;
 
-#define Error(msg) {\
-    fprintf(stderr, "[SSGE][%s] " msg "\n", __func__);\
-    exit(1);\
-}
-
-#define ErrorEx(fmsg, arg) {\
-    fprintf(stderr, "[SSGE][%s] " fmsg "\n", __func__, arg);\
-    exit(1);\
-}
-
 #define _assert_engine_init \
 if (!_engine.initialized) {\
     fprintf(stderr, "[SSGE][%s] Engine not initialized\n", __func__);\
@@ -47,8 +41,9 @@ void _destroy_object(void *ptr);
 void _destroy_template(void *ptr);
 void _destroy_font(void *ptr);
 void _destroy_audio(void *ptr);
+void _destroy_animation(void *ptr);
 
-uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, char *funcname);
+uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, const char *funcname);
 
 #ifdef __cplusplus
 }

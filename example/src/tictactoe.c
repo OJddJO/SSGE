@@ -10,16 +10,16 @@ static void create_hitboxes();
 
 int main(int argc, char *argv[]) {
     // Initialize the engine
-    // SSGE_Init("TicTacToe", WIN_W, WIN_H, FPS);
+    SSGE_Init("TicTacToe", WIN_W, WIN_H, FPS);
     // Load fonts with sizes 32 and 64
-    SSGE_LoadFont("assets/font.ttf", 32, "font_32");
-    SSGE_LoadFont("assets/font.ttf", 64, "font_64");
+    SSGE_Text_CreateFont("assets/font.ttf", 32, "font_32");
+    SSGE_Text_CreateFont("assets/font.ttf", 64, "font_64");
 
     // Load audio files
-    SSGE_LoadAudio("audio/start.ogg", "start");
-    SSGE_LoadAudio("audio/click.ogg", "click");
-    SSGE_LoadAudio("audio/tie.ogg", "tie");
-    SSGE_LoadAudio("audio/win.ogg", "win");
+    SSGE_Audio_Create("audio/start.ogg", "start");
+    SSGE_Audio_Create("audio/click.ogg", "click");
+    SSGE_Audio_Create("audio/tie.ogg", "tie");
+    SSGE_Audio_Create("audio/win.ogg", "win");
 
     // Set the window properties
     SSGE_WindowResizable(false);
@@ -36,7 +36,8 @@ int main(int argc, char *argv[]) {
     create_hitboxes();
 
     // Run the engine
-    SSGE_PlayAudioByName("start", -1);
+    SSGE_Audio_PlayName("start", -1);
+
     SSGE_Run(update, draw, event_handler, &game);
 
     // Quit the engine
@@ -54,7 +55,7 @@ static void create_hitboxes() {
         for (int j = 0; j < 3; j++) {
             char name[30];
             sprintf(name, "hitbox_%d_%d", i, j);
-            SSGE_CreateHitbox(name, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+            SSGE_Hitbox_Create(name, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE);
         }
     }
 }
@@ -84,9 +85,9 @@ void draw(Game *game) {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 if (game->matrix[i][j] == 1) {
-                    SSGE_DrawText("font_64", "X", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
+                    SSGE_Text_Draw("font_64", "X", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
                 } else if (game->matrix[i][j] == 2) {
-                    SSGE_DrawText("font_64", "O", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
+                    SSGE_Text_Draw("font_64", "O", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
                 }
             }
         }
@@ -94,12 +95,12 @@ void draw(Game *game) {
         char text[20];
         if (game->winner == -1) {
             sprintf(text, "It's a draw!");
-            SSGE_PlayAudioByName("tie", -1);
+            SSGE_Audio_PlayName("tie", -1);
         } else {
             sprintf(text, "Player %d wins!", game->winner);
-            SSGE_PlayAudioByName("win", -1);
+            SSGE_Audio_PlayName("win", -1);
         }
-        SSGE_DrawText("font_32", text, WIN_W / 2, WIN_H / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
+        SSGE_Text_Draw("font_32", text, WIN_W / 2, WIN_H / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
     }
 }
 
@@ -122,7 +123,7 @@ void event_handler(SSGE_Event event, Game *game) {
                 SSGE_Object *hitbox = SSGE_GetHoveredObject();
                 if (hitbox != NULL && game->matrix[i][j] == 0) {
                     // play the click sound
-                    SSGE_PlayAudioByName("click", -1);
+                    SSGE_Audio_PlayName("click", -1);
                     // update the game datas
                     game->matrix[i][j] = game->current_player;
                     game->current_player = game->current_player == 1 ? 2 : 1;
@@ -132,7 +133,7 @@ void event_handler(SSGE_Event event, Game *game) {
                 }
             } else { // if the game is over
                 // restart the game
-                SSGE_DestroyAllObjects();
+                SSGE_Object_DestroyAll();
                 init_game(game);
                 create_hitboxes();
                 SSGE_ManualUpdate();

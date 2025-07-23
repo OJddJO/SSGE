@@ -19,5 +19,13 @@ See [`example/makefile`](./example/makefile)
 ## Example
 See the [`example/src/tictactoe.c`](./example/src/tictactoe.c) and [`example/src/game.c`](./example/src/game.c) files for an example of how to use the engine.
 
+## Documentation
+Each functions and structures are documented in the source code. See the header files for more information.
+
+## Todo
+- [ ] Z-Axis Map
+- [ ] Animation System
+- [ ] (maybe) Switch to SDL3
+
 ## License
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.

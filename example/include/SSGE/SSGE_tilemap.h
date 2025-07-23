@@ -18,7 +18,7 @@ extern "C" {
  * \param nbCols The number of columns in the tilemap
  * \return The tilemap
  */
-SSGEDECL SSGE_Tilemap *SSGE_CreateTilemap(char *filename, int tileWidth, int tileHeight, int spacing, int nbRows, int nbCols);
+SSGEDECL SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, int tileWidth, int tileHeight, int spacing, int nbRows, int nbCols);
 
 /**
  * Gets a tile from a tilemap
@@ -28,7 +28,7 @@ SSGEDECL SSGE_Tilemap *SSGE_CreateTilemap(char *filename, int tileWidth, int til
  * \return The tile
  * \note The tile must be destroyed after use
  */
-SSGEDECL SSGE_Tile *SSGE_GetTile(SSGE_Tilemap *tilemap, int tileRow, int tileCol);
+SSGEDECL SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, int tileRow, int tileCol);
 
 /**
  * Gets a texture from a tilemap
@@ -39,7 +39,7 @@ SSGEDECL SSGE_Tile *SSGE_GetTile(SSGE_Tilemap *tilemap, int tileRow, int tileCol
  * \return The texture id
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL uint32_t SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int tileRow, int tileCol);
+SSGEDECL uint32_t SSGE_Tilemap_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int tileRow, int tileCol);
 
 /**
  * Draws a tile
@@ -47,7 +47,7 @@ SSGEDECL uint32_t SSGE_GetTileAsTexture(char *name, SSGE_Tilemap *tilemap, int t
  * \param x The x position to draw the tile
  * \param y The y position to draw the tile
  */
-SSGEDECL void SSGE_DrawTile(SSGE_Tile *tile, int x, int y);
+SSGEDECL void SSGE_Tilemap_DrawTile(SSGE_Tile *tile, int x, int y);
 
 /**
  * Draws a tile with the specified width and height
@@ -57,7 +57,7 @@ SSGEDECL void SSGE_DrawTile(SSGE_Tile *tile, int x, int y);
  * \param width The width of the tile
  * \param height The height of the tile
  */
-SSGEDECL void SSGE_DrawTileWithSize(SSGE_Tile *tile, int x, int y, int width, int height);
+SSGEDECL void SSGE_Tilemap_DrawTileSize(SSGE_Tile *tile, int x, int y, int width, int height);
 
 /**
  * Draws a tile from a tilemap
@@ -67,20 +67,20 @@ SSGEDECL void SSGE_DrawTileWithSize(SSGE_Tile *tile, int x, int y, int width, in
  * \param x The x position to draw the tile
  * \param y The y position to draw the tile
  */
-SSGEDECL void SSGE_DrawTileFromTilemap(SSGE_Tilemap *tilemap, int tileRow, int tileCol, int x, int y);
+SSGEDECL void SSGE_Tilemap_DrawTileFromTilemap(SSGE_Tilemap *tilemap, int tileRow, int tileCol, int x, int y);
 
 /**
  * Destroys a tile
  * \param tile The tile to destroy
  * \note This function does not destroy the tilemap
  */
-SSGEDECL void SSGE_DestroyTile(SSGE_Tile *tile);
+SSGEDECL void SSGE_Tilemap_DestroyTile(SSGE_Tile *tile);
 
 /**
  * Destroys a tilemap
  * \param tilemap The tilemap to destroy
  */
-SSGEDECL void SSGE_DestroyTilemap(SSGE_Tilemap *tilemap);
+SSGEDECL void SSGE_Tilemap_Destroy(SSGE_Tilemap *tilemap);
 
 #ifdef __cplusplus
 }

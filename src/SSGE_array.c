@@ -159,7 +159,7 @@ SSGEDECL void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, v
 /**
  * Destroys an array
  * \param array The array to destroy
- * \param destroyData The function to destroy the elements of the array
+ * \param destroyData The function to destroy the elements of the array. Can be `NULL`
  */
 SSGEDECL void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *)) {
     uint32_t i = 0, count = 0;

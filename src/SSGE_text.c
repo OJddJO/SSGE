@@ -15,7 +15,7 @@
  * \param size The size of the font
  * \param name The name of the font
  */
-SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name) {
+SSGEDECL void SSGE_Text_CreateFont(char *filename, int size, char *name) {
     _assert_engine_init
     SSGE_Font *font = (SSGE_Font *)malloc(sizeof(SSGE_Font));
     if (font == NULL) 
@@ -55,12 +55,12 @@ static SSGE_Font *_get_font(char *name, char *funcname) {
  * \param color The color of the text
  * \param anchor The anchor of the text
  */
-SSGEDECL void SSGE_DrawText(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor) {
+SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor) {
     _assert_engine_init
 
     if (color.a == 0) return;
 
-    SSGE_Font *font_struct = _get_font(fontName, "SSGE_DrawText");
+    SSGE_Font *font_struct = _get_font(fontName, "SSGE_Text_Draw");
     SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, *(SDL_Color *)&color);
     if (surface == NULL) 
         SSGE_ErrorEx("Failed to draw text: %s", TTF_GetError());
@@ -116,14 +116,14 @@ SSGEDECL void SSGE_DrawText(char *fontName, char *text, int x, int y, SSGE_Color
  * \param color The color of the text
  * \param textureName The name of the texture
  */
-SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, char *textureName) {
+SSGEDECL uint32_t SSGE_Text_Create(char *fontName, char *text, SSGE_Color color, char *textureName) {
     _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture");
 
     if (color.a != 0) {
-        SSGE_Font *font_struct = _get_font(fontName, "SSGE_CreateText");
+        SSGE_Font *font_struct = _get_font(fontName, "SSGE_Text_Create");
         SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, *(SDL_Color *)&color);
         if (surface == NULL) 
             SSGE_ErrorEx("Failed to render text: %s", TTF_GetError());
@@ -137,14 +137,14 @@ SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, 
         texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
     }
 
-    return _add_to_list(&_font_list, texture, textureName, "SSGE_CreateText");
+    return _add_to_list(&_font_list, texture, textureName, __func__);
 }
 
 /**
  * Closes a font by name
  * \param fontName The name of the font
  */
-SSGEDECL void SSGE_CloseFont(char *name) {
+SSGEDECL void SSGE_Text_CloseFont(char *name) {
     _assert_engine_init
     SSGE_Font *font = SSGE_Array_FindPop(&_font_list, _find_font_name, name);
     if (font == NULL) 
@@ -157,7 +157,7 @@ SSGEDECL void SSGE_CloseFont(char *name) {
 /**
  * Closes all fonts
  */
-SSGEDECL void SSGE_CloseAllFonts() {
+SSGEDECL void SSGE_Text_CloseAllFonts() {
     _assert_engine_init
     SSGE_Array_Destroy(&_font_list, _destroy_font);
     SSGE_Array_Create(&_font_list);

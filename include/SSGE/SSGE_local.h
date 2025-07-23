@@ -43,7 +43,7 @@ void _destroy_font(void *ptr);
 void _destroy_audio(void *ptr);
 void _destroy_animation(void *ptr);
 
-uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, char *funcname);
+uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, const char *funcname);
 
 #ifdef __cplusplus
 }

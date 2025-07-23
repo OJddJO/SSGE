@@ -19,38 +19,38 @@ extern "C" {
  * \return The object template id
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_CreateTemplate(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroyData)(void *));
+SSGEDECL uint32_t SSGE_Template_Create(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroyData)(void *));
 
 /**
  * Gets an object template by id
  * \param id The id of the object template
  * \return The object template
  */
-SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplate(uint32_t id);
+SSGEDECL SSGE_ObjectTemplate *SSGE_Template_Get(uint32_t id);
 
 /**
  * Gets an object template by name
  * \param name The name of the object template
  * \return The object template
  */
-SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplateByName(char *name);
+SSGEDECL SSGE_ObjectTemplate *SSGE_Template_GetName(char *name);
 
 /**
  * Destroys an object template by id
  * \param id The id of the object template
  */
-SSGEDECL void SSGE_DestroyTemplate(uint32_t id);
+SSGEDECL void SSGE_Template_Destroy(uint32_t id);
 
 /**
  * Destroys an object template by name
  * \param name The name of the object template
  */
-SSGEDECL void SSGE_DestroyTemplateByName(char *name);
+SSGEDECL void SSGE_Template_DestroyName(char *name);
 
 /**
  * Destroys all object templates
  */
-SSGEDECL void SSGE_DestroyAllTemplates();
+SSGEDECL void SSGE_Template_DestroyAll();
 
 #ifdef __cplusplus
 }

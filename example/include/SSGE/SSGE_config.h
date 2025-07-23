@@ -1,3 +1,6 @@
+// This file should not be included
+// It is used internally by the SSGE library
+
 #ifndef __SSGE_CONFIG_H__
 #define __SSGE_CONFIG_H__
 

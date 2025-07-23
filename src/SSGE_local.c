@@ -18,7 +18,7 @@ SSGE_Color _bg_color = {0, 0, 0, 255};
 bool _manual_update_frame = false;
 bool _update_frame = true; // set to true to draw the first frame
 
-uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, char *funcname) {
+uint32_t _add_to_list(SSGE_Array *list, void *element, char *name, const char *funcname) {
     ((DummyType *)element)->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
     if (((DummyType *)element)->name == NULL) {
         fprintf(stderr, "[SSGE][%s] Failed to allocate memory for name\n", funcname);

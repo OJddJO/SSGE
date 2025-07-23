@@ -20,7 +20,7 @@
  * \return The object template id
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_CreateTemplate(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroyData)(void *)) {
+SSGEDECL uint32_t SSGE_Template_Create(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
@@ -31,7 +31,7 @@ SSGEDECL uint32_t SSGE_CreateTemplate(char *name, SSGE_Texture *texture, int wid
     template->hitbox = hitbox;
     template->destroyData = destroyData;
 
-    return _add_to_list(&_object_template_list, template, name, "SSGE_CreateTemplate");
+    return _add_to_list(&_object_template_list, template, name, __func__);
 }
 
 /**
@@ -39,7 +39,7 @@ SSGEDECL uint32_t SSGE_CreateTemplate(char *name, SSGE_Texture *texture, int wid
  * \param id The id of the object template
  * \return The object template
  */
-SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplate(uint32_t id) {
+SSGEDECL SSGE_ObjectTemplate *SSGE_Template_Get(uint32_t id) {
     _assert_engine_init
     SSGE_ObjectTemplate *ptr = SSGE_Array_Get(&_object_template_list, id);
     if (ptr == NULL) 
@@ -56,7 +56,7 @@ static bool _find_template_name(void *ptr, void *name) {
  * \param name The name of the object template
  * \return The object template
  */
-SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplateByName(char *name) {
+SSGEDECL SSGE_ObjectTemplate *SSGE_Template_GetName(char *name) {
     _assert_engine_init
     SSGE_ObjectTemplate *ptr = SSGE_Array_Find(&_object_template_list, _find_template_name, name);
     if (ptr == NULL) 
@@ -68,7 +68,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_GetTemplateByName(char *name) {
  * Destroys an object template by id
  * \param id The id of the object template
  */
-SSGEDECL void SSGE_DestroyTemplate(uint32_t id) {
+SSGEDECL void SSGE_Template_Destroy(uint32_t id) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = SSGE_Array_Pop(&_object_template_list, id);
     if (template == NULL) 
@@ -81,7 +81,7 @@ SSGEDECL void SSGE_DestroyTemplate(uint32_t id) {
  * Destroys an object template by name
  * \param name The name of the object template
  */
-SSGEDECL void SSGE_DestroyTemplateByName(char *name) {
+SSGEDECL void SSGE_Template_DestroyName(char *name) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = SSGE_Array_FindPop(&_object_template_list, _find_template_name, name);
     if (template == NULL) 
@@ -93,7 +93,7 @@ SSGEDECL void SSGE_DestroyTemplateByName(char *name) {
 /**
  * Destroys all object templates
  */
-SSGEDECL void SSGE_DestroyAllTemplates() {
+SSGEDECL void SSGE_Template_DestroyAll() {
     _assert_engine_init
     SSGE_Array_Destroy(&_object_template_list, _destroy_template);
     SSGE_Array_Create(&_object_template_list);

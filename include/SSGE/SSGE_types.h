@@ -38,7 +38,7 @@ typedef struct _SSGE_Color {
 typedef struct _SSGE_Point {
     int x; // x coordinate of the point
     int y; // y coordinate of the point
-} SSGE_Point;
+} SSGE_Point, SSGE_Coords;
 
 /**
  * Flip enum (SDL_RendererFlip)
@@ -98,25 +98,6 @@ typedef struct _SSGE_Texture {
 } SSGE_Texture;
 
 /**
- * Object template structure
- * \param id The id of the template
- * \param name The name of the template
- * \param texture The texture for the template
- * \param width The width of the object
- * \param height The height of the object
- * \param hitbox If objects created from this template have a hitbox
- */
-typedef struct _SSGE_ObjectTemplate {
-    char *name;
-    uint32_t id;
-    SSGE_Texture *texture;
-    int width;
-    int height;
-    bool hitbox;
-    void (*destroyData)(void *);
-} SSGE_ObjectTemplate;
-
-/**
  * Object structure
  * \param id The id of the object
  * \param name The name of the object
@@ -140,6 +121,25 @@ typedef struct _SSGE_Object {
     void *data;
     void (*destroyData)(void *);
 } SSGE_Object;
+
+/**
+ * Object template structure
+ * \param id The id of the template
+ * \param name The name of the template
+ * \param texture The texture for the template
+ * \param width The width of the object
+ * \param height The height of the object
+ * \param hitbox If objects created from this template have a hitbox
+ */
+typedef struct _SSGE_ObjectTemplate {
+    char *name;
+    uint32_t id;
+    SSGE_Texture *texture;
+    int width;
+    int height;
+    bool hitbox;
+    void (*destroyData)(void *);
+} SSGE_ObjectTemplate;
 
 /**
  * Tilemap structure

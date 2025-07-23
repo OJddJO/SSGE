@@ -221,7 +221,7 @@ SSGEDECL uint32_t SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SS
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateLine");
+    return _add_to_list(&_texture_list, texture, name, __func__);
 }
 
 /**
@@ -254,7 +254,7 @@ SSGEDECL uint32_t SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SS
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateRect");
+    return _add_to_list(&_texture_list, texture, name, __func__);
 }
 
 /**
@@ -286,7 +286,7 @@ SSGEDECL uint32_t SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_C
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    return _add_to_list(&_texture_list, texture, name, "SSGE_CreateCircle");
+    return _add_to_list(&_texture_list, texture, name, __func__);
 }
 
 /**

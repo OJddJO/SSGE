@@ -11,14 +11,13 @@
 
 /**
  * Creates an animation
- * \param id Where to store the id, can be usefull to get the animation
  * \param name The name of the animation
  * \param type The type of animation
  * \param frameCount The number of frame if `type` is `SSGE_ANIM_FRAME`, ignored if not
  * \param draw The draw function of the animation if `type` is `SSGE_ANIM_FUNCTION`, ignored if not
- * \return The animation
+ * \return The id of the animation
  */
-SSGEDECL SSGE_Animation *SSGE_CreateAnimation(uint32_t *id, char *name, SSGE_AnimationType type, uint32_t frameCount, void (*draw)(SSGE_AnimationState *)) {
+SSGEDECL uint32_t SSGE_Animation_Create(char *name, SSGE_AnimationType type, uint32_t frameCount, void (*draw)(SSGE_AnimationState *)) {
     _assert_engine_init
 
     SSGE_Animation *anim = (SSGE_Animation *)malloc(sizeof(SSGE_Animation));
@@ -40,11 +39,12 @@ SSGEDECL SSGE_Animation *SSGE_CreateAnimation(uint32_t *id, char *name, SSGE_Ani
             anim->draw = draw;
             break;
     }
-
-    *id = _add_to_list(&_animation_list, anim, name, "SSGE_CreateAnimation");
-    return anim;
+    return _add_to_list(&_animation_list, anim, name, __func__);
 }
 
 /**
  * Add a frame in an animation
  */
+SSGEDECL void *SSGE_Animation_AddFrame(uint32_t id) {
+    return NULL;
+}

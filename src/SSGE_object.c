@@ -23,7 +23,7 @@
  * \return The object id
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *)) {
+SSGEDECL uint32_t SSGE_Object_Create(char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_Object *object = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (object == NULL) 
@@ -38,7 +38,7 @@ SSGEDECL uint32_t SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, in
     object->data = data;
     object->destroyData = destroyData;
 
-    return _add_to_list(&_object_list, object, name, "SSGE_CreateObject");
+    return _add_to_list(&_object_list, object, name, __func__);
 }
 
 /**
@@ -50,9 +50,9 @@ SSGEDECL uint32_t SSGE_CreateObject(char *name, SSGE_Texture *texture, int x, in
  * \return The object id
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_InstantiateObject(SSGE_ObjectTemplate *template, char *name, int x, int y, void *data) {
+SSGEDECL uint32_t SSGE_Object_Instantiate(SSGE_ObjectTemplate *template, char *name, int x, int y, void *data) {
     _assert_engine_init
-    return SSGE_CreateObject(name, template->texture, x, y, template->width, template->height, template->hitbox, data, template->destroyData);
+    return SSGE_Object_Create(name, template->texture, x, y, template->width, template->height, template->hitbox, data, template->destroyData);
 }
 
 /**
@@ -60,7 +60,7 @@ SSGEDECL uint32_t SSGE_InstantiateObject(SSGE_ObjectTemplate *template, char *na
  * \param id The id of the object
  * \return True if the object exists, false otherwise
  */
-SSGEDECL bool SSGE_ObjectExists(uint32_t id) {
+SSGEDECL bool SSGE_Object_Exists(uint32_t id) {
     _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Get(&_object_list, id);
     return ptr == NULL ? false : true;
@@ -75,7 +75,7 @@ static bool _find_object_name(void *ptr, void *name) {
  * \param name The name of the object
  * \return True if the object exists, false otherwise
  */
-SSGEDECL bool SSGE_ObjectExistsByName(char *name) {
+SSGEDECL bool SSGE_Object_ExistsName(char *name) {
     _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Find(&_object_list, _find_object_name, name);
     return ptr == NULL ? false : true;
@@ -85,10 +85,21 @@ SSGEDECL bool SSGE_ObjectExistsByName(char *name) {
  * Draws an object
  * \param object The object to draw
  */
-SSGEDECL void SSGE_DrawObject(SSGE_Object *object) {
+SSGEDECL void SSGE_Object_Draw(SSGE_Object *object) {
     _assert_engine_init
+    if (object->width == 0 || object->height == 0) return;
     SDL_Rect rect = {object->x, object->y, object->width, object->height};
     SDL_RenderCopy(_engine.renderer, object->texture, NULL, &rect);
+}
+
+/**
+ * Moves an object
+ * \param object The object to move
+ * \param coords The new coordinates of the object
+ */
+SSGEDECL void SSGE_MoveObject(SSGE_Object *object, SSGE_Coords coords) {
+    object->x = coords.x;
+    object->y = coords.y;
 }
 
 /**
@@ -96,7 +107,7 @@ SSGEDECL void SSGE_DrawObject(SSGE_Object *object) {
  * \param object The object to change the texture of
  * \param texture The new texture of the object
  */
-SSGEDECL void SSGE_ChangeObjectTexture(SSGE_Object *object, SSGE_Texture *texture) {
+SSGEDECL void SSGE_Object_ChangeTexture(SSGE_Object *object, SSGE_Texture *texture) {
     _assert_engine_init
     object->texture = texture->texture;
 }
@@ -106,7 +117,7 @@ SSGEDECL void SSGE_ChangeObjectTexture(SSGE_Object *object, SSGE_Texture *textur
  * \param id The id of the object
  * \return The object
  */
-SSGEDECL SSGE_Object *SSGE_GetObject(uint32_t id) {
+SSGEDECL SSGE_Object *SSGE_Object_Get(uint32_t id) {
     _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Get(&_object_list, id);
     if (ptr == NULL) 
@@ -119,7 +130,7 @@ SSGEDECL SSGE_Object *SSGE_GetObject(uint32_t id) {
  * \param name The name of the object
  * \return The object with the given name
  */
-SSGEDECL SSGE_Object *SSGE_GetObjectByName(char *name) {
+SSGEDECL SSGE_Object *SSGE_Object_GetName(char *name) {
     _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Find(&_object_list, _find_object_name, name);
     if (ptr == NULL) 
@@ -131,7 +142,7 @@ SSGEDECL SSGE_Object *SSGE_GetObjectByName(char *name) {
  * Destroys an object by id
  * \param id The id of the object
  */
-SSGEDECL void SSGE_DestroyObject(uint32_t id) {
+SSGEDECL void SSGE_Object_Destroy(uint32_t id) {
     _assert_engine_init
     SSGE_Object *object = SSGE_Array_Pop(&_object_list, id);
     if (object == NULL) 
@@ -146,7 +157,7 @@ SSGEDECL void SSGE_DestroyObject(uint32_t id) {
  * Destroys all objects with a given name
  * \param name The name of the object
  */
-SSGEDECL void SSGE_DestroyObjectByName(char *name) {
+SSGEDECL void SSGE_Object_DestroyName(char *name) {
     _assert_engine_init
     SSGE_Object *object = SSGE_Array_FindPop(&_object_list, _find_object_name, name);
     if (object == NULL) 
@@ -160,7 +171,7 @@ SSGEDECL void SSGE_DestroyObjectByName(char *name) {
 /**
  * Destroys all objects
  */
-SSGEDECL void SSGE_DestroyAllObjects() {
+SSGEDECL void SSGE_Object_DestroyAll() {
     _assert_engine_init
     SSGE_Array_Destroy(&_object_list, _destroy_object);
     SSGE_Array_Create(&_object_list);
@@ -182,7 +193,7 @@ SSGEDECL void SSGE_DestroyAllObjects() {
  * \note The hitbox is stored internally as an object and can be accessed by its name or its id
  * \warning The hitbox must be destroyed at the exit of the program, as texture
  */
-SSGEDECL uint32_t SSGE_CreateHitbox(char *name, int x, int y, int width, int height) {
+SSGEDECL uint32_t SSGE_Hitbox_Create(char *name, int x, int y, int width, int height) {
     _assert_engine_init
     SSGE_Object *hitbox = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (hitbox == NULL) 
@@ -196,7 +207,7 @@ SSGEDECL uint32_t SSGE_CreateHitbox(char *name, int x, int y, int width, int hei
     hitbox->data = NULL;
     hitbox->destroyData = NULL; // No data to destroy for hitbox
 
-    return _add_to_list(&_object_list, hitbox, name, "SSGE_CreateHitbox");
+    return _add_to_list(&_object_list, hitbox, name, "SSGE_Hitbox_Create");
 }
 
 /**
@@ -205,7 +216,7 @@ SSGEDECL uint32_t SSGE_CreateHitbox(char *name, int x, int y, int width, int hei
  * \param hitbox2 The second hitbox
  * \return True if the hitboxes are colliding, false otherwise
  */
-SSGEDECL bool SSGE_HitboxIsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2) {
+SSGEDECL bool SSGE_Hitbox_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2) {
     if (!hitbox1->hitbox || !hitbox2->hitbox) return false;
     return hitbox1->x < hitbox2->x + hitbox2->width && hitbox1->x + hitbox1->width > hitbox2->x && hitbox1->y < hitbox2->y + hitbox2->height && hitbox1->y + hitbox1->height > hitbox2->y;
 }

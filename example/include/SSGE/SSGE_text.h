@@ -14,7 +14,7 @@ extern "C" {
  * \param size The size of the font
  * \param name The name of the font
  */
-SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name);
+SSGEDECL void SSGE_Text_CreateFont(char *filename, int size, char *name);
 
 /**
  * Draws text
@@ -25,7 +25,7 @@ SSGEDECL void SSGE_LoadFont(char *filename, int size, char *name);
  * \param color The color of the text
  * \param anchor The anchor of the text
  */
-SSGEDECL void SSGE_DrawText(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor);
+SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor);
 
 /**
  * Creates text as a texture
@@ -34,18 +34,18 @@ SSGEDECL void SSGE_DrawText(char *fontName, char *text, int x, int y, SSGE_Color
  * \param color The color of the text
  * \param textureName The name of the texture
  */
-SSGEDECL uint32_t SSGE_CreateText(char *fontName, char *text, SSGE_Color color, char *textureName);
+SSGEDECL uint32_t SSGE_Text_Create(char *fontName, char *text, SSGE_Color color, char *textureName);
 
 /**
  * Closes a font by name
  * \param fontName The name of the font
  */
-SSGEDECL void SSGE_CloseFont(char *name);
+SSGEDECL void SSGE_Text_CloseFont(char *name);
 
 /**
  * Closes all fonts
  */
-SSGEDECL void SSGE_CloseAllFonts();
+SSGEDECL void SSGE_Text_CloseAllFonts();
 
 #ifdef __cplusplus
 }
