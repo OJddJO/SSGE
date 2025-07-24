@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 #include "SSGE/SSGE_config.h"
-#include "SSGE/SSGE_array.h"
 #include "SSGE/SSGE_events.h"
 
 #ifdef __cplusplus

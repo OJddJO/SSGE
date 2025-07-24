@@ -58,10 +58,14 @@ SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
  * \return The pointer to the element
  */
 SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
-    if (idx >= array->size) 
-        SSGE_Error("Index out of bound");
-    if (array->array[idx] == NULL)
-        SSGE_Error("Invalid index");
+    if (idx >= array->size) {
+        SSGE_Warning("Index out of bound");
+        return NULL;
+    }
+    if (array->array[idx] == NULL) {
+        SSGE_Warning("Invalid index");
+        return NULL;
+    }
     return array->array[idx];
 }
 
@@ -72,10 +76,14 @@ SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
  * \param destroyData The function to destroy the element to remove from the array
  */
 SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *)) {
-    if (idx >= array->size) 
-        SSGE_Error("Index out of bound");
-    if (array->array[idx] == NULL) 
-        SSGE_Error("Invalid index");
+    if (idx >= array->size) {
+        SSGE_Warning("Index out of bound");
+        return;
+    }
+    if (array->array[idx] == NULL) {
+        SSGE_Warning("Invalid index");
+        return;
+    }
 
     if (destroyData != NULL) destroyData(array->array[idx]);
     array->array[idx] = NULL;
@@ -98,8 +106,10 @@ SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyD
  * \return The pointer to the popped element
  */
 SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
-    if (idx >= array->size) 
-        SSGE_Error("Index out of bound");
+    if (idx >= array->size) { 
+        SSGE_Warning("Index out of bound");
+        return NULL;
+    }
 
     void *element = array->array[idx];
     array->array[idx] = NULL;

@@ -169,8 +169,10 @@ SSGEDECL void SSGE_SetWindowTitle(char *title) {
 SSGEDECL void SSGE_SetWindowIcon(char *filename) {
     _assert_engine_init
     SDL_Surface *icon = IMG_Load(filename);
-    if (icon == NULL) 
-        SSGE_ErrorEx("Failed to load icon: %s", IMG_GetError());
+    if (icon == NULL) {
+        SSGE_WarningEx("Failed to load icon: %s", IMG_GetError());
+        return;
+    }
     SDL_SetWindowIcon(_engine.window, icon);
     SDL_FreeSurface(icon);
 }
@@ -211,9 +213,7 @@ SSGEDECL void SSGE_SetManualUpdate(bool manualUpdate) {
  * \note It does nothing if the manual update mode is disabled
  */
 SSGEDECL void SSGE_ManualUpdate() {
-    if (_manual_update_frame) {
-        _update_frame = true;
-    }
+    _update_frame = true;
 }
 
 /***********************************************

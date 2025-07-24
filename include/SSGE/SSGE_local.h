@@ -5,6 +5,7 @@
 #define __SSGE_LOCAL_H__
 
 #include "SSGE/SSGE_types.h"
+#include "SSGE/SSGE_array.h"
 #include "SSGE/SSGE_error.h"
 
 #ifdef __cplusplus
