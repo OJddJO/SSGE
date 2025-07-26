@@ -32,12 +32,12 @@ static int _event_filter(void *userdata, SDL_Event *event) {
 /**
  * Initializes the engine
  * \param title The title of the window
- * \param width The width of the window
- * \param height The height of the window
+ * \param width The window width
+ * \param height The window height
  * \param fps The frames per second
  * \return The engine struct
  */
-SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps) {
+SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
     if (_engine.initialized)
         SSGE_Error("Engine already initialized");
 
@@ -143,14 +143,14 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
         SDL_RenderPresent(_engine.renderer);
 
         frameTime = SDL_GetTicks() - frameStart;
-        if (frameTime < 1000 / _engine.fps) {
+        if ((double)frameTime < (double)1000 / _engine.fps) {
             SDL_Delay((1000 / _engine.fps) - frameTime);
         }
     }
 }
 
 /***********************************************
- * Window functions
+ * Window / utility functions
  ************************************************/
 
 /**
@@ -175,6 +175,16 @@ SSGEDECL void SSGE_SetWindowIcon(char *filename) {
     }
     SDL_SetWindowIcon(_engine.window, icon);
     SDL_FreeSurface(icon);
+}
+
+/**
+ * Sets the window size
+ * \param width The target width
+ * \param height The target height
+ */
+SSGEDECL void SSGE_WindowResize(uint16_t width, uint16_t height) {
+    _assert_engine_init
+    SDL_SetWindowSize(_engine.window, width, height);
 }
 
 /**
@@ -208,17 +218,13 @@ SSGEDECL void SSGE_SetManualUpdate(bool manualUpdate) {
 }
 
 /**
- * Manually updates the screen
+ * Updates the screen (queues a call of the `draw` function)
  * \note This function should be called when the manual update mode is enabled
  * \note It does nothing if the manual update mode is disabled
  */
 SSGEDECL void SSGE_ManualUpdate() {
     _update_frame = true;
 }
-
-/***********************************************
- * Utility functions
- ************************************************/
 
 /**
  * Sets the color of the renderer
@@ -266,7 +272,8 @@ SSGEDECL bool SSGE_ObjectIsHovered(SSGE_Object *object) {
 }
 
 static bool _is_hovered(SSGE_Object *ptr, void *mousePos) {
-    int mouseX = ((int *)mousePos)[0], mouseY = ((int *)mousePos)[1];
+    int mouseX = ((int *)mousePos)[0],
+        mouseY = ((int *)mousePos)[1];
     return mouseX >= ptr->x && mouseX <= ptr->x + ptr->width && mouseY >= ptr->y && mouseY <= ptr->y + ptr->height;
 }
 

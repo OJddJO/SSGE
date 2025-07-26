@@ -26,6 +26,7 @@ Each functions and structures are documented in the source code. See the header 
 - [ ] Z-Axis Map
 - [ ] Animation System
 - [ ] (maybe) Switch to SDL3
+- [ ] (maybe) Make a GUI (game engine)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.

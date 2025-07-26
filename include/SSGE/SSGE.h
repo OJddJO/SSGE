@@ -27,12 +27,12 @@ extern "C" {
 /**
  * Initializes the engine
  * \param title The title of the window
- * \param width The width of the window
- * \param height The height of the window
+ * \param width The window width
+ * \param height The window height
  * \param fps The frames per second
  * \return The engine struct
  */
-SSGEDECL SSGE_Engine *SSGE_Init(char *title, int width, int height, int fps);
+SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps);
 
 /**
  * Quits the engine
@@ -64,6 +64,13 @@ SSGEDECL void SSGE_SetWindowTitle(char *title);
  * \param filename The path to the icon
  */
 SSGEDECL void SSGE_SetWindowIcon(char *filename);
+
+/**
+ * Sets the window size
+ * \param width The target width
+ * \param height The target height
+ */
+SSGEDECL void SSGE_WindowResize(uint16_t width, uint16_t height);
 
 /**
  * Sets the window as resizable

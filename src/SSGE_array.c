@@ -36,10 +36,11 @@ SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
         if (newArray == NULL) 
             SSGE_Error("Failed to realloc array");
         array->array = newArray;
+
         // Set new memory to NULL
-        for (uint32_t i = array->size; i < array->size * _GROWTH_FACTOR; i++) {
+        for (uint32_t i = array->size; i < array->size * _GROWTH_FACTOR; i++)
             array->array[i] = NULL;
-        }
+
         array->size *= _GROWTH_FACTOR;
     }
 
