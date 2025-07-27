@@ -12,6 +12,9 @@
 extern "C" {
 #endif
 
+#define _PLAYING_ANIM_INITIAL_SIZE 64
+#define _PLAYING_ANIM_GROWTH_FACTOR 2
+
 extern SSGE_Engine _engine;
 extern SSGE_Array _texture_list;
 extern SSGE_Array _object_list;
@@ -19,6 +22,7 @@ extern SSGE_Array _object_template_list;
 extern SSGE_Array _font_list;
 extern SSGE_Array _audio_list;
 extern SSGE_Array _animation_list;
+extern SSGE_Array _playingAnim;
 extern SSGE_Event _event;
 extern SSGE_Color _color;
 extern SSGE_Color _bg_color;
@@ -54,6 +58,7 @@ void _destroy_template(void *ptr);
 void _destroy_font(void *ptr);
 void _destroy_audio(void *ptr);
 void _destroy_animation(void *ptr);
+void _destroy_animation_state(void *ptr);
 
 #ifdef __cplusplus
 }

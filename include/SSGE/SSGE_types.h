@@ -164,11 +164,12 @@ typedef struct _SSGE_AnimationState {
     uint32_t        startFrame;     // The index of the start frame
     uint32_t        elpasedFrame;   // The number of frame elapsed since the animation start
     bool            loop;           // If the animation should loop
+    bool            reversed;       // If the animation is reversed or not
     bool            pingpong;       // If the animation should pingpong (normal -> reversed)
     bool            isPlaying;      // If the animation is playing or not
-    bool            reverse;        // If the animation is reversed or not
     void            (*callback)(void *); // The function to call at the end of the animation
     void            *callbackData;  // The data passed to the callback function
+    void            (*destroyData)(void *);   // The function to destroy the data (can be NULL)
 } SSGE_AnimationState;
 
 typedef enum _SSGE_Anchor {

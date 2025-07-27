@@ -10,7 +10,7 @@
  ******************************/
 
 /**
- * Creates an animation
+ * Create an animation
  * \param name The name of the animation
  * \param type The type of animation
  * \param frameCount The number of frame if `type` is `SSGE_ANIM_FRAME`, ignored if not
@@ -74,6 +74,8 @@ SSGEDECL void SSGE_Animation_AddFrame(uint32_t id, char *file) {
  * \param col The col of the tile
  */
 SSGEDECL void SSGE_Animation_AddFrameTilemap(uint32_t id, SSGE_Tilemap *tilemap, int row, int col) {
+    _assert_engine_init
+
     SSGE_Animation *anim = SSGE_Array_Get(&_animation_list, id);
     if (anim == NULL) 
         SSGE_ErrorEx("Animation not found: %u", id);
@@ -81,6 +83,7 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(uint32_t id, SSGE_Tilemap *tilemap,
     SDL_Texture *frame = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tilemap->tileWidth, tilemap->tileHeight);
     if (frame == NULL) 
         SSGE_Error("Failed to allocate memory for texture");
+
     SDL_Rect src = {col * (tilemap->tileWidth + tilemap->spacing), row * (tilemap->tileHeight + tilemap->spacing), tilemap->tileWidth, tilemap->tileHeight};
     SDL_Rect dest = {0, 0, tilemap->tileWidth,tilemap->tileHeight};
     SDL_SetRenderTarget(_engine.renderer, frame);
@@ -91,4 +94,83 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(uint32_t id, SSGE_Tilemap *tilemap,
         SSGE_Error("Animation already have max number of frames");
 
     anim->data.frames[anim->data.currentCount++] = frame;
+}
+
+/**
+ * Play an animation
+ * \param id The id of the animation to play
+ * \param loop If the animation should loop
+ * \param reversed If the animation should be reversed
+ * \param pingpong If the animation should pingpong
+ * \param callback The function to call at the end of the animation
+ * \param callbackData The data to pass to the callback
+ * \param destroyData The function to destroy the data
+ * \return The id of the animation state
+ */
+SSGEDECL uint32_t SSGE_Animation_Play(uint32_t id, bool loop, bool reversed, bool pingpong, void (*callback)(void *), void *callbackData, void (*destroyData)(void *)) {
+    _assert_engine_init
+
+    SSGE_AnimationState *state = (SSGE_AnimationState*)malloc(sizeof(SSGE_AnimationState));
+    if (state == NULL) 
+        SSGE_Error("Failed to allocate memory for animation state");
+    state->animation = SSGE_Array_Get(&_animation_list, id);
+    state->currentFrame = 0;
+    state->startFrame = 0;
+    state->elpasedFrame = 0;
+    state->loop = loop;
+    state->reversed = reversed;
+    state->pingpong = pingpong;
+    state->isPlaying = true;
+    state->callback = callback;
+    state->callbackData = callbackData;
+    state->destroyData = destroyData;
+
+    return SSGE_Array_Add(&_playingAnim, state);
+}
+
+/**
+ * Pause an animation
+ * \param id The id of the animation state
+ */
+SSGEDECL void SSGE_Animation_Pause(uint32_t id) {
+    _assert_engine_init
+
+    SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
+    if (state == NULL) {
+        SSGE_WarningEx("Animation state doesn't exist: %u", id);
+        return;
+    }
+
+    state->isPlaying = false;
+}
+
+/**
+ * Resume an animation
+ * \param id The id of the animation state
+ */
+SSGEDECL void SSGE_Animation_Resume(uint32_t id) {
+    _assert_engine_init
+
+    SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
+    if (state == NULL) {
+        SSGE_WarningEx("Animation state doesn't exist: %u", id);
+        return;
+    }
+    
+    state->isPlaying = true;
+}
+
+/**
+ * Stop an animation
+ */
+SSGEDECL void SSGE_Animation_Stop(uint32_t id) {
+    _assert_engine_init
+
+    SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
+    if (state == NULL) {
+        SSGE_WarningEx("Animation state doesn't exist: %u", id);
+        return;
+    }
+
+    SSGE_Array_Remove(&_playingAnim, id, _destroy_animation_state);
 }

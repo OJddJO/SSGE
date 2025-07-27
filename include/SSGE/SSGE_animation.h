@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 /**
- * Creates an animation
+ * Create an animation
  * \param name The name of the animation
  * \param type The type of animation
  * \param frameCount The number of frame if `type` is `SSGE_ANIM_FRAME`, ignored if not

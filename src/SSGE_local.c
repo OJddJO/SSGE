@@ -12,6 +12,7 @@ SSGE_Array _object_template_list = {0};
 SSGE_Array _font_list           = {0};
 SSGE_Array _audio_list          = {0};
 SSGE_Array _animation_list      = {0};
+SSGE_Array _playingAnim         = {0};
 SSGE_Event _event               = {0};
 SSGE_Color _color               = {0, 0, 0, 255};
 SSGE_Color _bg_color            = {0, 0, 0, 255};
@@ -65,4 +66,11 @@ void _destroy_animation(void *ptr) {
     }
     free(animation->name);
     free(animation);
+}
+
+void _destroy_animation_state(void *ptr) {
+    SSGE_AnimationState *state = (SSGE_AnimationState *)ptr;
+    if (state->destroyData != NULL)
+        state->destroyData(state->callbackData);
+    free(state);
 }

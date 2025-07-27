@@ -74,6 +74,7 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, ui
     SSGE_Array_Create(&_font_list);
     SSGE_Array_Create(&_audio_list);
     SSGE_Array_Create(&_animation_list);
+    SSGE_Array_Create(&_playingAnim);
 
     _engine.isRunning = false;
     _engine.width = width;
