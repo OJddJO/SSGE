@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #define SSGE_GET_SDL
 
 #include "SSGE/SSGE_local.h"
@@ -95,11 +93,12 @@ SSGEDECL void SSGE_Object_Draw(SSGE_Object *object) {
 /**
  * Moves an object
  * \param object The object to move
- * \param coords The new coordinates of the object
+ * \param x The new x coordinate
+ * \param y The new y coordinate
  */
-SSGEDECL void SSGE_MoveObject(SSGE_Object *object, SSGE_Coords coords) {
-    object->x = coords.x;
-    object->y = coords.y;
+SSGEDECL void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
+    object->x = x;
+    object->y = y;
 }
 
 /**

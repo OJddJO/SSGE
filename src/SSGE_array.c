@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdio.h>
 
 #include "SSGE/SSGE_array.h"
 #include "SSGE/SSGE_error.h"

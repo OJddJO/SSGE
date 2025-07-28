@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <stdlib.h>
 
 #define SSGE_GET_SDL
@@ -98,6 +97,7 @@ SSGEDECL void SSGE_Quit() {
     SSGE_Array_Destroy(&_font_list, _destroy_font);
     SSGE_Array_Destroy(&_audio_list, _destroy_audio);
     SSGE_Array_Destroy(&_animation_list, _destroy_animation);
+    SSGE_Array_Destroy(&_playingAnim, _destroy_animation_state);
 
     SDL_DestroyRenderer(_engine.renderer);
     SDL_DestroyWindow(_engine.window);
@@ -272,9 +272,9 @@ SSGEDECL bool SSGE_ObjectIsHovered(SSGE_Object *object) {
     return mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height;
 }
 
-static bool _is_hovered(SSGE_Object *ptr, void *mousePos) {
-    int mouseX = ((int *)mousePos)[0],
-        mouseY = ((int *)mousePos)[1];
+static bool _is_hovered(SSGE_Object *ptr, int *mousePos) {
+    int mouseX = mousePos[0],
+        mouseY = mousePos[1];
     return mouseX >= ptr->x && mouseX <= ptr->x + ptr->width && mouseY >= ptr->y && mouseY <= ptr->y + ptr->height;
 }
 
@@ -302,17 +302,17 @@ SSGEDECL SSGE_Object *SSGE_GetHoveredObject() {
  */
 SSGEDECL uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {
     _assert_engine_init
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
+    int mousePos[2];
+    SDL_GetMouseState(&mousePos[0], &mousePos[1]);
     
     uint32_t i = 0, count = 0;
-    while ((count < _object_list.count || count >= _object_list.size) && count < size) {
+    while ((i < _object_list.count || i >= _object_list.size) && count < size) {
         SSGE_Object *obj = _object_list.array[i++];
 
-        if (obj == NULL) continue;
-        objects[count] = obj;
-
-        ++count;
+        if (obj != NULL && _is_hovered(obj, mousePos))
+            objects[count++] = obj;
+        
+        i++;
     }
     return count;
 }

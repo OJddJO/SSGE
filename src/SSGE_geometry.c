@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #define SSGE_GET_SDL
 
 #include "SDL2/SDL2_gfxPrimitives.h"

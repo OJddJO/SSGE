@@ -1,5 +1,3 @@
-#include <stdio.h>
-
 #define SSGE_GET_SDL
 
 #include "SSGE/SSGE_local.h"
@@ -20,7 +18,7 @@
  * \return The object template id
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_Template_Create(char *name, SSGE_Texture *texture, int width, int height, bool hitbox, void (*destroyData)(void *)) {
+SSGEDECL uint32_t SSGE_Template_Create(char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
