@@ -102,8 +102,8 @@ typedef struct _SSGE_Texture {
  * \param id The id of the object
  * \param name The name of the object
  * \param texture The texture of the object
- * \param x The x position of the object
- * \param y The y position of the object
+ * \param x The x coordinate of the object
+ * \param y The y coordinate of the object
  * \param width The width of the object
  * \param height The height of the object
  * \param hitbox If the object has a hitbox

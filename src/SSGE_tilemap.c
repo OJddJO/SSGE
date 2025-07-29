@@ -20,11 +20,11 @@
 SSGEDECL SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint32_t tileWidth, uint32_t tileHeight, uint32_t spacing, uint16_t nbRows, uint16_t nbCols) {
     _assert_engine_init
     SSGE_Tilemap *tilemap = (SSGE_Tilemap *)malloc(sizeof(SSGE_Tilemap));
-    if (tilemap == NULL) 
+    if (tilemap == NULL)
         SSGE_Error("Failed to allocate memory for tilemap");
 
     tilemap->texture = IMG_LoadTexture(_engine.renderer, filename);
-    if (tilemap->texture == NULL) 
+    if (tilemap->texture == NULL)
         SSGE_ErrorEx("Failed to load tilemap: %s", IMG_GetError());
 
     tilemap->tileWidth = tileWidth;
@@ -41,16 +41,16 @@ SSGEDECL SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint32_t tileWidth, u
  * \param tilemap The tilemap to use
  * \param row The row of the tile
  * \param col The column of the tile
- * \return The tile
+ * \return The tile, NULL if error
  * \note The tile must be destroyed after use
  */
 SSGEDECL SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col) {
     _assert_engine_init
-    if (row >= tilemap->nbRows || col >= tilemap->nbCols) 
-        SSGE_Error("Tile out of bounds");
+    if (row >= tilemap->nbRows || col >= tilemap->nbCols)
+        SSGE_ErrorEx2("Tile out of bounds: (row: %u col: %u)", row, col);
 
     SSGE_Tile *tile = (SSGE_Tile *)malloc(sizeof(SSGE_Tile));
-    if (tile == NULL) 
+    if (tile == NULL)
         SSGE_Error("Failed to allocate memory for tile");
 
     tile->tilemap = tilemap;
@@ -76,7 +76,7 @@ SSGEDECL uint32_t SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint16_t 
         SSGE_Error("Failed to allocate memory for texture");
 
     texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tilemap->tileWidth, tilemap->tileHeight);
-    if (texture == NULL) 
+    if (texture->texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture");
 
     SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -91,13 +91,13 @@ SSGEDECL uint32_t SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint16_t 
  * \param tilemap The tilemap to use
  * \param row The row of the tile
  * \param col The column of the tile
- * \param x The x position at which the tile is drawn
- * \param y The y position at which the tile is drawn
+ * \param x The x coordinate at which the tile is drawn
+ * \param y The y coordinate at which the tile is drawn
  */
 SSGEDECL void SSGE_Tilemap_DrawTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, int x, int y) {
     _assert_engine_init
     if (row >= tilemap->nbRows || col >= tilemap->nbCols) 
-        SSGE_Error("Tile out of bounds");
+        SSGE_ErrorEx2("Tile out of bounds (row: %u col: %u)", row, col);
 
     SDL_Rect src = {col * (tilemap->tileWidth + tilemap->spacing), row * (tilemap->tileHeight + tilemap->spacing), tilemap->tileWidth, tilemap->tileHeight};
     SDL_Rect dest = {x, y, tilemap->tileWidth, tilemap->tileHeight};
@@ -109,15 +109,15 @@ SSGEDECL void SSGE_Tilemap_DrawTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_
  * \param tilemap The tilemap to use
  * \param row The row of the tile
  * \param col The column of the tile
- * \param x The x position at which the tile is drawn
- * \param y The y position at which the tile is drawn
+ * \param x The x coordinate at which the tile is drawn
+ * \param y The y coordinate at which the tile is drawn
  * \param width The width of the drawn tile
  * \param height The height of the drawn tile
  */
 SSGEDECL void SSGE_Tilemap_DrawTileSize(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, int x, int y, uint32_t width, uint32_t height) {
     _assert_engine_init
     if (row >= tilemap->nbRows || col >= tilemap->nbCols) 
-        SSGE_Error("Tile out of bounds");
+        SSGE_ErrorEx2("Tile out of bounds (row: %u col: %u)", row, col);
 
     SDL_Rect src = {col * (tilemap->tileWidth + tilemap->spacing), row * (tilemap->tileHeight + tilemap->spacing), tilemap->tileWidth, tilemap->tileHeight};
     SDL_Rect dest = {x, y, width, height};
@@ -127,8 +127,8 @@ SSGEDECL void SSGE_Tilemap_DrawTileSize(SSGE_Tilemap *tilemap, uint16_t row, uin
 /**
  * Draws a tile
  * \param tile The tile to draw
- * \param x The x position at which the tile is drawn
- * \param y The y position at which the tile is drawn
+ * \param x The x coordinate at which the tile is drawn
+ * \param y The y coordinate at which the tile is drawn
  */
 SSGEDECL void SSGE_Tilemap_DrawTileAlt(SSGE_Tile *tile, int x, int y) {
     _assert_engine_init
@@ -140,8 +140,8 @@ SSGEDECL void SSGE_Tilemap_DrawTileAlt(SSGE_Tile *tile, int x, int y) {
 /**
  * Draws a tile with the specified width and height
  * \param tile The tile to draw
- * \param x The x position at which the tile is drawn
- * \param y The y position at which the tile is drawn
+ * \param x The x coordinate at which the tile is drawn
+ * \param y The y coordinate at which the tile is drawn
  * \param width The width of the drawn tile
  * \param height The height of the drawn tile
  */

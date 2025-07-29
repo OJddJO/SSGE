@@ -171,7 +171,7 @@ SSGEDECL void SSGE_SetWindowIcon(char *filename) {
     _assert_engine_init
     SDL_Surface *icon = IMG_Load(filename);
     if (icon == NULL) {
-        SSGE_WarningEx("Failed to load icon: %s", IMG_GetError());
+        SSGE_ErrorEx("Failed to load icon: %s", IMG_GetError());
         return;
     }
     SDL_SetWindowIcon(_engine.window, icon);
@@ -252,8 +252,8 @@ SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color) {
 
 /**
  * Get the mouse position
- * \param x The variable to store the x position of the mouse
- * \param y The variable to store the y position of the mouse
+ * \param x The variable to store the x coordinate of the mouse
+ * \param y The variable to store the y coordinate of the mouse
  */
 SSGEDECL void SSGE_GetMousePosition(int *x, int *y) {
     _assert_engine_init

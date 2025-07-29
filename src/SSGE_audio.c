@@ -39,7 +39,7 @@ SSGEDECL int SSGE_Audio_Play(uint32_t id, int channel) {
         SSGE_ErrorEx("Audio not found: %d", id);
 
     if ((channel = Mix_PlayChannel(channel, audio->audio, 0)) == -1) 
-        SSGE_WarningEx("Audio could not be played: %s", Mix_GetError());
+        SSGE_ErrorEx("Audio could not be played: %s", Mix_GetError());
     
     return channel;
 }
@@ -61,7 +61,7 @@ SSGEDECL int SSGE_Audio_PlayName(char *name, int channel) {
         SSGE_ErrorEx("Audio not found: %s", name);
 
     if ((channel = Mix_PlayChannel(channel, audio->audio, 0)) == -1) 
-        SSGE_WarningEx("Audio could not be played: %s", Mix_GetError());
+        SSGE_ErrorEx("Audio could not be played: %s", Mix_GetError());
 
     return channel;
 }

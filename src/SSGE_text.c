@@ -48,8 +48,8 @@ static SSGE_Font *_get_font(char *name, char *funcname) {
  * Draws text
  * \param fontName The name of the font
  * \param text The text to draw
- * \param x The x position to draw the text
- * \param y The y position to draw the text
+ * \param x The x coordinate to draw the text
+ * \param y The y coordinate to draw the text
  * \param color The color of the text
  * \param anchor The anchor of the text
  */

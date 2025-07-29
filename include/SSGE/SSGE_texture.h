@@ -34,8 +34,8 @@ SSGEDECL SSGE_Texture *SSGE_Texture_GetName(char *name);
 /**
  * Draws a texture
  * \param texture The texture to draw
- * \param x The x position to draw the texture
- * \param y The y position to draw the texture
+ * \param x The x coordinate at which the texture is drawn
+ * \param y The y coordinate at which the texture is drawn
  * \param width The width of the texture
  * \param height The height of the texture
  */
@@ -44,8 +44,8 @@ SSGEDECL void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, 
 /**
  * Draws a texture with more options
  * \param texture The texture to draw
- * \param x The x position to draw the texture
- * \param y The y position to draw the texture
+ * \param x The x coordinate at which the texture is drawn
+ * \param y The y coordinate at which the texture is drawn
  * \param width The width of the texture
  * \param height The height of the texture
  * \param angle The angle to rotate the texture, can be NULL
@@ -57,8 +57,8 @@ SSGEDECL void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width
 /**
  * Draws a texture from a file
  * \param filename The texture to draw
- * \param x The x position to draw the texture
- * \param y The y position to draw the texture
+ * \param x The x coordinate at which the texture is drawn
+ * \param y The y coordinate at which the texture is drawn
  * \param width The width of the texture
  * \param height The height of the texture
  */

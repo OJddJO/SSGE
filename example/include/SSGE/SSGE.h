@@ -111,8 +111,8 @@ SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color);
 
 /**
  * Get the mouse position
- * \param x The variable to store the x position of the mouse
- * \param y The variable to store the y position of the mouse
+ * \param x The variable to store the x coordinate of the mouse
+ * \param y The variable to store the y coordinate of the mouse
  */
 SSGEDECL void SSGE_GetMousePosition(int *x, int *y);
 

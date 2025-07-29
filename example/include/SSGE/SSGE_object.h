@@ -12,8 +12,8 @@ extern "C" {
  * Creates an object
  * \param name The name of the object
  * \param texture The texture of the object
- * \param x The x position of the object
- * \param y The y position of the object
+ * \param x The x coordinate of the object
+ * \param y The y coordinate of the object
  * \param width The width of the object
  * \param height The height of the object
  * \param hitbox True if the object has a hitbox, false otherwise
@@ -27,8 +27,8 @@ SSGEDECL uint32_t SSGE_Object_Create(char *name, SSGE_Texture *texture, int x, i
 /**
  * Instantiates an object from an object template
  * \param template The object template to instantiate
- * \param x The x position of the object
- * \param y The y position of the object
+ * \param x The x coordinate of the object
+ * \param y The y coordinate of the object
  * \param data The data of the object
  * \return The object id
  * \note The object is stored internally and can be accessed by its name or its id
@@ -98,8 +98,8 @@ SSGEDECL void SSGE_Object_DestroyAll();
 /**
  * Creates a hitbox
  * \param name The name of the hitbox
- * \param x The x position of the hitbox
- * \param y The y position of the hitbox
+ * \param x The x coordinate of the hitbox
+ * \param y The y coordinate of the hitbox
  * \param width The width of the hitbox
  * \param height The height of the hitbox
  * \return The hitbox id

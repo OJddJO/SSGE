@@ -16,11 +16,11 @@
     exit(1);\
 }
 
-#define SSGE_Warning(msg) {\
+#define SSGE_Error(msg) {\
     fprintf(stderr, "[SSGE][%s] " msg "\n", __func__);\
 }
 
-#define SSGE_WarningEx(fmsg, arg) {\
+#define SSGE_ErrorEx(fmsg, arg) {\
     fprintf(stderr, "[SSGE][%s] " fmsg "\n", __func__, arg);\
 }
 

@@ -70,8 +70,8 @@ typedef struct _SSGE_Texture {
 typedef struct _SSGE_Object {
     char                *name;      // The name of the object
     uint32_t            id;         // The id of the object
-    int                 x;          // The x position of the object
-    int                 y;          // The y position of the object
+    int                 x;          // The x coordinate of the object
+    int                 y;          // The y coordinate of the object
     uint16_t            width;      // The width of the object
     uint16_t            height;     // The height of the object
     struct SDL_Texture  *texture;   // The texture of the object
@@ -125,7 +125,8 @@ typedef struct _SSGE_Animation {
             struct SDL_Texture  **frames;       // An array of the animation frames
             uint32_t            frameCount;     // The number of animation frames
             uint32_t            currentCount;   // The number of frames the animation currently have
-            int                 anchor[2];      // The anchor of the animation
+            int                 anchorX;        // Anchor x coordinate (relative to the frame)
+            int                 anchorY;        // Anchor y coordinate (relative to the frame)
         } data;
 
         /**
@@ -140,6 +141,8 @@ typedef struct _SSGE_Animation {
 // Animation state struct
 typedef struct _SSGE_AnimationState {
     SSGE_Animation  *animation;     // The animation to track the animation state
+    int             x;              // The x coordinate at which the animation is played
+    int             y;              // The y coordinate at which the animation is played
     uint32_t        currentFrame;   // The index of the current frame
     uint32_t        startFrame;     // The index of the start frame
     uint32_t        elpasedFrame;   // The number of frame elapsed since the animation start
