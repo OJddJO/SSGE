@@ -131,7 +131,7 @@ SSGEDECL uint32_t SSGE_Animation_Play(uint32_t id, int x, int y, bool loop, bool
 
     SSGE_Animation *anim = SSGE_Array_Get(&_animation_list, id);
     if (anim == NULL)
-        SSGE_ErrorEx("Animation doesn't exist: %u", id);
+        SSGE_ErrorEx("Animation not found: %u", id);
 
     SSGE_AnimationState *state = (SSGE_AnimationState*)malloc(sizeof(SSGE_AnimationState));
     if (state == NULL)
@@ -163,7 +163,7 @@ SSGEDECL void SSGE_Animation_Pause(uint32_t id) {
 
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
     if (state == NULL)
-        SSGE_ErrorEx("Animation state doesn't exist: %u", id);
+        SSGE_ErrorEx("Animation state not found: %u", id);
 
     state->isPlaying = false;
 }
@@ -177,7 +177,7 @@ SSGEDECL void SSGE_Animation_Resume(uint32_t id) {
 
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
     if (state == NULL)
-        SSGE_ErrorEx("Animation state doesn't exist: %u", id);
+        SSGE_ErrorEx("Animation state not found: %u", id);
     
     state->isPlaying = true;
 }
@@ -190,7 +190,7 @@ SSGEDECL void SSGE_Animation_Stop(uint32_t id) {
 
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
     if (state == NULL)
-        SSGE_ErrorEx("Animation state doesn't exist: %u", id);
+        SSGE_ErrorEx("Animation state not found: %u", id);
 
     SSGE_Array_Remove(&_playingAnim, id, _destroy_animation_state);
 }

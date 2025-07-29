@@ -20,6 +20,6 @@ extern "C" {
  * \param draw The draw function of the animation if `type` is `SSGE_ANIM_FUNCTION`, ignored if not
  * \return The id of the animation
  */
-SSGEDECL uint32_t SSGE_Animation_Create(char *name, SSGE_AnimationType type, uint16_t frameCount, void (*draw)(SSGE_AnimationState *));
+SSGEDECL uint32_t SSGE_Animation_Create(char *name, SSGE_AnimationType type, uint32_t frameCount, void (*draw)(SSGE_AnimationState *));
 
 #endif //__SSGE_ANIMATION_H__

@@ -59,11 +59,11 @@ SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
  */
 SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
     if (idx >= array->size) {
-        SSGE_Error("Index out of bound");
+        SSGE_Warning("Index out of bound");
         return NULL;
     }
     if (array->array[idx] == NULL) {
-        SSGE_Error("Invalid index");
+        SSGE_Warning("Invalid index");
         return NULL;
     }
     return array->array[idx];
@@ -77,11 +77,11 @@ SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
  */
 SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *)) {
     if (idx >= array->size) {
-        SSGE_Error("Index out of bound");
+        SSGE_Warning("Index out of bound");
         return;
     }
     if (array->array[idx] == NULL) {
-        SSGE_Error("Invalid index");
+        SSGE_Warning("Invalid index");
         return;
     }
 
@@ -107,7 +107,7 @@ SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyD
  */
 SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
     if (idx >= array->size) { 
-        SSGE_Error("Index out of bound");
+        SSGE_Warning("Index out of bound");
         return NULL;
     }
 

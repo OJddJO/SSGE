@@ -17,7 +17,6 @@
 SSGEDECL uint32_t SSGE_Texture_Create(char *filename, char *name) {
     _assert_engine_init
 
-    // Load texture
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture");
@@ -25,7 +24,9 @@ SSGEDECL uint32_t SSGE_Texture_Create(char *filename, char *name) {
     if (texture == NULL) 
         SSGE_ErrorEx("Failed to load image: %s", IMG_GetError());
 
-    // Add texture to texture list
+    texture->anchorX = 0;
+    texture->anchorY = 0;
+
     return _add_to_list(&_texture_list, texture, name, __func__);
 }
 
@@ -60,6 +61,36 @@ SSGEDECL SSGE_Texture *SSGE_Texture_GetName(char *name) {
 }
 
 /**
+ * Set the anchor of a texture
+ * \param id The id of the texture
+ * \param x The anchor's x coordinate
+ * \param y The anchor's y coordinate
+ */
+SSGEDECL void SSGE_Texture_Anchor(uint32_t id, int x, int y) {
+    _assert_engine_init
+    SSGE_Texture *texture = SSGE_Array_Get(&_texture_list, id);
+    if (texture == NULL)
+        SSGE_ErrorEx("Texture not found: %u", id);
+    texture->anchorX = x;
+    texture->anchorY = y;
+}
+
+/**
+ * Set the anchor of a texture by name
+ * \param name The name of the texture
+ * \param x The anchor's x coordinate
+ * \param y The anchor's y coordinate
+ */
+SSGEDECL void SSGE_Texture_AnchorName(char *name, int x, int y) {
+    _assert_engine_init
+    SSGE_Texture *texture = SSGE_Array_Find(&_texture_list, _find_texture_name, name);
+    if (texture == NULL)
+        SSGE_ErrorEx("Texture not found: %s", name);
+    texture->anchorX = x;
+    texture->anchorY = y;
+}
+
+/**
  * Draws a texture
  * \param texture The texture to draw
  * \param x The x coordinate at which the texture is drawn
@@ -69,7 +100,7 @@ SSGEDECL SSGE_Texture *SSGE_Texture_GetName(char *name) {
  */
 SSGEDECL void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, int height) {
     _assert_engine_init
-    SDL_Rect rect = {x, y, width, height};
+    SDL_Rect rect = {x + texture->anchorX, y + texture->anchorY, width, height};
     SDL_RenderCopy(_engine.renderer, texture->texture, NULL, &rect);
 }
 
@@ -86,7 +117,7 @@ SSGEDECL void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, 
  */
 SSGEDECL void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip) {
     _assert_engine_init
-    SDL_Rect rect = {x, y, width, height};
+    SDL_Rect rect = {x + texture->anchorX, y + texture->anchorY, width, height};
     SDL_RenderCopyEx(_engine.renderer, texture->texture, NULL, &rect, angle, (SDL_Point *)&center, (SDL_RendererFlip)flip);
 }
 

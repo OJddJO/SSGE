@@ -64,20 +64,22 @@ typedef struct _SSGE_Texture {
     char                *name;      // The name of the texture
     uint32_t            id;         // The id of the texture
     struct SDL_Texture  *texture;   // The SDL_Texture
+    int                 anchorX;    // Anchor x coordinate (relative to the texture)
+    int                 anchorY;    // Anchor y coordinate (relative to the texture)
 } SSGE_Texture;
 
 // Object struct
 typedef struct _SSGE_Object {
-    char                *name;      // The name of the object
-    uint32_t            id;         // The id of the object
-    int                 x;          // The x coordinate of the object
-    int                 y;          // The y coordinate of the object
-    uint16_t            width;      // The width of the object
-    uint16_t            height;     // The height of the object
-    struct SDL_Texture  *texture;   // The texture of the object
-    bool                hitbox;     // If the object has a hitbox
-    void                *data;      // The data of the object
-    void                (*destroyData)(void *); // The function to be called to destroy the data
+    char            *name;      // The name of the object
+    uint32_t        id;         // The id of the object
+    int             x;          // The x coordinate of the object
+    int             y;          // The y coordinate of the object
+    uint16_t        width;      // The width of the object
+    uint16_t        height;     // The height of the object
+    SSGE_Texture    *texture;   // The texture of the object
+    bool            hitbox;     // If the object has a hitbox
+    void            *data;      // The data of the object
+    void            (*destroyData)(void *); // The function to be called to destroy the data
 } SSGE_Object;
 
 // Object template struct

@@ -83,6 +83,9 @@ SSGEDECL uint32_t SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint16_t 
     SSGE_Tilemap_DrawTile(tilemap, row, col, 0, 0);
     SDL_SetRenderTarget(_engine.renderer, NULL);
 
+    texture->anchorX = 0;
+    texture->anchorY = 0;
+
     return _add_to_list(&_texture_list, texture, name, __func__);
 }
 

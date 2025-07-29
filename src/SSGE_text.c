@@ -58,8 +58,11 @@ SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Colo
 
     if (color.a == 0) return;
 
-    SSGE_Font *font_struct = _get_font(fontName, "SSGE_Text_Draw");
-    SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, *(SDL_Color *)&color);
+    SSGE_Font *font = _get_font(fontName, "SSGE_Text_Draw");
+    if (font == NULL)
+        SSGE_ErrorEx("Font not found: %s", fontName);
+
+    SDL_Surface *surface = TTF_RenderText_Solid(font->font, text, *(SDL_Color *)&color);
     if (surface == NULL) 
         SSGE_ErrorEx("Failed to draw text: %s", TTF_GetError());
 
@@ -121,8 +124,11 @@ SSGEDECL uint32_t SSGE_Text_Create(char *fontName, char *text, SSGE_Color color,
         SSGE_Error("Failed to allocate memory for texture");
 
     if (color.a != 0) {
-        SSGE_Font *font_struct = _get_font(fontName, "SSGE_Text_Create");
-        SDL_Surface *surface = TTF_RenderText_Solid(font_struct->font, text, *(SDL_Color *)&color);
+        SSGE_Font *font = _get_font(fontName, "SSGE_Text_Create");
+        if (font == NULL)
+            SSGE_ErrorEx("Font not found: %s", fontName);
+
+        SDL_Surface *surface = TTF_RenderText_Solid(font->font, text, *(SDL_Color *)&color);
         if (surface == NULL) 
             SSGE_ErrorEx("Failed to render text: %s", TTF_GetError());
 
@@ -134,6 +140,9 @@ SSGEDECL uint32_t SSGE_Text_Create(char *fontName, char *text, SSGE_Color color,
     } else {
         texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
     }
+
+    texture->anchorX = 0;
+    texture->anchorY = 0;
 
     return _add_to_list(&_font_list, texture, textureName, __func__);
 }

@@ -219,6 +219,9 @@ SSGEDECL uint32_t SSGE_CreateLine(char *name, int x1, int y1, int x2, int y2, SS
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
+    texture->anchorX = 0;
+    texture->anchorY = 0;
+
     return _add_to_list(&_texture_list, texture, name, __func__);
 }
 
@@ -252,6 +255,9 @@ SSGEDECL uint32_t SSGE_CreateRect(char *name, int x1, int y1, int x2, int y2, SS
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
+    texture->anchorX = 0;
+    texture->anchorY = 0;
+
     return _add_to_list(&_texture_list, texture, name, __func__);
 }
 
@@ -283,6 +289,9 @@ SSGEDECL uint32_t SSGE_CreateCircle(char *name, int x, int y, int radius, SSGE_C
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
+
+    texture->anchorX = 0;
+    texture->anchorY = 0;
 
     return _add_to_list(&_texture_list, texture, name, __func__);
 }
@@ -317,6 +326,9 @@ SSGEDECL uint32_t SSGE_CreateEllipse(char *name, int x, int y, int rx, int ry, S
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
+    texture->anchorX = 0;
+    texture->anchorY = 0;
+
     return _add_to_list(&_texture_list, texture, name, "SSGE_CreateEllipse");
 }
 
@@ -350,6 +362,9 @@ SSGEDECL uint32_t SSGE_CreateLineThick(char *name, int x1, int y1, int x2, int y
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
+
+    texture->anchorX = 0;
+    texture->anchorY = 0;
 
     return _add_to_list(&_texture_list, texture, name, "SSGE_CreateLineThick");
 }
@@ -387,6 +402,9 @@ SSGEDECL uint32_t SSGE_CreateRectThick(char *name, int x1, int y1, int x2, int y
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
+    texture->anchorX = 0;
+    texture->anchorY = 0;
+
     return _add_to_list(&_texture_list, texture, name, "SSGE_CreateRectThick");
 }
 
@@ -419,6 +437,9 @@ SSGEDECL uint32_t SSGE_CreateCircleThick(char *name, int x, int y, int radius, S
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
+
+    texture->anchorX = 0;
+    texture->anchorY = 0;
 
     return _add_to_list(&_texture_list, texture, name, "SSGE_CreateCircleThick");
 }
@@ -453,6 +474,9 @@ SSGEDECL uint32_t SSGE_CreateEllipseThick(char *name, int x, int y, int rx, int 
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
+
+    texture->anchorX = 0;
+    texture->anchorY = 0;
 
     return _add_to_list(&_texture_list, texture, name, "SSGE_CreateEllipseThick");
 }

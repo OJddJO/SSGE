@@ -27,7 +27,7 @@ SSGEDECL uint32_t SSGE_Object_Create(char *name, SSGE_Texture *texture, int x, i
     if (object == NULL) 
         SSGE_Error("Failed to allocate memory for object");
 
-    object->texture = texture->texture;
+    object->texture = texture;
     object->x = x;
     object->y = y;
     object->width = width;
@@ -86,8 +86,11 @@ SSGEDECL bool SSGE_Object_ExistsName(char *name) {
 SSGEDECL void SSGE_Object_Draw(SSGE_Object *object) {
     _assert_engine_init
     if (object->width == 0 || object->height == 0) return;
-    SDL_Rect rect = {object->x, object->y, object->width, object->height};
-    SDL_RenderCopy(_engine.renderer, object->texture, NULL, &rect);
+    SSGE_Texture *texture = object->texture;
+    if (texture == NULL)
+        SSGE_ErrorEx("Object '%s' has no texture", object->name);
+    SDL_Rect rect = {object->x + texture->anchorX, object->y + texture->anchorY, object->width, object->height};
+    SDL_RenderCopy(_engine.renderer, texture->texture, NULL, &rect);
 }
 
 /**
@@ -108,7 +111,7 @@ SSGEDECL void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
  */
 SSGEDECL void SSGE_Object_ChangeTexture(SSGE_Object *object, SSGE_Texture *texture) {
     _assert_engine_init
-    object->texture = texture->texture;
+    object->texture = texture;
 }
 
 /**
