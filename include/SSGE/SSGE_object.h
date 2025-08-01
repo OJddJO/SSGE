@@ -71,6 +71,12 @@ SSGEDECL void SSGE_Object_Move(SSGE_Object *object, int x, int y);
 SSGEDECL void SSGE_Object_ChangeTexture(SSGE_Object *object, SSGE_Texture *texture);
 
 /**
+ * Remove the texure of an object
+ * \param object The object to remove the texture of
+ */
+SSGEDECL void SSGE_Object_RemoveTexture(SSGE_Object *object);
+
+/**
  * Gets an object by id
  * \param id The id of the object
  * \return The object

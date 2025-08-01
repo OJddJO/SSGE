@@ -56,11 +56,25 @@ SSGEDECL bool SSGE_Object_ExistsName(char *name);
 SSGEDECL void SSGE_Object_Draw(SSGE_Object *object);
 
 /**
+ * Moves an object
+ * \param object The object to move
+ * \param x The new x coordinate
+ * \param y The new y coordinate
+ */
+SSGEDECL void SSGE_Object_Move(SSGE_Object *object, int x, int y);
+
+/**
  * Changes the texture of an object
  * \param object The object to change the texture of
  * \param texture The new texture of the object
  */
 SSGEDECL void SSGE_Object_ChangeTexture(SSGE_Object *object, SSGE_Texture *texture);
+
+/**
+ * Remove the texure of an object
+ * \param object The object to remove the texture of
+ */
+SSGEDECL void SSGE_Object_RemoveTexture(SSGE_Object *object);
 
 /**
  * Gets an object by id

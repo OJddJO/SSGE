@@ -18,19 +18,11 @@ SSGEDECL uint32_t SSGE_Audio_Create(char *filename, char *name);
 
 /**
  * Plays an audio by id
- * \param id The id of the audio
+ * \param audio The audio to play
  * \param channel The channel to play the audio on, -1 for first free channel.
  * \return The channel used to play the audio
  */
-SSGEDECL int SSGE_Audio_Play(uint32_t id, int channel);
-
-/**
- * Plays an audio by name
- * \param name The name of the audio
- * \param channel The channel to play the audio on, -1 for first free channel.
- * \return The channel used to play the audio
- */
-SSGEDECL int SSGE_Audio_PlayName(char *name, int channel);
+SSGEDECL int SSGE_Audio_Play(SSGE_Audio *audio, int channel);
 
 /**
  * Resume an audio

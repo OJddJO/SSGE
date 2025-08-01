@@ -33,19 +33,11 @@ SSGEDECL SSGE_Texture *SSGE_Texture_GetName(char *name);
 
 /**
  * Set the anchor of a texture
- * \param id The id of the texture
+ * \param texture The texture to set the anchor of
  * \param x The anchor's x coordinate
  * \param y The anchor's y coordinate
  */
-SSGEDECL void SSGE_Texture_Anchor(uint32_t id, int x, int y);
-
-/**
- * Set the anchor of a texture by name
- * \param name The name of the texture
- * \param x The anchor's x coordinate
- * \param y The anchor's y coordinate
- */
-SSGEDECL void SSGE_Texture_AnchorName(char *name, int x, int y);
+SSGEDECL void SSGE_Texture_Anchor(SSGE_Texture *texture, int x, int y);
 
 /**
  * Draws a texture

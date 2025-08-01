@@ -48,56 +48,44 @@ SSGEDECL uint32_t SSGE_Animation_Create(char *name, SSGE_AnimationType type, uin
 
 /**
  * Set the anchor of an animation
- * \param id The id of the animation to move
+ * \param animation The animation to set the anchor of
  * \param x The anchor's x coordinate relative to the frame
  * \param y The anchor's y coordinate relative to the frame
  */
-SSGEDECL void SSGE_Animation_Anchor(uint32_t id, int x, int y) {
+SSGEDECL void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
     _assert_engine_init
 
-    SSGE_Animation *anim = SSGE_Array_Get(&_animation_list, id);
-    if (anim == NULL)
-        SSGE_ErrorEx("Animation not found: %u", id);
-
-    anim->data.anchorX = x;
-    anim->data.anchorY = y;
+    animation->data.anchorX = x;
+    animation->data.anchorY = y;
 }
 
 /**
  * Add a frame in an animation
- * \param id The id of the animation to add a frame
+ * \param animation The animation to add a frame
  * \param texture The path of the image
  */
-SSGEDECL void SSGE_Animation_AddFrame(uint32_t id, char *file) {
+SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, char *file) {
     _assert_engine_init
-
-    SSGE_Animation *anim = SSGE_Array_Get(&_animation_list, id);
-    if (anim == NULL)
-        SSGE_ErrorEx("Animation not found: %u", id);
 
     SDL_Texture *frame = IMG_LoadTexture(_engine.renderer, file);
     if (frame == NULL)
         SSGE_ErrorEx("Failed to load image: %s", IMG_GetError());
 
-    if (anim->data.currentCount >= anim->data.frameCount)
+    if (animation->data.currentCount >= animation->data.frameCount)
         SSGE_Error("Animation already have max number of frames");
 
-    anim->data.frames[anim->data.currentCount++] = frame;
+    animation->data.frames[animation->data.currentCount++] = frame;
 }
 
 /**
  * Add a frame in an animation from a tilemap
- * \param id The id of the animation to add a frame
+ * \param animation The animation to add a frame
  * \param tilemap The tilemap to get the frame from
  * \param row The row of the tile
  * \param col The col of the tile
  */
-SSGEDECL void SSGE_Animation_AddFrameTilemap(uint32_t id, SSGE_Tilemap *tilemap, int row, int col) {
+SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, SSGE_Tilemap *tilemap, int row, int col) {
     _assert_engine_init
-
-    SSGE_Animation *anim = SSGE_Array_Get(&_animation_list, id);
-    if (anim == NULL)
-        SSGE_ErrorEx("Animation not found: %u", id);
 
     SDL_Texture *frame = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, tilemap->tileWidth, tilemap->tileHeight);
     if (frame == NULL)
@@ -109,15 +97,15 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(uint32_t id, SSGE_Tilemap *tilemap,
     SDL_RenderCopy(_engine.renderer, tilemap->texture, &src, &dest);
     SDL_SetRenderTarget(_engine.renderer, NULL);
 
-    if (anim->data.currentCount >= anim->data.frameCount)
+    if (animation->data.currentCount >= animation->data.frameCount)
         SSGE_Error("Animation already have max number of frames");
 
-    anim->data.frames[anim->data.currentCount++] = frame;
+    animation->data.frames[animation->data.currentCount++] = frame;
 }
 
 /**
  * Play an animation
- * \param id The id of the animation to play
+ * \param animation The id of the animation to play
  * \param loop If the animation should loop
  * \param reversed If the animation should be reversed
  * \param pingpong If the animation should pingpong
@@ -126,18 +114,14 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(uint32_t id, SSGE_Tilemap *tilemap,
  * \param destroyData The function to destroy the data
  * \return The id of the animation state
  */
-SSGEDECL uint32_t SSGE_Animation_Play(uint32_t id, int x, int y, bool loop, bool reversed, bool pingpong, void (*callback)(void *), void *callbackData, void (*destroyData)(void *)) {
+SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, bool loop, bool reversed, bool pingpong, void (*callback)(void *), void *callbackData, void (*destroyData)(void *)) {
     _assert_engine_init
-
-    SSGE_Animation *anim = SSGE_Array_Get(&_animation_list, id);
-    if (anim == NULL)
-        SSGE_ErrorEx("Animation not found: %u", id);
 
     SSGE_AnimationState *state = (SSGE_AnimationState*)malloc(sizeof(SSGE_AnimationState));
     if (state == NULL)
         SSGE_Error("Failed to allocate memory for animation state");
 
-    state->animation = anim;
+    state->animation = animation;
     state->x = x;
     state->y = y;
     state->currentFrame = 0;
