@@ -9,16 +9,17 @@
 
 /**
  * Creates an object template
+ * \param id Where to store the id of the object template
  * \param name The name of the object template
  * \param texture The texture of the object template
  * \param width The width of the object template
  * \param height The height of the object template
  * \param hitbox True if objects created from this template have a hitbox, false otherwise
  * \param destroyData The function to destroy the data of the object
- * \return The object template id
+ * \return The object template
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_Template_Create(char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
+SSGEDECL SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
@@ -29,7 +30,8 @@ SSGEDECL uint32_t SSGE_Template_Create(char *name, SSGE_Texture *texture, uint16
     template->hitbox = hitbox;
     template->destroyData = destroyData;
 
-    return _add_to_list(&_object_template_list, template, name, __func__);
+    _add_to_list(&_object_template_list, template, name, id, __func__);
+    return template;
 }
 
 /**

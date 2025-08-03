@@ -35,11 +35,12 @@ SSGEDECL SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, uint16_t row, ui
  * \param tilemap The tilemap to use
  * \param row The row of the tile
  * \param col The column of the tile
+ * \param id Where to store the id of the texture
  * \param name The name of the texture
- * \return The texture id
- * \note The texture is stored internally and can be accessed by its name
+ * \return The texture
+ * \note The texture is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, char *name);
+SSGEDECL SSGE_Texture *SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, uint32_t *id, char *name);
 
 /**
  * Draws a tile from a tilemap

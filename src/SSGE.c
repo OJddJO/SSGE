@@ -138,6 +138,11 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
             SDL_RenderClear(_engine.renderer);
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
             if (draw) draw(data);
+
+            for (uint32_t i = 0; i < _playingAnim.count; i++) {
+                
+            }
+
             _update_frame = false;
         }
 

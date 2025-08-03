@@ -10,11 +10,26 @@ extern "C" {
 
 /**
  * Loads an audio
+ * \param id Where to store the id of the audio
  * \param filename The path to the audio
  * \param name The name of the audio
  * \return The audio
  */
-SSGEDECL uint32_t SSGE_Audio_Create(char *filename, char *name);
+SSGEDECL SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name);
+
+/**
+ * Get an audio
+ * \param id The id of the audio
+ * \return The audio
+ */
+SSGEDECL SSGE_Audio *SSGE_Audio_Get(uint32_t id);
+
+/**
+ * Get an audio by name
+ * \param name The name of the audio
+ * \return The audio
+ */
+SSGEDECL SSGE_Audio *SSGE_Audio_GetName(char *name);
 
 /**
  * Plays an audio by id

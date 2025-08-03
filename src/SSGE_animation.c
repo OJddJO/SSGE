@@ -11,13 +11,14 @@
 
 /**
  * Create an animation
+ * \param id Where to store the id of the animation
  * \param name The name of the animation
  * \param type The type of animation
  * \param frameCount The number of frame if `type` is `SSGE_ANIM_FRAME`, ignored if not
  * \param draw The draw function of the animation if `type` is `SSGE_ANIM_FUNCTION`, ignored if not
- * \return The id of the animation
+ * \return The animation
  */
-SSGEDECL uint32_t SSGE_Animation_Create(char *name, SSGE_AnimationType type, uint32_t frameCount, void (*draw)(SSGE_AnimationState *)) {
+SSGEDECL SSGE_Animation *SSGE_Animation_Create(uint32_t *id, char *name, SSGE_AnimationType type, uint32_t frameCount, void (*draw)(SSGE_AnimationState *)) {
     _assert_engine_init
 
     SSGE_Animation *anim = (SSGE_Animation *)malloc(sizeof(SSGE_Animation));
@@ -34,16 +35,14 @@ SSGEDECL uint32_t SSGE_Animation_Create(char *name, SSGE_AnimationType type, uin
         case SSGE_ANIM_FRAMES:
             anim->data.frames = (SDL_Texture **)calloc(frameCount, sizeof(SDL_Texture *));
             anim->data.frameCount = frameCount;
-            anim->data.currentCount = 0;
-            anim->data.anchorX = 0;
-            anim->data.anchorY = 0;
             break;
         case SSGE_ANIM_FUNCTION:
             anim->draw = draw;
             break;
     }
 
-    return _add_to_list(&_animation_list, anim, name, __func__);
+    _add_to_list(&_animation_list, anim, name, id, __func__);
+    return anim;
 }
 
 /**

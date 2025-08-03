@@ -9,11 +9,12 @@
 
 /**
  * Loads an audio
+ * \param id Where to store the id of the audio
  * \param filename The path to the audio
  * \param name The name of the audio
  * \return The audio
  */
-SSGEDECL uint32_t SSGE_Audio_Create(char *filename, char *name) {
+SSGEDECL SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name) {
     _assert_engine_init
     SSGE_Audio *audio = (SSGE_Audio *)malloc(sizeof(SSGE_Audio));
     if (audio == NULL) 
@@ -23,7 +24,39 @@ SSGEDECL uint32_t SSGE_Audio_Create(char *filename, char *name) {
     if (audio->audio == NULL) 
         SSGE_ErrorEx("Failed to load audio: %s", Mix_GetError());
 
-    return _add_to_list(&_audio_list, audio, name, __func__);
+    _add_to_list(&_audio_list, audio, name, id, __func__);
+    return audio;
+}
+
+/**
+ * Get an audio
+ * \param id The id of the audio
+ * \return The audio
+ */
+SSGEDECL SSGE_Audio *SSGE_Audio_Get(uint32_t id) {
+    _assert_engine_init
+    SSGE_Audio *ptr = SSGE_Array_Get(&_audio_list, id);
+    if (ptr == NULL) 
+        SSGE_ErrorEx("Audio not found: %u", id);
+    return ptr;
+}
+
+
+static bool _find_audio_name(void *ptr, void *name) {
+    return strcmp(((SSGE_Audio *)ptr)->name, (char *)name) == 0 ? 1 : 0;
+}
+
+/**
+ * Get an audio by name
+ * \param name The name of the audio
+ * \return The audio
+ */
+SSGEDECL SSGE_Audio *SSGE_Audio_GetName(char *name) {
+    _assert_engine_init
+    SSGE_Audio *ptr = (SSGE_Audio *)SSGE_Array_Find(&_audio_list, _find_audio_name, name);
+    if (ptr == NULL) 
+        SSGE_ErrorEx("Audio not found: %s", name);
+    return ptr;
 }
 
 /**
@@ -39,10 +72,6 @@ SSGEDECL int SSGE_Audio_Play(SSGE_Audio *audio, int channel) {
         SSGE_ErrorEx("Audio could not be played: %s", Mix_GetError());
     
     return channel;
-}
-
-static bool _find_audio_name(void *audio, void *name) {
-    return strcmp(((SSGE_Audio *)audio)->name, (char *)name) == 0 ? 1 : 0;
 }
 
 /**

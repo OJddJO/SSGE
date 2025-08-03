@@ -9,12 +9,13 @@
 
 /**
  * Creates a texture
+ * \param id Where to store the id of the texture
  * \param filename The path to the texture
  * \param name The name of the texture
- * \return The texture id
+ * \return The texture
  * \note The texture is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_Texture_Create(char *filename, char *name) {
+SSGEDECL SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *name) {
     _assert_engine_init
 
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
@@ -27,7 +28,8 @@ SSGEDECL uint32_t SSGE_Texture_Create(char *filename, char *name) {
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    return _add_to_list(&_texture_list, texture, name, __func__);
+    _add_to_list(&_texture_list, texture, name, id, __func__);
+    return texture;
 }
 
 /**

@@ -29,12 +29,15 @@ SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Colo
 
 /**
  * Creates text as a texture
+ * \param id Where to store the texture
  * \param fontName The name of the font
  * \param text The text to draw
  * \param color The color of the text
  * \param textureName The name of the texture
+ * \return The poitner of the texture
+ * \note The texture is stored internally and can be accessed by its name or its id
  */
-SSGEDECL uint32_t SSGE_Text_Create(char *fontName, char *text, SSGE_Color color, char *textureName);
+SSGEDECL SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text, SSGE_Color color, char *textureName);
 
 /**
  * Closes a font by name

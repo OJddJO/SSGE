@@ -12,13 +12,18 @@
 #define WIN_H MAP_H * TILE_SIZE
 
 typedef struct _Game {
+    uint32_t hitboxes[9];
     int matrix[3][3];
     int current_player;
     int winner;
     int turn;
 } Game;
 
-void init_game(Game *game);
-int check_winner(Game *game);
+enum _audios {
+    A_START,
+    A_CLICK,
+    A_TIE,
+    A_WIN,
+};
 
 #endif // __GAME_H__
