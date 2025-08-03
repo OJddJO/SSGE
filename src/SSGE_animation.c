@@ -9,15 +9,6 @@
  * Animation functions
  ******************************/
 
-/**
- * Create an animation
- * \param id Where to store the id of the animation
- * \param name The name of the animation
- * \param type The type of animation
- * \param frameCount The number of frame if `type` is `SSGE_ANIM_FRAME`, ignored if not
- * \param draw The draw function of the animation if `type` is `SSGE_ANIM_FUNCTION`, ignored if not
- * \return The animation
- */
 SSGEDECL SSGE_Animation *SSGE_Animation_Create(uint32_t *id, char *name, SSGE_AnimationType type, uint32_t frameCount, void (*draw)(SSGE_AnimationState *)) {
     _assert_engine_init
 
@@ -45,12 +36,6 @@ SSGEDECL SSGE_Animation *SSGE_Animation_Create(uint32_t *id, char *name, SSGE_An
     return anim;
 }
 
-/**
- * Set the anchor of an animation
- * \param animation The animation to set the anchor of
- * \param x The anchor's x coordinate relative to the frame
- * \param y The anchor's y coordinate relative to the frame
- */
 SSGEDECL void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
     _assert_engine_init
 
@@ -58,11 +43,6 @@ SSGEDECL void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
     animation->data.anchorY = y;
 }
 
-/**
- * Add a frame in an animation
- * \param animation The animation to add a frame
- * \param texture The path of the image
- */
 SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, char *file) {
     _assert_engine_init
 
@@ -76,13 +56,6 @@ SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, char *file) {
     animation->data.frames[animation->data.currentCount++] = frame;
 }
 
-/**
- * Add a frame in an animation from a tilemap
- * \param animation The animation to add a frame
- * \param tilemap The tilemap to get the frame from
- * \param row The row of the tile
- * \param col The col of the tile
- */
 SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, SSGE_Tilemap *tilemap, int row, int col) {
     _assert_engine_init
 
@@ -102,17 +75,6 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, SSGE_Til
     animation->data.frames[animation->data.currentCount++] = frame;
 }
 
-/**
- * Play an animation
- * \param animation The id of the animation to play
- * \param loop If the animation should loop
- * \param reversed If the animation should be reversed
- * \param pingpong If the animation should pingpong
- * \param callback The function to call at the end of the animation
- * \param callbackData The data to pass to the callback
- * \param destroyData The function to destroy the data
- * \return The id of the animation state
- */
 SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, bool loop, bool reversed, bool pingpong, void (*callback)(void *), void *callbackData, void (*destroyData)(void *)) {
     _assert_engine_init
 
@@ -137,10 +99,6 @@ SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, b
     return SSGE_Array_Add(&_playingAnim, state);
 }
 
-/**
- * Pause an animation
- * \param id The id of the animation state
- */
 SSGEDECL void SSGE_Animation_Pause(uint32_t id) {
     _assert_engine_init
 
@@ -151,10 +109,6 @@ SSGEDECL void SSGE_Animation_Pause(uint32_t id) {
     state->isPlaying = false;
 }
 
-/**
- * Resume an animation
- * \param id The id of the animation state
- */
 SSGEDECL void SSGE_Animation_Resume(uint32_t id) {
     _assert_engine_init
 
@@ -165,9 +119,6 @@ SSGEDECL void SSGE_Animation_Resume(uint32_t id) {
     state->isPlaying = true;
 }
 
-/**
- * Stop an animation
- */
 SSGEDECL void SSGE_Animation_Stop(uint32_t id) {
     _assert_engine_init
 

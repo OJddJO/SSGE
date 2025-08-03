@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 /**
- * Creates a texture
+ * Create a texture
  * \param id Where to store the id of the texture
  * \param filename The path to the texture
  * \param name The name of the texture
@@ -19,14 +19,14 @@ extern "C" {
 SSGEDECL SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *name);
 
 /**
- * Gets a texture by id
+ * Get a texture by id
  * \param id The id of the texture
  * \return The texture
  */
 SSGEDECL SSGE_Texture *SSGE_Texture_Get(uint32_t id);
 
 /**
- * Gets a texture by name
+ * Get a texture by name
  * \param name The name of the texture
  * \return The texture
  */
@@ -41,7 +41,7 @@ SSGEDECL SSGE_Texture *SSGE_Texture_GetName(char *name);
 SSGEDECL void SSGE_Texture_Anchor(SSGE_Texture *texture, int x, int y);
 
 /**
- * Draws a texture
+ * Draw a texture
  * \param texture The texture to draw
  * \param x The x coordinate at which the texture is drawn
  * \param y The y coordinate at which the texture is drawn
@@ -51,7 +51,7 @@ SSGEDECL void SSGE_Texture_Anchor(SSGE_Texture *texture, int x, int y);
 SSGEDECL void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, int height);
 
 /**
- * Draws a texture with more options
+ * Draw a texture with more options
  * \param texture The texture to draw
  * \param x The x coordinate at which the texture is drawn
  * \param y The y coordinate at which the texture is drawn
@@ -64,7 +64,7 @@ SSGEDECL void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, 
 SSGEDECL void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip);
 
 /**
- * Draws a texture from a file
+ * Draw a texture from a file
  * \param filename The texture to draw
  * \param x The x coordinate at which the texture is drawn
  * \param y The y coordinate at which the texture is drawn
@@ -74,19 +74,19 @@ SSGEDECL void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width
 SSGEDECL void SSGE_Texture_DrawFile(char *filename, int x, int y, int width, int height);
 
 /**
- * Destroys a texture
+ * Destroy a texture
  * \param id The id of the texture
  */
 SSGEDECL void SSGE_Texture_Destroy(uint32_t id);
 
 /**
- * Destroys a texture
+ * Destroy a texture
  * \param name The name of the texture
  */
 SSGEDECL void SSGE_Texture_DestroyName(char *name);
 
 /**
- * Destroys all texture
+ * Destroy all texture
  */
 SSGEDECL void SSGE_Texture_DestroyAll();
 

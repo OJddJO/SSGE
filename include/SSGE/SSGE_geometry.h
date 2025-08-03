@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 /**
- * Draws a line
+ * Draw a line
  * \param x1 The x coordinate of the first point
  * \param y1 The y coordinate of the first point
  * \param x2 The x coordinate of the second point
@@ -19,7 +19,7 @@ extern "C" {
 SSGEDECL void SSGE_DrawLine(int x1, int y1, int x2, int y2, SSGE_Color color);
 
 /**
- * Draws a rectangle
+ * Draw a rectangle
  * \param x1 The x coordinate of the point at the top-left corner of the rectangle
  * \param y1 The y coordinate of the point at the top-left corner of the rectangle
  * \param x2 The x coordinate of the point at the bottom-right corner of the rectangle
@@ -29,7 +29,7 @@ SSGEDECL void SSGE_DrawLine(int x1, int y1, int x2, int y2, SSGE_Color color);
 SSGEDECL void SSGE_DrawRect(int x1, int y1, int x2, int y2, SSGE_Color color);
 
 /**
- * Draws an ellipse
+ * Draw an ellipse
  * \param x The x coordinate of the ellipse
  * \param y The y coordinate of the ellipse
  * \param rx The x radius of the ellipse
@@ -39,7 +39,7 @@ SSGEDECL void SSGE_DrawRect(int x1, int y1, int x2, int y2, SSGE_Color color);
 SSGEDECL void SSGE_DrawCircle(int x, int y, int radius, SSGE_Color color);
 
 /**
- * Draws a circle
+ * Draw a circle
  * \param x The x coordinate of the circle
  * \param y The y coordinate of the circle
  * \param radius The radius of the circle
@@ -48,7 +48,7 @@ SSGEDECL void SSGE_DrawCircle(int x, int y, int radius, SSGE_Color color);
 SSGEDECL void SSGE_DrawEllipse(int x, int y, int rx, int ry, SSGE_Color color);
 
 /**
- * Draws a line with a specified thickness
+ * Draw a line with a specified thickness
  * \param x1 The x coordinate of the first point
  * \param y1 The y coordinate of the first point
  * \param x2 The x coordinate of the second point
@@ -59,7 +59,7 @@ SSGEDECL void SSGE_DrawEllipse(int x, int y, int rx, int ry, SSGE_Color color);
 SSGEDECL void SSGE_DrawLineThick(int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
 
 /**
- * Draws a rectangle with a specified thickness
+ * Draw a rectangle with a specified thickness
  * \param x1 The x coordinate of the point at the top-left corner of the rectangle
  * \param y1 The y coordinate of the point at the top-left corner of the rectangle
  * \param x2 The x coordinate of the point at the bottom-right corner of the rectangle
@@ -70,7 +70,7 @@ SSGEDECL void SSGE_DrawLineThick(int x1, int y1, int x2, int y2, SSGE_Color colo
 SSGEDECL void SSGE_DrawRectThick(int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
 
 /**
- * Draws a circle with a specified thickness
+ * Draw a circle with a specified thickness
  * \param x The x coordinate of the circle
  * \param y The y coordinate of the circle
  * \param radius The radius of the circle
@@ -80,7 +80,7 @@ SSGEDECL void SSGE_DrawRectThick(int x1, int y1, int x2, int y2, SSGE_Color colo
 SSGEDECL void SSGE_DrawCircleThick(int x, int y, int radius, SSGE_Color color, int thickness);
 
 /**
- * Draws an ellipse with a specified thickness
+ * Draw an ellipse with a specified thickness
  * \param x The x coordinate of the ellipse
  * \param y The y coordinate of the ellipse
  * \param rx The x radius of the ellipse
@@ -91,7 +91,7 @@ SSGEDECL void SSGE_DrawCircleThick(int x, int y, int radius, SSGE_Color color, i
 SSGEDECL void SSGE_DrawEllipseThick(int x, int y, int rx, int ry, SSGE_Color color, int thickness);
 
 /**
- * Fills a rectangle
+ * Fill a rectangle
  * \param x1 The x coordinate of the point at the top-left corner of the rectangle
  * \param y1 The y coordinate of the point at the top-left corner of the rectangle
  * \param x2 The x coordinate of the point at the bottom-right corner of the rectangle
@@ -100,7 +100,7 @@ SSGEDECL void SSGE_DrawEllipseThick(int x, int y, int rx, int ry, SSGE_Color col
 SSGEDECL void SSGE_FillRect(int x1, int y1, int x2, int y2, SSGE_Color color);
 
 /**
- * Fills a circle
+ * Fill a circle
  * \param x The x coordinate of the circle
  * \param y The y coordinate of the circle
  * \param radius The radius of the circle
@@ -109,7 +109,7 @@ SSGEDECL void SSGE_FillRect(int x1, int y1, int x2, int y2, SSGE_Color color);
 SSGEDECL void SSGE_FillCircle(int x, int y, int radius, SSGE_Color color);
 
 /**
- * Fills an ellipse
+ * Fill an ellipse
  * \param x The x coordinate of the ellipse
  * \param y The y coordinate of the ellipse
  * \param rx The x radius of the ellipse
@@ -119,7 +119,7 @@ SSGEDECL void SSGE_FillCircle(int x, int y, int radius, SSGE_Color color);
 SSGEDECL void SSGE_FillEllipse(int x, int y, int rx, int ry, SSGE_Color color);
 
 /**
- * Draws geometry from a texture
+ * Draw geometry from a texture
  * \param texture The texture to draw
  * \param x The x coordinate at which the texture is drawn
  * \param y The y coordinate at which the texture is drawn

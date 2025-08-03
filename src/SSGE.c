@@ -28,14 +28,6 @@ static int _event_filter(void *userdata, SDL_Event *event) {
     }
 }
 
-/**
- * Initializes the engine
- * \param title The title of the window
- * \param width The window width
- * \param height The window height
- * \param fps The frames per second
- * \return The engine struct
- */
 SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
     if (_engine.initialized)
         SSGE_Error("Engine already initialized");
@@ -84,10 +76,6 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, ui
     return &_engine;
 }
 
-/**
- * Quits the engine
- * \note This function must be called at the end of the program
- */
 SSGEDECL void SSGE_Quit() {
     _assert_engine_init
 
@@ -106,15 +94,6 @@ SSGEDECL void SSGE_Quit() {
     SDL_Quit();
 }
 
-/**
- * Runs the engine
- * \param update The update function. Should take a `Game *` as argument and return `void`
- * \param draw The draw function. Should takes a `Game *` as argument and returns `void`
- * \param eventHandler The event handler function. Should takes a `SSGE_Event` and a `Game *` as arguments and returns `void`
- * \param data The `Game *` to pass to the functions (update, draw, eventHandler)
- * \warning The engine runs in an infinite loop until the window is closed
- * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
- */
 SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*eventHandler)(SSGE_Event, Game *), Game *data) {
     _assert_engine_init
 
@@ -159,19 +138,11 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
  * Window / utility functions
  ************************************************/
 
-/**
- * Sets the window title
- * \param title The title of the window
- */
 SSGEDECL void SSGE_SetWindowTitle(char *title) {
     _assert_engine_init
     SDL_SetWindowTitle(_engine.window, title);
 }
 
-/**
- * Sets the window icon
- * \param filename The path to the icon
- */
 SSGEDECL void SSGE_SetWindowIcon(char *filename) {
     _assert_engine_init
     SDL_Surface *icon = IMG_Load(filename);
@@ -183,69 +154,36 @@ SSGEDECL void SSGE_SetWindowIcon(char *filename) {
     SDL_FreeSurface(icon);
 }
 
-/**
- * Sets the window size
- * \param width The target width
- * \param height The target height
- */
 SSGEDECL void SSGE_WindowResize(uint16_t width, uint16_t height) {
     _assert_engine_init
     SDL_SetWindowSize(_engine.window, width, height);
 }
 
-/**
- * Sets the window as resizable
- * \param resizable True if the window should be resizable, false otherwise
- */
 SSGEDECL void SSGE_WindowResizable(bool resizable) {
     _assert_engine_init
     SDL_SetWindowResizable(_engine.window, resizable ? SDL_TRUE : SDL_FALSE);
 }
 
-/**
- * Sets the window as fullscreen
- * \param fullscreen True if the window should be fullscreen, false otherwise
- */
 SSGEDECL void SSGE_WindowFullscreen(bool fullscreen) {
     _assert_engine_init
     SDL_SetWindowFullscreen(_engine.window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
-/**
- * Sets the manual update mode
- * \param manualUpdate True if the manual update mode should be enabled, false otherwise
- * \note This function should be called before the `SSGE_Run` function
- * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `SSGE_ManualUpdate` function is called.
- * \note Setting the manual update mode may be more efficient when the screen does not need to be updated every frame
- */
 SSGEDECL void SSGE_SetManualUpdate(bool manualUpdate) {
     _assert_engine_init
     _manual_update_frame = manualUpdate;
 }
 
-/**
- * Updates the screen (queues a call of the `draw` function)
- * \note This function should be called when the manual update mode is enabled
- * \note It does nothing if the manual update mode is disabled
- */
 SSGEDECL void SSGE_ManualUpdate() {
     _update_frame = true;
 }
 
-/**
- * Sets the color of the renderer
- * \param color The color to set
- */
 SSGEDECL void SSGE_SetColor(SSGE_Color color) {
     _assert_engine_init
     _color = color;
     SDL_SetRenderDrawColor(_engine.renderer, color.r, color.g, color.b, color.a);
 }
 
-/**
- * Change the background color
- * \param color The color to set
- */
 SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color) {
     _assert_engine_init
     _bg_color = color;
@@ -255,21 +193,11 @@ SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color) {
  * Event functions
  ***********************************************/
 
-/**
- * Get the mouse position
- * \param x The variable to store the x coordinate of the mouse
- * \param y The variable to store the y coordinate of the mouse
- */
 SSGEDECL void SSGE_GetMousePosition(int *x, int *y) {
     _assert_engine_init
     SDL_GetMouseState(x, y);
 }
 
-/**
- * Checks if an object is hovered
- * \param object The object to check
- * \return True if the object is hovered, false otherwise
- */
 SSGEDECL bool SSGE_ObjectIsHovered(SSGE_Object *object) {
     _assert_engine_init
     int mouseX, mouseY;
@@ -283,11 +211,6 @@ static bool _is_hovered(SSGE_Object *ptr, int *mousePos) {
     return mouseX >= ptr->x && mouseX <= ptr->x + ptr->width && mouseY >= ptr->y && mouseY <= ptr->y + ptr->height;
 }
 
-/**
- * Get the hovered object
- * \return The hovered object, NULL if no object is hovered
- * \warning If multiple objects are hovered, returns the hovered object with the smallest id
- */
 SSGEDECL SSGE_Object *SSGE_GetHoveredObject() {
     _assert_engine_init
     int mousePos[2];
@@ -299,12 +222,6 @@ SSGEDECL SSGE_Object *SSGE_GetHoveredObject() {
     #pragma GCC diagnostic pop
 }
 
-/**
- * Get the list of the objects that are hovered
- * \param objects The array to store the hovered objects
- * \param size The size of the array
- * \return The number of objects retrieved
- */
 SSGEDECL uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {
     _assert_engine_init
     int mousePos[2];

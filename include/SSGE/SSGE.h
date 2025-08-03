@@ -25,7 +25,7 @@ extern "C" {
  ******************************/
 
 /**
- * Initializes the engine
+ * Initialize the engine
  * \param title The title of the window
  * \param width The window width
  * \param height The window height
@@ -35,13 +35,13 @@ extern "C" {
 SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps);
 
 /**
- * Quits the engine
+ * Quit the engine
  * \note This function must be called at the end of the program
  */
 SSGEDECL void SSGE_Quit();
 
 /**
- * Runs the engine
+ * Run the engine
  * \param update The update function. Should take a `Game *` as argument and return `void`
  * \param draw The draw function. Should takes a `Game *` as argument and returns `void`
  * \param eventHandler The event handler function. Should takes a `SSGE_Event` and a `Game *` as arguments and returns `void`
@@ -54,38 +54,38 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
 // Window functions
 
 /**
- * Sets the window title
+ * Set the window title
  * \param title The title of the window
  */
 SSGEDECL void SSGE_SetWindowTitle(char *title);
 
 /**
- * Sets the window icon
+ * Set the window icon
  * \param filename The path to the icon
  */
 SSGEDECL void SSGE_SetWindowIcon(char *filename);
 
 /**
- * Sets the window size
+ * Set the window size
  * \param width The target width
  * \param height The target height
  */
 SSGEDECL void SSGE_WindowResize(uint16_t width, uint16_t height);
 
 /**
- * Sets the window as resizable
+ * Set the window as resizable
  * \param resizable True if the window should be resizable, false otherwise
  */
 SSGEDECL void SSGE_WindowResizable(bool resizable);
 
 /**
- * Sets the window as fullscreen
+ * Set the window as fullscreen
  * \param fullscreen True if the window should be fullscreen, false otherwise
  */
 SSGEDECL void SSGE_WindowFullscreen(bool fullscreen);
 
 /**
- * Sets the manual update mode
+ * Set the manual update mode
  * \param manualUpdate True if the manual update mode should be enabled, false otherwise
  * \note This function should be called before the `SSGE_Run` function
  * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `SSGE_ManualUpdate` function is called.
@@ -103,7 +103,7 @@ SSGEDECL void SSGE_ManualUpdate();
 // Utility functions
 
 /**
- * Sets the color of the renderer
+ * Set the color of the renderer
  * \param color The color to set
  */
 SSGEDECL void SSGE_SetColor(SSGE_Color color);
@@ -124,7 +124,7 @@ SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color);
 SSGEDECL void SSGE_GetMousePosition(int *x, int *y);
 
 /**
- * Checks if an object is hovered
+ * Check if an object is hovered
  * \param object The object to check
  * \return True if the object is hovered, false otherwise
  */

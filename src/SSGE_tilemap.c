@@ -6,17 +6,6 @@
 /***********************************************
  * Tilemap functions
  ***********************************************/
-
-/**
- * Creates a tilemap
- * \param filename The path to the tilemap
- * \param tileWidth The width of the tile
- * \param tileHeight The height of the tile
- * \param spacing The spacing between tiles
- * \param nbRows The number of rows in the tilemap
- * \param nbCols The number of columns in the tilemap
- * \return The tilemap
- */
 SSGEDECL SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint16_t tileWidth, uint16_t tileHeight, uint16_t spacing, uint16_t nbRows, uint16_t nbCols) {
     _assert_engine_init
     SSGE_Tilemap *tilemap = (SSGE_Tilemap *)malloc(sizeof(SSGE_Tilemap));
@@ -36,14 +25,6 @@ SSGEDECL SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint16_t tileWidth, u
     return tilemap;
 }
 
-/**
- * Gets a tile from a tilemap
- * \param tilemap The tilemap to use
- * \param row The row of the tile
- * \param col The column of the tile
- * \return The tile, NULL if error
- * \note The tile must be destroyed after use
- */
 SSGEDECL SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col) {
     _assert_engine_init
     if (row >= tilemap->nbRows || col >= tilemap->nbCols)
@@ -60,16 +41,6 @@ SSGEDECL SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, uint16_t row, ui
     return tile;
 }
 
-/**
- * Gets a texture from a tilemap
- * \param tilemap The tilemap to use
- * \param row The row of the tile
- * \param col The column of the tile
- * \param id Where to store the id of the texture
- * \param name The name of the texture
- * \return The texture
- * \note The texture is stored internally and can be accessed by its name or its id
- */
 SSGEDECL SSGE_Texture *SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, uint32_t *id, char *name) {
     _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
@@ -91,14 +62,6 @@ SSGEDECL SSGE_Texture *SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint
     return texture;
 }
 
-/**
- * Draws a tile from a tilemap
- * \param tilemap The tilemap to use
- * \param row The row of the tile
- * \param col The column of the tile
- * \param x The x coordinate at which the tile is drawn
- * \param y The y coordinate at which the tile is drawn
- */
 SSGEDECL void SSGE_Tilemap_DrawTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, int x, int y) {
     _assert_engine_init
     if (row >= tilemap->nbRows || col >= tilemap->nbCols) 
@@ -109,16 +72,6 @@ SSGEDECL void SSGE_Tilemap_DrawTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_
     SDL_RenderCopy(_engine.renderer, tilemap->texture, &src, &dest);
 }
 
-/**
- * Draws a tile from a tilemap
- * \param tilemap The tilemap to use
- * \param row The row of the tile
- * \param col The column of the tile
- * \param x The x coordinate at which the tile is drawn
- * \param y The y coordinate at which the tile is drawn
- * \param width The width of the drawn tile
- * \param height The height of the drawn tile
- */
 SSGEDECL void SSGE_Tilemap_DrawTileSize(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, int x, int y, uint16_t width, uint16_t height) {
     _assert_engine_init
     if (row >= tilemap->nbRows || col >= tilemap->nbCols) 
@@ -129,12 +82,6 @@ SSGEDECL void SSGE_Tilemap_DrawTileSize(SSGE_Tilemap *tilemap, uint16_t row, uin
     SDL_RenderCopy(_engine.renderer, tilemap->texture, &src, &dest);
 }
 
-/**
- * Draws a tile
- * \param tile The tile to draw
- * \param x The x coordinate at which the tile is drawn
- * \param y The y coordinate at which the tile is drawn
- */
 SSGEDECL void SSGE_Tilemap_DrawTileAlt(SSGE_Tile *tile, int x, int y) {
     _assert_engine_init
     SDL_Rect src = {tile->col * (tile->tilemap->tileWidth + tile->tilemap->spacing), tile->row * (tile->tilemap->tileHeight + tile->tilemap->spacing), tile->tilemap->tileWidth, tile->tilemap->tileHeight};
@@ -142,14 +89,6 @@ SSGEDECL void SSGE_Tilemap_DrawTileAlt(SSGE_Tile *tile, int x, int y) {
     SDL_RenderCopy(_engine.renderer, tile->tilemap->texture, &src, &dest);
 }
 
-/**
- * Draws a tile with the specified width and height
- * \param tile The tile to draw
- * \param x The x coordinate at which the tile is drawn
- * \param y The y coordinate at which the tile is drawn
- * \param width The width of the drawn tile
- * \param height The height of the drawn tile
- */
 SSGEDECL void SSGE_Tilemap_DrawTileSizeAlt(SSGE_Tile *tile, int x, int y, uint16_t width, uint16_t height) {
     _assert_engine_init
     SDL_Rect src = {tile->col * (tile->tilemap->tileWidth + tile->tilemap->spacing), tile->row * (tile->tilemap->tileHeight + tile->tilemap->spacing), tile->tilemap->tileWidth, tile->tilemap->tileHeight};
@@ -157,19 +96,10 @@ SSGEDECL void SSGE_Tilemap_DrawTileSizeAlt(SSGE_Tile *tile, int x, int y, uint16
     SDL_RenderCopy(_engine.renderer, tile->tilemap->texture, &src, &dest);
 }
 
-/**
- * Destroys a tile
- * \param tile The tile to destroy
- * \note This function does not destroy the tilemap
- */
 SSGEDECL void SSGE_Tilemap_DestroyTile(SSGE_Tile *tile) {
     free(tile);
 }
 
-/**
- * Destroys a tilemap
- * \param tilemap The tilemap to destroy
- */
 SSGEDECL void SSGE_Tilemap_Destroy(SSGE_Tilemap *tilemap) {
     _assert_engine_init
     SDL_DestroyTexture(tilemap->texture);
