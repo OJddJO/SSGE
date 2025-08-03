@@ -17,7 +17,7 @@ To use the engine, download the release and copy the files into your project. Yo
 See [`example/makefile`](./example/makefile)
 
 ## Example
-See the [`example/src/tictactoe.c`](./example/src/tictactoe.c) and [`example/src/game.c`](./example/src/game.c) files for an example of how to use the engine.
+See [`example/src/tictactoe.c`](./example/src/tictactoe.c) for an example of how to use the engine.
 
 ## Documentation
 Each functions and structures are documented in the source code. See the header files for more information.
