@@ -42,7 +42,7 @@ typedef struct _DummyType {
 } DummyType;
 
 inline void _add_to_list(SSGE_Array *list, void *element, char *name, uint32_t *id, const char *funcname) {
-    ((DummyType *)element)->name = (char *)malloc(sizeof(char) * strlen(name) + 1);
+    ((DummyType *)element)->name = (char *)malloc(sizeof(char) * (strlen(name) + 1));
     if (((DummyType *)element)->name == NULL) {
         fprintf(stderr, "[SSGE][%s] Failed to allocate memory for name\n", funcname);
         exit(1);

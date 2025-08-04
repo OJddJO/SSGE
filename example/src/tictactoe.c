@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include "game.h"
 
-static void update(Game *game);
-static void draw(Game *game);
-static void event_handler(SSGE_Event event, Game *game);
-
 static void init_game(Game *game);
 static void create_hitboxes(uint32_t *hitboxes);
 static int check_winner(Game *game);
+
+static void update(Game *game);
+static void draw(Game *game);
+static void event_handler(SSGE_Event event, Game *game);
 
 int main(int argc, char *argv[]) {
     // Initialize the engine
@@ -62,6 +62,53 @@ static void create_hitboxes(uint32_t *hitboxes) {
             SSGE_Object_Create(&hitboxes[i*3+j], name, NULL, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, true, NULL, NULL);
         }
     }
+}
+
+/**
+ * Init the game struct
+ * \param game The game struct to init
+ */
+static void init_game(Game *game) {
+    for (short i = 0; i < 9; i++) {
+        game->hitboxes[i] = 0;
+        game->matrix[i/3][i%3] = 0; // fill matrix with 0s
+    }
+
+    game->current_player = 1;
+    game->winner = 0;
+    game->turn = 0;
+}
+
+/**
+ * Check if there is a winner
+ * \param game The game structure
+ * \return The winner, 0 if no winner, -1 if draw
+ */
+static int check_winner(Game *game) {
+    //check rows
+    for (int i = 0; i < 3; i++) {
+        if (game->matrix[i][0] == game->matrix[i][1] && game->matrix[i][1] == game->matrix[i][2] && game->matrix[i][0] != 0) {
+            return game->matrix[i][0];
+        }
+    }
+    //check columns
+    for (int i = 0; i < 3; i++) {
+        if (game->matrix[0][i] == game->matrix[1][i] && game->matrix[1][i] == game->matrix[2][i] && game->matrix[0][i] != 0) {
+            return game->matrix[0][i];
+        }
+    }
+    //check diagonals
+    if (game->matrix[0][0] == game->matrix[1][1] && game->matrix[1][1] == game->matrix[2][2] && game->matrix[0][0] != 0) {
+        return game->matrix[0][0];
+    }
+    if (game->matrix[0][2] == game->matrix[1][1] && game->matrix[1][1] == game->matrix[2][0] && game->matrix[0][2] != 0) {
+        return game->matrix[0][2];
+    }
+    //check draw
+    if (game->turn == 9) {
+        return -1;
+    }
+    return 0;
 }
 
 /**
@@ -143,51 +190,4 @@ static void event_handler(SSGE_Event event, Game *game) {
                 SSGE_ManualUpdate();
             }
     }
-}
-
-/**
- * Init the game struct
- * \param game The game struct to init
- */
-static void init_game(Game *game) {
-    for (short i = 0; i < 9; i++) {
-        game->hitboxes[i] = 0;
-        game->matrix[i/3][i%3] = 0; // fill matrix with 0s
-    }
-
-    game->current_player = 1;
-    game->winner = 0;
-    game->turn = 0;
-}
-
-/**
- * Check if there is a winner
- * \param game The game structure
- * \return The winner, 0 if no winner, -1 if draw
- */
-static int check_winner(Game *game) {
-    //check rows
-    for (int i = 0; i < 3; i++) {
-        if (game->matrix[i][0] == game->matrix[i][1] && game->matrix[i][1] == game->matrix[i][2] && game->matrix[i][0] != 0) {
-            return game->matrix[i][0];
-        }
-    }
-    //check columns
-    for (int i = 0; i < 3; i++) {
-        if (game->matrix[0][i] == game->matrix[1][i] && game->matrix[1][i] == game->matrix[2][i] && game->matrix[0][i] != 0) {
-            return game->matrix[0][i];
-        }
-    }
-    //check diagonals
-    if (game->matrix[0][0] == game->matrix[1][1] && game->matrix[1][1] == game->matrix[2][2] && game->matrix[0][0] != 0) {
-        return game->matrix[0][0];
-    }
-    if (game->matrix[0][2] == game->matrix[1][1] && game->matrix[1][1] == game->matrix[2][0] && game->matrix[0][2] != 0) {
-        return game->matrix[0][2];
-    }
-    //check draw
-    if (game->turn == 9) {
-        return -1;
-    }
-    return 0;
 }

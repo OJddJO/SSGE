@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 /**
- * Creates an object template
+ * Create an object template
  * \param id Where to store the id of the object template
  * \param name The name of the object template
  * \param texture The texture of the object template
@@ -23,33 +23,33 @@ extern "C" {
 SSGEDECL SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *));
 
 /**
- * Gets an object template by id
+ * Get an object template by id
  * \param id The id of the object template
  * \return The object template
  */
 SSGEDECL SSGE_ObjectTemplate *SSGE_Template_Get(uint32_t id);
 
 /**
- * Gets an object template by name
+ * Get an object template by name
  * \param name The name of the object template
  * \return The object template
  */
 SSGEDECL SSGE_ObjectTemplate *SSGE_Template_GetName(char *name);
 
 /**
- * Destroys an object template by id
+ * Destroy an object template by id
  * \param id The id of the object template
  */
 SSGEDECL void SSGE_Template_Destroy(uint32_t id);
 
 /**
- * Destroys an object template by name
+ * Destroy an object template by name
  * \param name The name of the object template
  */
 SSGEDECL void SSGE_Template_DestroyName(char *name);
 
 /**
- * Destroys all object templates
+ * Destroy all object templates
  */
 SSGEDECL void SSGE_Template_DestroyAll();
 

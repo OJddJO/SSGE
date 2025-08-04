@@ -9,7 +9,7 @@ extern "C" {
 #endif
 
 /**
- * Loads a font
+ * Load a font
  * \param filename The path to the font
  * \param size The size of the font
  * \param name The name of the font
@@ -17,7 +17,7 @@ extern "C" {
 SSGEDECL void SSGE_Text_CreateFont(char *filename, int size, char *name);
 
 /**
- * Draws text
+ * Draw text
  * \param fontName The name of the font
  * \param text The text to draw
  * \param x The x coordinate to draw the text
@@ -28,7 +28,7 @@ SSGEDECL void SSGE_Text_CreateFont(char *filename, int size, char *name);
 SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor);
 
 /**
- * Creates text as a texture
+ * Create text a a texture
  * \param id Where to store the texture
  * \param fontName The name of the font
  * \param text The text to draw
@@ -40,13 +40,13 @@ SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Colo
 SSGEDECL SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text, SSGE_Color color, char *textureName);
 
 /**
- * Closes a font by name
+ * Close a font by name
  * \param fontName The name of the font
  */
 SSGEDECL void SSGE_Text_CloseFont(char *name);
 
 /**
- * Closes all fonts
+ * Close all fonts
  */
 SSGEDECL void SSGE_Text_CloseAllFonts();
 

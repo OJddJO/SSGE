@@ -77,9 +77,7 @@ SSGEDECL void SSGE_Texture_Destroy(uint32_t id) {
     SSGE_Texture *texture = SSGE_Array_Pop(&_texture_list, id);
     if (texture == NULL) 
         SSGE_ErrorEx("Texture not found: %u", id);
-    SDL_DestroyTexture(texture->texture);
-    free(texture->name);
-    free(texture);
+    _destroy_texture(texture);
 }
 
 SSGEDECL void SSGE_Texture_DestroyName(char *name) {
@@ -87,9 +85,7 @@ SSGEDECL void SSGE_Texture_DestroyName(char *name) {
     SSGE_Texture *texture = SSGE_Array_FindPop(&_texture_list, _find_texture_name, name);
     if (texture == NULL) 
         SSGE_ErrorEx("Texture not found: %s", name);
-    SDL_DestroyTexture(texture->texture);
-    free(texture->name);
-    free(texture);
+    _destroy_texture(texture);
 }
 
 SSGEDECL void SSGE_Texture_DestroyAll() {

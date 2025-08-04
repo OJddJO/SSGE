@@ -70,9 +70,7 @@ SSGEDECL void SSGE_Audio_Close(uint32_t id) {
     SSGE_Audio *audio = SSGE_Array_Pop(&_audio_list, id);
     if (audio == NULL) 
         SSGE_ErrorEx("Audio not found: %u", id);
-    Mix_FreeChunk(audio->audio);
-    free(audio->name);
-    free(audio);
+    _destroy_audio(audio);
 }
 
 SSGEDECL void SSGE_Audio_CloseName(char *name) {
@@ -80,9 +78,7 @@ SSGEDECL void SSGE_Audio_CloseName(char *name) {
     SSGE_Audio *audio = SSGE_Array_FindPop(&_audio_list, _find_audio_name, name);
     if (audio == NULL) 
         SSGE_ErrorEx("Audio not found: %s", name);
-    Mix_FreeChunk(audio->audio);
-    free(audio->name);
-    free(audio);
+    _destroy_audio(audio);
 }
 
 SSGEDECL void SSGE_Audio_CloseAll() {

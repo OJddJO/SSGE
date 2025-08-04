@@ -125,8 +125,11 @@ typedef struct _SSGE_Animation {
     union {
         struct _SSGE_AnimationData {
             struct SDL_Texture  **frames;       // An array of the animation frames
+            uint8_t             *frametimes;    // Frametime corresponding to each frames
             uint32_t            frameCount;     // The number of animation frames
             uint32_t            currentCount;   // The number of frames the animation currently have
+            uint16_t            width;          // The width of the frames
+            uint16_t            height;         // The height of the frames
             int                 anchorX;        // Anchor x coordinate (relative to the frame)
             int                 anchorY;        // Anchor y coordinate (relative to the frame)
         } data;
@@ -145,16 +148,13 @@ typedef struct _SSGE_AnimationState {
     SSGE_Animation  *animation;     // The animation to track the animation state
     int             x;              // The x coordinate at which the animation is played
     int             y;              // The y coordinate at which the animation is played
-    uint32_t        currentFrame;   // The index of the current frame
-    uint32_t        startFrame;     // The index of the start frame
     uint32_t        elpasedFrame;   // The number of frame elapsed since the animation start
+    uint32_t        currentFrame;   // The index of the current frame
+    uint8_t         currentFrameTime; // Elapsed time spent on the current frame (in frames)
     bool            loop;           // If the animation should loop
     bool            reversed;       // If the animation is reversed or not
     bool            pingpong;       // If the animation should pingpong (normal -> reversed)
     bool            isPlaying;      // If the animation is playing or not
-    void            (*callback)(void *); // The function to call at the end of the animation
-    void            *callbackData;  // The data passed to the callback function
-    void            (*destroyData)(void *); // The function to destroy the data (can be NULL)
 } SSGE_AnimationState;
 
 typedef enum _SSGE_Anchor {

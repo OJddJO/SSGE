@@ -93,10 +93,7 @@ SSGEDECL void SSGE_Object_Destroy(uint32_t id) {
     SSGE_Object *object = SSGE_Array_Pop(&_object_list, id);
     if (object == NULL) 
         SSGE_ErrorEx("Object not found: %u", id);
-    free(object->name);
-    if (object->destroyData != NULL)
-        object->destroyData(object->data);
-    free(object);
+    _destroy_object(object);
 }
 
 SSGEDECL void SSGE_Object_DestroyName(char *name) {
@@ -104,10 +101,7 @@ SSGEDECL void SSGE_Object_DestroyName(char *name) {
     SSGE_Object *object = SSGE_Array_FindPop(&_object_list, _find_object_name, name);
     if (object == NULL) 
         SSGE_ErrorEx("Object not found: %s", name);
-    free(object->name);
-    if (object->destroyData != NULL)
-        object->destroyData(object->data);
-    free(object);
+    _destroy_object(object);
 }
 
 SSGEDECL void SSGE_Object_DestroyAll() {

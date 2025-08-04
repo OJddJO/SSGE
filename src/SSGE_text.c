@@ -131,9 +131,7 @@ SSGEDECL void SSGE_Text_CloseFont(char *name) {
     SSGE_Font *font = SSGE_Array_FindPop(&_font_list, _find_font_name, name);
     if (font == NULL) 
         SSGE_ErrorEx("Font not found: %s", name);
-    TTF_CloseFont(font->font);
-    free(font->name);
-    free(font);
+    _destroy_font(font);
 }
 
 SSGEDECL void SSGE_Text_CloseAllFonts() {
