@@ -3,10 +3,6 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_audio.h"
 
-/***********************************************
- * Audio functions
- ***********************************************/
-
 SSGEDECL SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name) {
     _assert_engine_init
     SSGE_Audio *audio = (SSGE_Audio *)malloc(sizeof(SSGE_Audio));
@@ -30,7 +26,7 @@ SSGEDECL SSGE_Audio *SSGE_Audio_Get(uint32_t id) {
 }
 
 static bool _find_audio_name(void *ptr, void *name) {
-    return strcmp(((SSGE_Audio *)ptr)->name, (char *)name) == 0 ? 1 : 0;
+    return strcmp(((SSGE_Audio *)ptr)->name, (char *)name) == 0;
 }
 
 SSGEDECL SSGE_Audio *SSGE_Audio_GetName(char *name) {

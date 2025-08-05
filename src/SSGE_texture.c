@@ -3,10 +3,6 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_texture.h"
 
-/***********************************************
- * Texture functions
- ***********************************************/
-
 SSGEDECL SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *name) {
     _assert_engine_init
 
@@ -33,7 +29,7 @@ SSGEDECL SSGE_Texture *SSGE_Texture_Get(uint32_t id) {
 }
 
 static bool _find_texture_name(void *ptr, void *name) {
-    return strcmp(((SSGE_Texture *)ptr)->name, (char *)name) == 0 ? 1 : 0;
+    return strcmp(((SSGE_Texture *)ptr)->name, (char *)name) == 0;
 }
 
 SSGEDECL SSGE_Texture *SSGE_Texture_GetName(char *name) {

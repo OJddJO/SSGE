@@ -14,8 +14,8 @@ int main(int argc, char *argv[]) {
     // Initialize the engine
     SSGE_Init("TicTacToe", WIN_W, WIN_H, FPS);
     // Load fonts with sizes 32 and 64
-    SSGE_Text_CreateFont("assets/font.ttf", 32, "font_32");
-    SSGE_Text_CreateFont("assets/font.ttf", 64, "font_64");
+    SSGE_Font_Create("assets/font.ttf", 32, "font_32");
+    SSGE_Font_Create("assets/font.ttf", 64, "font_64");
 
     // Load audio files
     uint32_t audios[4] = {0};
@@ -59,7 +59,7 @@ static void create_hitboxes(uint32_t *hitboxes) {
         for (int j = 0; j < 3; j++) {
             char name[30];
             sprintf(name, "hitbox_%d_%d", i, j);
-            SSGE_Object_Create(&hitboxes[i*3+j], name, NULL, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, true, NULL, NULL);
+            SSGE_Object_Create(&hitboxes[i*3+j], name, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, true, NULL, NULL);
         }
     }
 }

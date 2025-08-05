@@ -5,10 +5,6 @@
 #include "SSGE/SSGE.h"
 #include "SSGE/SSGE_local.h"
 
-/***********************************************
- * Engine functions
- ***********************************************/
-
 static int _event_filter(void *userdata, SDL_Event *event) {
     switch (event->type) {
         case SSGE_FIRSTEVENT:
@@ -85,7 +81,7 @@ SSGEDECL void SSGE_Quit() {
     SSGE_Array_Destroy(&_font_list, _destroy_font);
     SSGE_Array_Destroy(&_audio_list, _destroy_audio);
     SSGE_Array_Destroy(&_animation_list, _destroy_animation);
-    SSGE_Array_Destroy(&_playingAnim, _destroy_animation_state);
+    SSGE_Array_Destroy(&_playingAnim, free);
 
     SDL_DestroyRenderer(_engine.renderer);
     SDL_DestroyWindow(_engine.window);
@@ -128,10 +124,6 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
         }
     }
 }
-
-/***********************************************
- * Window / utility functions
- ************************************************/
 
 SSGEDECL void SSGE_SetWindowTitle(char *title) {
     _assert_engine_init

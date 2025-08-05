@@ -3,9 +3,6 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_tilemap.h"
 
-/***********************************************
- * Tilemap functions
- ***********************************************/
 SSGEDECL SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint16_t tileWidth, uint16_t tileHeight, uint16_t spacing, uint16_t nbRows, uint16_t nbCols) {
     _assert_engine_init
     SSGE_Tilemap *tilemap = (SSGE_Tilemap *)malloc(sizeof(SSGE_Tilemap));

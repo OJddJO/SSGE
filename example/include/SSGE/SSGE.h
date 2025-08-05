@@ -20,10 +20,6 @@
 extern "C" {
 #endif
 
-/******************************
- * SSGE Functions
- ******************************/
-
 /**
  * Initialize the engine
  * \param title The title of the window

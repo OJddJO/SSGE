@@ -20,7 +20,21 @@ extern "C" {
  * \return The object template
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEDECL SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *));
+SSGEDECL SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *));
+
+/**
+ * Create an object template
+ * \param id Where to store the id of the object template
+ * \param name The name of the object template
+ * \param animation The animation of the object template
+ * \param width The width of the object template
+ * \param height The height of the object template
+ * \param hitbox True if objects created from this template have a hitbox, false otherwise
+ * \param destroyData The function to destroy the data of the object
+ * \return The object template
+ * \note The object template is stored internally and can be accessed by its name or its id
+ */
+SSGEDECL SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *));
 
 /**
  * Get an object template by id

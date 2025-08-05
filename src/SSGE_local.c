@@ -60,9 +60,3 @@ void _destroy_animation(void *ptr) {
     free(((SSGE_Animation *)ptr)->name);
     free(ptr);
 }
-
-void _destroy_animation_state(void *ptr) {
-    if (((SSGE_AnimationState *)ptr)->destroyData != NULL)
-        ((SSGE_AnimationState *)ptr)->destroyData(((SSGE_AnimationState *)ptr)->callbackData);
-    free(ptr);
-}

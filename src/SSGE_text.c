@@ -3,11 +3,7 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_text.h"
 
-/***********************************************
- * Text functions
- ***********************************************/
-
-SSGEDECL void SSGE_Text_CreateFont(char *filename, int size, char *name) {
+SSGEDECL void SSGE_Font_Create(char *filename, int size, char *name) {
     _assert_engine_init
     SSGE_Font *font = (SSGE_Font *)malloc(sizeof(SSGE_Font));
     if (font == NULL) 
@@ -26,7 +22,7 @@ SSGEDECL void SSGE_Text_CreateFont(char *filename, int size, char *name) {
 }
 
 static bool _find_font_name(void *ptr, void *name) {
-    return strcmp(((SSGE_Font *)ptr)->name, (char *)name) == 0 ? 1 : 0;
+    return strcmp(((SSGE_Font *)ptr)->name, (char *)name) == 0;
 }
 
 static SSGE_Font *_get_font(char *name, char *funcname) {
@@ -36,6 +32,20 @@ static SSGE_Font *_get_font(char *name, char *funcname) {
         exit(1);
     }
     return ptr;
+}
+
+SSGEDECL void SSGE_Font_Close(char *name) {
+    _assert_engine_init
+    SSGE_Font *font = SSGE_Array_FindPop(&_font_list, _find_font_name, name);
+    if (font == NULL) 
+        SSGE_ErrorEx("Font not found: %s", name);
+    _destroy_font(font);
+}
+
+SSGEDECL void SSGE_Font_CloseAll() {
+    _assert_engine_init
+    SSGE_Array_Destroy(&_font_list, _destroy_font);
+    SSGE_Array_Create(&_font_list);
 }
 
 SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor) {
@@ -124,18 +134,4 @@ SSGEDECL SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text
 
     _add_to_list(&_texture_list, texture, textureName, id, __func__);
     return texture;
-}
-
-SSGEDECL void SSGE_Text_CloseFont(char *name) {
-    _assert_engine_init
-    SSGE_Font *font = SSGE_Array_FindPop(&_font_list, _find_font_name, name);
-    if (font == NULL) 
-        SSGE_ErrorEx("Font not found: %s", name);
-    _destroy_font(font);
-}
-
-SSGEDECL void SSGE_Text_CloseAllFonts() {
-    _assert_engine_init
-    SSGE_Array_Destroy(&_font_list, _destroy_font);
-    SSGE_Array_Create(&_font_list);
 }

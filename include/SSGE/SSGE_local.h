@@ -63,7 +63,6 @@ void _destroy_template(void *ptr);
 void _destroy_font(void *ptr);
 void _destroy_audio(void *ptr);
 void _destroy_animation(void *ptr);
-void _destroy_animation_state(void *ptr);
 
 #ifdef __cplusplus
 }

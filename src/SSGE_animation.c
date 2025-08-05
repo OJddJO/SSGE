@@ -5,10 +5,6 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_animation.h"
 
-/******************************
- * Animation functions
- ******************************/
-
 SSGEDECL SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, uint32_t frameCount, uint16_t width, uint16_t height) {
     _assert_engine_init
 
@@ -43,11 +39,14 @@ SSGEDECL SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, voi
 SSGEDECL void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
     _assert_engine_init
 
+    if (animation->type != SSGE_ANIM_FRAMES)
+        SSGE_Error("Wrong animation type")
+
     animation->data.anchorX = x;
     animation->data.anchorY = y;
 }
 
-SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, char *file) {
+SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, char *file) {
     _assert_engine_init
 
     if (animation->type != SSGE_ANIM_FRAMES)
@@ -60,10 +59,11 @@ SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, char *file) {
     if (animation->data.currentCount >= animation->data.frameCount)
         SSGE_Error("Animation already have max number of frames")
 
-    animation->data.frames[animation->data.currentCount++] = frame;
+    animation->data.frames[animation->data.currentCount] = frame;
+    animation->data.frametimes[animation->data.currentCount++] = frametime;
 }
 
-SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, SSGE_Tilemap *tilemap, int row, int col) {
+SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t frametime, SSGE_Tilemap *tilemap, int row, int col) {
     _assert_engine_init
 
     if (animation->type != SSGE_ANIM_FRAMES)
@@ -82,7 +82,8 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, SSGE_Til
     if (animation->data.currentCount >= animation->data.frameCount)
         SSGE_Error("Animation already have max number of frames")
 
-    animation->data.frames[animation->data.currentCount++] = frame;
+    animation->data.frames[animation->data.currentCount] = frame;
+    animation->data.frametimes[animation->data.currentCount++] = frametime;
 }
 
 SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint8_t loop, bool reversed, bool pingpong) {
@@ -95,7 +96,6 @@ SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, u
     state->animation = animation;
     state->x = x;
     state->y = y;
-    state->elpasedFrame = 0;
     state->currentFrame = 0;
     state->currentFrameTime = 0;
     state->loop = loop;
@@ -133,7 +133,18 @@ SSGEDECL void SSGE_Animation_Stop(uint32_t id) {
     if (state == NULL)
         SSGE_ErrorEx("Animation state not found: %u", id)
 
-    _destroy_animation_state(state);
+    free(state);
+}
+
+SSGEDECL void SSGE_Animation_Move(uint32_t id, int x, int y) {
+    _assert_engine_init
+
+    SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
+    if (state == NULL)
+        SSGE_ErrorEx("Animation state not found: %u", id);
+    
+    state->x = x;
+    state->y = y;
 }
 
 SSGEDECL void SSGE_Animation_Update() {
@@ -165,7 +176,7 @@ SSGEDECL void SSGE_Animation_Update() {
                     break;
 
                 if (!(state->loop || state->pingpong)) // If there is no play count modifier
-                    SSGE_Array_Remove(&_playingAnim, i, _destroy_animation_state);
+                    SSGE_Array_Remove(&_playingAnim, i, free);
 
                 if (state->pingpong) { // If pingpong then we need to decrement the frame (according to the reversed state)
                     state->currentFrame -= 2 * (1 - 2*state->reversed);
@@ -178,7 +189,7 @@ SSGEDECL void SSGE_Animation_Update() {
                 if (!state->loop)
                     state->pingpong = false;
 
-                if (state->loop) --state->loop; // Decrement loop count
+                if (state->loop && state->loop != -1) --state->loop; // Decrement loop count
                 break;
 
             case SSGE_ANIM_FUNCTION:

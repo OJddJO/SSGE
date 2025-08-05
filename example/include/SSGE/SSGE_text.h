@@ -14,7 +14,18 @@ extern "C" {
  * \param size The size of the font
  * \param name The name of the font
  */
-SSGEDECL void SSGE_Text_CreateFont(char *filename, int size, char *name);
+SSGEDECL void SSGE_Font_Create(char *filename, int size, char *name);
+
+/**
+ * Close a font by name
+ * \param fontName The name of the font
+ */
+SSGEDECL void SSGE_Font_Close(char *name);
+
+/**
+ * Close all fonts
+ */
+SSGEDECL void SSGE_Font_CloseAll();
 
 /**
  * Draw text
@@ -28,7 +39,7 @@ SSGEDECL void SSGE_Text_CreateFont(char *filename, int size, char *name);
 SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor);
 
 /**
- * Create text a a texture
+ * Create text as a texture
  * \param id Where to store the texture
  * \param fontName The name of the font
  * \param text The text to draw
@@ -38,17 +49,6 @@ SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Colo
  * \note The texture is stored internally and can be accessed by its name or its id
  */
 SSGEDECL SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text, SSGE_Color color, char *textureName);
-
-/**
- * Close a font by name
- * \param fontName The name of the font
- */
-SSGEDECL void SSGE_Text_CloseFont(char *name);
-
-/**
- * Close all fonts
- */
-SSGEDECL void SSGE_Text_CloseAllFonts();
 
 #ifdef __cplusplus
 }

@@ -12,7 +12,6 @@ extern "C" {
  * Create an object
  * \param id Where to store the id of the object
  * \param name The name of the object
- * \param texture The texture of the object
  * \param x The x coordinate of the object
  * \param y The y coordinate of the object
  * \param width The width of the object
@@ -23,7 +22,7 @@ extern "C" {
  * \return The object
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEDECL SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, SSGE_Texture *texture, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *));
+SSGEDECL SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *));
 
 /**
  * Instantiate an object from an object template
@@ -66,17 +65,26 @@ SSGEDECL void SSGE_Object_Draw(SSGE_Object *object);
 SSGEDECL void SSGE_Object_Move(SSGE_Object *object, int x, int y);
 
 /**
- * Change the texture of an object
- * \param object The object to change the texture of
+ * Bind a texture to an object
+ * \param object The object to bind the texture to
  * \param texture The new texture of the object
  */
-SSGEDECL void SSGE_Object_ChangeTexture(SSGE_Object *object, SSGE_Texture *texture);
+SSGEDECL void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture);
+
+/**
+ * Bind an animation to an object
+ * \param object The object to bind the animation to
+ * \param animation The new animation of the texture
+ */
+SSGEDECL void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation);
 
 /**
  * Remove the texure of an object
  * \param object The object to remove the texture of
  */
-SSGEDECL void SSGE_Object_RemoveTexture(SSGE_Object *object);
+SSGEDECL void SSGE_Object_RemoveSprite(SSGE_Object *object);
+#define SSGE_Object_RemoveTexture SSGE_Object_RemoveSprite
+#define SSGE_Object_RemoveAnim SSGE_Object_RemoveSprite
 
 /**
  * Get an object by id

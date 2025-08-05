@@ -5,10 +5,6 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_geometry.h"
 
-/***********************************************
- * Geometry functions
- ***********************************************/
-
 SSGEDECL void SSGE_DrawLine(int x1, int y1, int x2, int y2, SSGE_Color color) {
     _assert_engine_init
     if (color.a == 0) return;

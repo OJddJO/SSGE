@@ -7,12 +7,29 @@
  * Object template functions
  ***********************************************/
 
-SSGEDECL SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
+SSGEDECL SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
         SSGE_Error("Failed to allocate memory for object template");
+    template->spriteType = SSGE_SPRITE_STATIC;
     template->texture = texture;
+    template->width = width;
+    template->height = height;
+    template->hitbox = hitbox;
+    template->destroyData = destroyData;
+
+    _add_to_list(&_object_template_list, template, name, id, __func__);
+    return template;
+}
+
+SSGEDECL SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
+    _assert_engine_init
+    SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
+    if (template == NULL) 
+        SSGE_Error("Failed to allocate memory for object template");
+    template->spriteType = SSGE_SPRITE_ANIM;
+    template->animation = animation;
     template->width = width;
     template->height = height;
     template->hitbox = hitbox;
@@ -31,7 +48,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_Template_Get(uint32_t id) {
 }
 
 static bool _find_template_name(void *ptr, void *name) {
-    return strcmp(((SSGE_ObjectTemplate *)ptr)->name, name) == 0 ? 1 : 0;
+    return strcmp(((SSGE_ObjectTemplate *)ptr)->name, name) == 0;
 }
 
 SSGEDECL SSGE_ObjectTemplate *SSGE_Template_GetName(char *name) {
