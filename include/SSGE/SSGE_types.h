@@ -151,7 +151,7 @@ typedef struct _SSGE_AnimationState {
     uint32_t        elpasedFrame;   // The number of frame elapsed since the animation start
     uint32_t        currentFrame;   // The index of the current frame
     uint8_t         currentFrameTime; // Elapsed time spent on the current frame (in frames)
-    bool            loop;           // If the animation should loop
+    uint8_t         loop;           // Number of loops (0 means play once)
     bool            reversed;       // If the animation is reversed or not
     bool            pingpong;       // If the animation should pingpong (normal -> reversed)
     bool            isPlaying;      // If the animation is playing or not

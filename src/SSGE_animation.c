@@ -85,7 +85,7 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, SSGE_Til
     animation->data.frames[animation->data.currentCount++] = frame;
 }
 
-SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, bool loop, bool reversed, bool pingpong) {
+SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint8_t loop, bool reversed, bool pingpong) {
     _assert_engine_init
 
     SSGE_AnimationState *state = (SSGE_AnimationState*)malloc(sizeof(SSGE_AnimationState));
@@ -122,7 +122,7 @@ SSGEDECL void SSGE_Animation_Resume(uint32_t id) {
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
     if (state == NULL)
         SSGE_ErrorEx("Animation state not found: %u", id)
-    
+
     state->isPlaying = true;
 }
 
@@ -143,6 +143,7 @@ SSGEDECL void SSGE_Animation_Update() {
     while (i < count) {
         SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, i);
         if (state == NULL) continue;
+        if (!state->isPlaying) continue;
 
         SSGE_Animation *anim = state->animation;
         switch (anim->type) {
@@ -153,11 +154,33 @@ SSGEDECL void SSGE_Animation_Update() {
                     anim->data.width,
                     anim->data.height,
                 };
-                SDL_RenderCopy(_engine.renderer, anim->data.frames[state->currentFrame++], NULL, &dest);
-                
-                if (state->currentFrame >= anim->data.currentCount)
+                SDL_RenderCopy(_engine.renderer, anim->data.frames[state->currentFrame], NULL, &dest);
+
+                if (state->currentFrameTime >= anim->data.frametimes[state->currentFrame]) {
+                    state->currentFrame += 1 - 2*state->reversed;
+                    state->currentFrameTime = 0;
+                }
+
+                if (state->currentFrame < anim->data.currentCount)
+                    break;
+
+                if (!(state->loop || state->pingpong)) // If there is no play count modifier
                     SSGE_Array_Remove(&_playingAnim, i, _destroy_animation_state);
+
+                if (state->pingpong) { // If pingpong then we need to decrement the frame (according to the reversed state)
+                    state->currentFrame -= 2 * (1 - 2*state->reversed);
+                    state->reversed = !state->reversed;
+                } else { // else just set the frame to 0
+                    state->currentFrame = 0;
+                }
+
+                // If not loop then we can set pingpong to false (whatever the state of pingpong)
+                if (!state->loop)
+                    state->pingpong = false;
+
+                if (state->loop) --state->loop; // Decrement loop count
                 break;
+
             case SSGE_ANIM_FUNCTION:
                 anim->draw(state);
                 break;
