@@ -3,10 +3,6 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_objtemplate.h"
 
-/***********************************************
- * Object template functions
- ***********************************************/
-
 SSGEDECL SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));

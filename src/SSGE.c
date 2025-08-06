@@ -176,10 +176,6 @@ SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color) {
     _bg_color = color;
 }
 
-/***********************************************
- * Event functions
- ***********************************************/
-
 SSGEDECL void SSGE_GetMousePosition(int *x, int *y) {
     _assert_engine_init
     SDL_GetMouseState(x, y);
