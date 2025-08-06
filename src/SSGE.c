@@ -26,30 +26,30 @@ static int _event_filter(void *userdata, SDL_Event *event) {
 
 SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
     if (_engine.initialized)
-        SSGE_Error("Engine already initialized");
+        SSGE_Error("Engine already initialized")
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
-        SSGE_ErrorEx("Failed to initialize SDL: %s", SDL_GetError());
+        SSGE_ErrorEx("Failed to initialize SDL: %s", SDL_GetError())
 
     if (TTF_Init() != 0)
-        SSGE_ErrorEx("Failed to initialize TTF: %s", TTF_GetError());
+        SSGE_ErrorEx("Failed to initialize TTF: %s", TTF_GetError())
 
     _engine.window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
     if (_engine.window == NULL)
-        SSGE_ErrorEx("Failed to create window: %s", SDL_GetError());
+        SSGE_ErrorEx("Failed to create window: %s", SDL_GetError())
 
     _engine.renderer = SDL_CreateRenderer(_engine.window, -1, SDL_RENDERER_ACCELERATED);
     if (_engine.renderer == NULL)
-        SSGE_ErrorEx("Failed to create renderer: %s", SDL_GetError());
+        SSGE_ErrorEx("Failed to create renderer: %s", SDL_GetError())
 
     if (SDL_SetRenderDrawBlendMode(_engine.renderer, SDL_BLENDMODE_BLEND) != 0)
-        SSGE_ErrorEx("Failed to set renderer to blend mode: %s", SDL_GetError());
+        SSGE_ErrorEx("Failed to set renderer to blend mode: %s", SDL_GetError())
 
     if (Mix_Init(MIX_INIT_MP3 || MIX_INIT_OGG || MIX_INIT_WAVPACK) == 0) 
-        SSGE_ErrorEx("Failed to initialize audio mixer: %s", SDL_GetError());
+        SSGE_ErrorEx("Failed to initialize audio mixer: %s", SDL_GetError())
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) 
-        SSGE_ErrorEx("Failed to open audio device for playback: %s", SDL_GetError());
+        SSGE_ErrorEx("Failed to open audio device for playback: %s", SDL_GetError())
 
     SDL_SetEventFilter(_event_filter, NULL);
 
@@ -134,7 +134,7 @@ SSGEDECL void SSGE_SetWindowIcon(char *filename) {
     _assert_engine_init
     SDL_Surface *icon = IMG_Load(filename);
     if (icon == NULL) {
-        SSGE_ErrorEx("Failed to load icon: %s", IMG_GetError());
+        SSGE_ErrorEx("Failed to load icon: %s", IMG_GetError())
         return;
     }
     SDL_SetWindowIcon(_engine.window, icon);

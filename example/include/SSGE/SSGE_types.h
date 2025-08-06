@@ -130,7 +130,7 @@ typedef struct _SSGE_Object {
     SSGE_SpriteType spriteType; // If the sprite is animated or static
     union {
         SSGE_Texture        *texture;   // The texture of the object
-        SSGE_AnimationState *animation; // The id of the animation state
+        uint32_t            animation;  // The id of the animation state
     };
     void            *data;      // The data of the object
     void            (*destroyData)(void *); // The function to be called to destroy the data

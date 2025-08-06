@@ -21,7 +21,7 @@ SSGEDECL SSGE_Audio *SSGE_Audio_Get(uint32_t id) {
     _assert_engine_init
     SSGE_Audio *ptr = SSGE_Array_Get(&_audio_list, id);
     if (ptr == NULL) 
-        SSGE_ErrorEx("Audio not found: %u", id);
+        SSGE_ErrorEx("Audio not found: %u", id)
     return ptr;
 }
 
@@ -33,7 +33,7 @@ SSGEDECL SSGE_Audio *SSGE_Audio_GetName(char *name) {
     _assert_engine_init
     SSGE_Audio *ptr = (SSGE_Audio *)SSGE_Array_Find(&_audio_list, _find_audio_name, name);
     if (ptr == NULL) 
-        SSGE_ErrorEx("Audio not found: %s", name);
+        SSGE_ErrorEx("Audio not found: %s", name)
     return ptr;
 }
 
@@ -41,7 +41,7 @@ SSGEDECL int SSGE_Audio_Play(SSGE_Audio *audio, int channel) {
     _assert_engine_init
 
     if ((channel = Mix_PlayChannel(channel, audio->audio, 0)) == -1) 
-        SSGE_ErrorEx("Audio could not be played: %s", Mix_GetError());
+        SSGE_ErrorEx("Audio could not be played: %s", Mix_GetError())
     
     return channel;
 }
@@ -65,7 +65,7 @@ SSGEDECL void SSGE_Audio_Close(uint32_t id) {
     _assert_engine_init
     SSGE_Audio *audio = SSGE_Array_Pop(&_audio_list, id);
     if (audio == NULL) 
-        SSGE_ErrorEx("Audio not found: %u", id);
+        SSGE_ErrorEx("Audio not found: %u", id)
     _destroy_audio(audio);
 }
 
@@ -73,7 +73,7 @@ SSGEDECL void SSGE_Audio_CloseName(char *name) {
     _assert_engine_init
     SSGE_Audio *audio = SSGE_Array_FindPop(&_audio_list, _find_audio_name, name);
     if (audio == NULL) 
-        SSGE_ErrorEx("Audio not found: %s", name);
+        SSGE_ErrorEx("Audio not found: %s", name)
     _destroy_audio(audio);
 }
 

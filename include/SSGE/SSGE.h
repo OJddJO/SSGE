@@ -8,6 +8,7 @@
 #include "SSGE/SSGE_types.h"
 
 #include "SSGE/SSGE_texture.h"
+#include "SSGE/SSGE_animation.h"
 #include "SSGE/SSGE_tilemap.h"
 #include "SSGE/SSGE_object.h"
 #include "SSGE/SSGE_objtemplate.h"

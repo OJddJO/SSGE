@@ -8,10 +8,10 @@ SSGEDECL SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *n
 
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
-        SSGE_Error("Failed to allocate memory for texture");
+        SSGE_Error("Failed to allocate memory for texture")
     texture->texture = IMG_LoadTexture(_engine.renderer, filename);
     if (texture == NULL) 
-        SSGE_ErrorEx("Failed to load image: %s", IMG_GetError());
+        SSGE_ErrorEx("Failed to load image: %s", IMG_GetError())
 
     texture->anchorX = 0;
     texture->anchorY = 0;
@@ -24,7 +24,7 @@ SSGEDECL SSGE_Texture *SSGE_Texture_Get(uint32_t id) {
     _assert_engine_init
     SSGE_Texture *ptr = SSGE_Array_Get(&_texture_list, id);
     if (ptr == NULL) 
-        SSGE_ErrorEx("Texture not found: %u", id);
+        SSGE_ErrorEx("Texture not found: %u", id)
     return ptr;
 }
 
@@ -36,7 +36,7 @@ SSGEDECL SSGE_Texture *SSGE_Texture_GetName(char *name) {
     _assert_engine_init
     SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(&_texture_list, _find_texture_name, name);
     if (ptr == NULL) 
-        SSGE_ErrorEx("Texture not found: %s", name);
+        SSGE_ErrorEx("Texture not found: %s", name)
     return ptr;
 }
 
@@ -72,7 +72,7 @@ SSGEDECL void SSGE_Texture_Destroy(uint32_t id) {
     _assert_engine_init
     SSGE_Texture *texture = SSGE_Array_Pop(&_texture_list, id);
     if (texture == NULL) 
-        SSGE_ErrorEx("Texture not found: %u", id);
+        SSGE_ErrorEx("Texture not found: %u", id)
     _destroy_texture(texture);
 }
 
@@ -80,7 +80,7 @@ SSGEDECL void SSGE_Texture_DestroyName(char *name) {
     _assert_engine_init
     SSGE_Texture *texture = SSGE_Array_FindPop(&_texture_list, _find_texture_name, name);
     if (texture == NULL) 
-        SSGE_ErrorEx("Texture not found: %s", name);
+        SSGE_ErrorEx("Texture not found: %s", name)
     _destroy_texture(texture);
 }
 

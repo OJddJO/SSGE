@@ -7,7 +7,7 @@ SSGEDECL void SSGE_Font_Create(char *filename, int size, char *name) {
     _assert_engine_init
     SSGE_Font *font = (SSGE_Font *)malloc(sizeof(SSGE_Font));
     if (font == NULL) 
-        SSGE_Error("Failed to allocate memory for font");
+        SSGE_Error("Failed to allocate memory for font")
 
     font->font = TTF_OpenFont(filename, size);
     if (font->font == NULL) 
@@ -15,7 +15,7 @@ SSGEDECL void SSGE_Font_Create(char *filename, int size, char *name) {
 
     font->name = (char *)malloc(sizeof(char) * strlen(filename) + 1);
     if (font->name == NULL) 
-        SSGE_Error("Failed to allocate memory for font name");
+        SSGE_Error("Failed to allocate memory for font name")
     strcpy(font->name, name);
 
     SSGE_Array_Add(&_font_list, font);
@@ -38,7 +38,7 @@ SSGEDECL void SSGE_Font_Close(char *name) {
     _assert_engine_init
     SSGE_Font *font = SSGE_Array_FindPop(&_font_list, _find_font_name, name);
     if (font == NULL) 
-        SSGE_ErrorEx("Font not found: %s", name);
+        SSGE_ErrorEx("Font not found: %s", name)
     _destroy_font(font);
 }
 
@@ -55,15 +55,15 @@ SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Colo
 
     SSGE_Font *font = _get_font(fontName, "SSGE_Text_Draw");
     if (font == NULL)
-        SSGE_ErrorEx("Font not found: %s", fontName);
+        SSGE_ErrorEx("Font not found: %s", fontName)
 
     SDL_Surface *surface = TTF_RenderText_Solid(font->font, text, *(SDL_Color *)&color);
     if (surface == NULL) 
-        SSGE_ErrorEx("Failed to draw text: %s", TTF_GetError());
+        SSGE_ErrorEx("Failed to draw text: %s", TTF_GetError())
 
     SDL_Texture *texture = SDL_CreateTextureFromSurface(_engine.renderer, surface);
     if (texture == NULL)
-        SSGE_ErrorEx("Failed to draw text: %s", SDL_GetError());
+        SSGE_ErrorEx("Failed to draw text: %s", SDL_GetError())
 
     SDL_Rect rect = {x, y, surface->w, surface->h};
     switch (anchor) {
@@ -109,20 +109,20 @@ SSGEDECL SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text
     _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
-        SSGE_Error("Failed to allocate memory for texture");
+        SSGE_Error("Failed to allocate memory for texture")
 
     if (color.a != 0) {
         SSGE_Font *font = _get_font(fontName, "SSGE_Text_Create");
         if (font == NULL)
-            SSGE_ErrorEx("Font not found: %s", fontName);
+            SSGE_ErrorEx("Font not found: %s", fontName)
 
         SDL_Surface *surface = TTF_RenderText_Solid(font->font, text, *(SDL_Color *)&color);
         if (surface == NULL) 
-            SSGE_ErrorEx("Failed to render text: %s", TTF_GetError());
+            SSGE_ErrorEx("Failed to render text: %s", TTF_GetError())
 
         texture->texture = SDL_CreateTextureFromSurface(_engine.renderer, surface);
         if (texture->texture == NULL) 
-            SSGE_ErrorEx("Failed to create texture from surface: %s", SDL_GetError());
+            SSGE_ErrorEx("Failed to create texture from surface: %s", SDL_GetError())
 
         SDL_FreeSurface(surface);
     } else {

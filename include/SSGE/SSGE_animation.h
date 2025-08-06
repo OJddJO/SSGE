@@ -8,10 +8,6 @@
 extern "C" {
 #endif
 
-#ifdef __cplusplus
-}
-#endif
-
 /**
  * Create an animation with frames
  * \param id Where to store the id of the animation
@@ -74,7 +70,7 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t 
  * \param pingpong If the animation should pingpong (normal -> reversed)
  * \return The id of the animation state bound to the animation
  */
-SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint8_t loop, bool reversed, bool pingpong);
+SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint32_t loop, bool reversed, bool pingpong);
 
 /**
  * Pause an animation
@@ -101,9 +97,18 @@ SSGEDECL void SSGE_Animation_Stop(uint32_t id);
 SSGEDECL void SSGE_Animation_Move(uint32_t id, int x, int y);
 
 /**
- * Update all currently playing animations
- * \note This function does not affect objects' animations
+ * Update an animation
+ * \param id The id of the animation state bound to the animation to update
  */
-SSGEDECL void SSGE_Animation_Update();
+SSGEDECL void SSGE_Animation_Update(uint32_t id);
+
+/**
+ * Update all currently playing animations
+ */
+SSGEDECL void SSGE_Animation_UpdateAll();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //__SSGE_ANIMATION_H__

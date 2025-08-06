@@ -53,6 +53,15 @@ SSGEDECL bool SSGE_Object_ExistsName(char *name);
 /**
  * Draw an object
  * \param object The object to draw
+ * \note This function does not draw objects with animation
+ * \note To update object with animations use `SSGE_Animation_Update` or `SSGE_Animation_UpdateAll`
+ */
+SSGEDECL void SSGE_Object_Draw(SSGE_Object *object);
+
+/**
+ * Draws all the objects
+ * \note This function does not draw objects with animation
+ * \note To update object with animations use `SSGE_Animation_Update` or `SSGE_Animation_UpdateAll`
  */
 SSGEDECL void SSGE_Object_Draw(SSGE_Object *object);
 
