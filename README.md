@@ -22,6 +22,7 @@ You can also see the [Minesweeper repo](https://github.com/OJddJO/Minesweeper) I
 
 ## Documentation
 Each functions and structures are documented in the source code. See the header files for more information.
+I will be doing a proper documentation later :/
 
 ## Todo
 - ⬛ Z-Axis Map
@@ -30,4 +31,4 @@ Each functions and structures are documented in the source code. See the header 
 - ⬛ (maybe) Make a GUI (game engine)
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the `MIT License` - see the [LICENSE](./LICENSE) file for details.
