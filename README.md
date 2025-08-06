@@ -18,13 +18,14 @@ See [`example/makefile`](./example/makefile)
 
 ## Example
 See [`example/src/tictactoe.c`](./example/src/tictactoe.c) for an example of how to use the engine.
+You can also see the [Minesweeper repo](https://github.com/OJddJO/Minesweeper) I made with this engine. (WARNING: `SSGE` version may be different)
 
 ## Documentation
 Each functions and structures are documented in the source code. See the header files for more information.
 
 ## Todo
 - [ ] Z-Axis Map
-- [ ] Animation System
+- [x] Animation System
 - [ ] (maybe) Switch to SDL3
 - [ ] (maybe) Make a GUI (game engine)
 
