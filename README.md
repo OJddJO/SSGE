@@ -30,4 +30,4 @@ Each functions and structures are documented in the source code. See the header 
 - ⬛ (maybe) Make a GUI (game engine)
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+This project is licensed under the `MIT License` - see the [LICENSE](./LICENSE) file for details.
