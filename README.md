@@ -24,10 +24,10 @@ You can also see the [Minesweeper repo](https://github.com/OJddJO/Minesweeper) I
 Each functions and structures are documented in the source code. See the header files for more information.
 
 ## Todo
-- [ ] Z-Axis Map
-- [x] Animation System
-- [ ] (maybe) Switch to SDL3
-- [ ] (maybe) Make a GUI (game engine)
+- ⬛ Z-Axis Map
+- ✅ Animation System
+- ⬛ (maybe) Switch to SDL3
+- ⬛ (maybe) Make a GUI (game engine)
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
