@@ -22,7 +22,7 @@ You can also see the [Minesweeper repo](https://github.com/OJddJO/Minesweeper) I
 
 ## Documentation
 Each functions and structures are documented in the source code. See the header files for more information.
-I will be doing a proper documentation later :/
+I will make a proper documentation later :/
 
 ## Todo
 - ⬛ Z-Axis Map
