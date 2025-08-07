@@ -14,7 +14,6 @@ Thumbs.db
 # Ignore compiled files
 *.out
 *.o
-*.so
 
 # Ignore coverage reports
 coverage/
