@@ -16,7 +16,7 @@
 To use the engine, download the release and copy the files into your project. You will need to link against `SDL2` and `SSGE` libraries.
 See [`example/makefile`](./example/makefile)
 
-The Linux version is built on Ubuntu. If you are using a different OS, you may need to rebuild the engine on your system. Ensure that you have installed the `SDL2` library, along with `SDL2_image`, `SDL2_mixer` and `SDL2_ttf`, on your system.
+The Linux version is built on `Ubuntu 24.04`. If you are using a different OS, you may need to rebuild the engine on your system. Ensure that you have installed the `SDL2` library, along with `SDL2_image`, `SDL2_mixer` and `SDL2_ttf`, on your system.
 
 ## Example
 See [`example/src/tictactoe.c`](./example/src/tictactoe.c) for an example of how to use the engine.
