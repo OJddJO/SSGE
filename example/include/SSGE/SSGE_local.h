@@ -4,6 +4,7 @@
 #ifndef __SSGE_LOCAL_H__
 #define __SSGE_LOCAL_H__
 
+#include <string.h>
 #include "SSGE/SSGE_types.h"
 #include "SSGE/SSGE_array.h"
 #include "SSGE/SSGE_error.h"
