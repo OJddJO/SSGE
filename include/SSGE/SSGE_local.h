@@ -51,7 +51,7 @@ inline void _add_to_list(SSGE_Array *list, void *element, char *name, uint32_t *
     strcpy(((DummyType *)element)->name, name);
 
     if (id == NULL) {
-        SSGE_Warning("ID is discarded");
+        fprintf(stderr, "[SSGE][%s] ID is discarded\n", funcname);
         ((DummyType *)element)->id = SSGE_Array_Add(list, element);
         return;
     }
