@@ -68,8 +68,17 @@ SSGEDECL void SSGE_Object_DrawAll() {
     _assert_engine_init
     for (uint32_t i = 0; i < _object_list.count; i++) {
         SSGE_Object *object = SSGE_Array_Get(&_object_list, i);
-        if (object == NULL)
-            continue;
+        if (object == NULL) continue;
+
+        if (object->width == 0 || object->height == 0 ||
+            object->spriteType == SSGE_SPRITE_ANIM) continue;
+
+        if (object->spriteType == SSGE_SPRITE_STATIC) {
+            SSGE_Texture *texture = object->texture;
+            if (texture == NULL) continue;
+            SDL_Rect rect = {object->x + texture->anchorX, object->y + texture->anchorY, object->width, object->height};
+            SDL_RenderCopy(_engine.renderer, texture->texture, NULL, &rect);
+        }
     }
 }
 

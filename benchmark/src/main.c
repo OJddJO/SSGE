@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <time.h>
 
-#define WWIDTH 1920
-#define WHEIGHT 1080
-#define OBJPOW2 12
+#define WWIDTH 1080
+#define WHEIGHT 720
+#define OBJPOW2 10
 
 typedef struct _Game {
     clock_t start;
@@ -48,8 +48,7 @@ void update(Game *game) {
 }
 
 void draw(Game *data) {
-    for (int i = 0; i < (1<<OBJPOW2); i++)
-        SSGE_Object_Draw(SSGE_Object_Get(i));
+    SSGE_Object_DrawAll();
 
     double fpt = (double)++data->frame / (double)(clock() - data->start);
     char fptchar[50];

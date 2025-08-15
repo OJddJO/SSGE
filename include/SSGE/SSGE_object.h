@@ -63,7 +63,7 @@ SSGEDECL void SSGE_Object_Draw(SSGE_Object *object);
  * \note This function does not draw objects with animation
  * \note To update object with animations use `SSGE_Animation_Update` or `SSGE_Animation_UpdateAll`
  */
-SSGEDECL void SSGE_Object_Draw(SSGE_Object *object);
+SSGEDECL void SSGE_Object_DrawAll();
 
 /**
  * Move an object
