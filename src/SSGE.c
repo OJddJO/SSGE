@@ -90,24 +90,66 @@ SSGEDECL void SSGE_Quit() {
     SDL_Quit();
 }
 
-SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*eventHandler)(SSGE_Event, Game *), Game *data) {
+// For update threading
+static SDL_mutex *_updateMutex;
+static SDL_cond *_updateCond;
+static bool _updateDone = 0;
+typedef struct _updThreadData {
+    void (*update)(void *);
+    void *data;
+} updThreadData;
+
+static int updateThreadFunc(void *data) {
+    while (_engine.isRunning) {
+        SDL_LockMutex(_updateMutex);
+        while (_updateDone)
+            SDL_CondWait(_updateCond, _updateMutex);
+
+        ((updThreadData *)data)->update(((updThreadData *)data)->data);
+        _updateDone = 1;
+        SDL_CondSignal(_updateCond);
+        SDL_UnlockMutex(_updateMutex);
+    }
+    return 0;
+}
+
+SSGEDECL void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data) {
     _assert_engine_init
+
+    _updateMutex = SDL_CreateMutex();
+    _updateCond = SDL_CreateCond();
+    _updateDone = 0;
+
+    SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "Update Thread", (&(updThreadData){update, data}));
 
     uint32_t frameStart;
     int frameTime;
 
     _engine.isRunning = true;
+
+    // first update
+    if (update) {
+        SDL_LockMutex(_updateMutex);
+        _updateDone = 0;
+        SDL_CondSignal(_updateCond);
+    }
+
     while (_engine.isRunning) {
         frameStart = SDL_GetTicks();
 
         while (SDL_PollEvent((SDL_Event *)&_event)) {
-            if (_event.type == SDL_QUIT) {
+            if (_event.type == SDL_QUIT)
                 _engine.isRunning = false;
-            }
-            if (eventHandler) eventHandler(_event, data);
+            if (eventHandler)
+                eventHandler(_event, data);
         }
 
-        if (update) update(data);
+        if (update) { // Synchronize update thread with main thread
+            while (!_updateDone)
+                SDL_CondWait(_updateCond, _updateMutex);
+            SDL_UnlockMutex(_updateMutex);
+        }
+
         if (_update_frame || !_manual_update_frame) {
             SDL_SetRenderDrawColor(_engine.renderer, _bg_color.r, _bg_color.g, _bg_color.b, _bg_color.a);
             SDL_RenderClear(_engine.renderer);
@@ -116,13 +158,20 @@ SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*even
             _update_frame = false;
         }
 
-        SDL_RenderPresent(_engine.renderer);
+        if (update) {
+            SDL_LockMutex(_updateMutex);
+            _updateDone = 0;
+            SDL_CondSignal(_updateCond);
+        }
+
+        if (_update_frame || !_manual_update_frame)
+            SDL_RenderPresent(_engine.renderer);
 
         frameTime = SDL_GetTicks() - frameStart;
-        if ((double)frameTime < (double)1000 / _engine.fps) {
+        if ((double)frameTime < (double)1000 / _engine.fps)
             SDL_Delay((1000 / _engine.fps) - frameTime);
-        }
     }
+
 }
 
 SSGEDECL void SSGE_SetWindowTitle(char *title) {

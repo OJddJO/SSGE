@@ -40,9 +40,9 @@ create_dirs:
 	@echo Creating directories...
 ifeq ($(OS),Windows_NT)
 	@if not exist $(OSDIR) mkdir $(OSDIR)
-	@if not exist $(OSDIR)/bin mkdir $(OSDIR)/bin
-	@if not exist $(OSDIR)/build mkdir $(OSDIR)/build
-	@if not exist $(OSDIR)/lib mkdir $(OSDIR)/lib
+	@if not exist $(OSDIR)\bin mkdir $(OSDIR)\bin
+	@if not exist $(OSDIR)\build mkdir $(OSDIR)\build
+	@if not exist $(OSDIR)\lib mkdir $(OSDIR)\lib
 else
 	@mkdir -p $(OSDIR)/bin $(OSDIR)/build $(OSDIR)/lib
 endif

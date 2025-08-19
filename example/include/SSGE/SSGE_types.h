@@ -37,13 +37,6 @@ typedef enum {
     SSGE_FLIP_HOR_VER    = 0x00000003  // Flip horizontally and vertically
 } SSGE_Flip;
 
-/************************************************
- * Prototypes
- ************************************************/
-
-// Game structure prototype to contain all datas
-typedef struct _Game Game;
-
 /*************************************************
  * SSGE Structures
  *************************************************/

@@ -43,14 +43,14 @@ SSGEDECL void SSGE_Quit();
 
 /**
  * Run the engine
- * \param update The update function. Should take a `Game *` as argument and return `void`
- * \param draw The draw function. Should takes a `Game *` as argument and returns `void`
- * \param eventHandler The event handler function. Should takes a `SSGE_Event` and a `Game *` as arguments and returns `void`
- * \param data The `Game *` to pass to the functions (update, draw, eventHandler)
+ * \param update The update function. Should take a `void *` as argument and return `void`
+ * \param draw The draw function. Should takes a `void *` as argument and returns `void`
+ * \param eventHandler The event handler function. Should takes a `SSGE_Event` and a `void *` as arguments and returns `void`
+ * \param data The `void *` to pass to the functions (update, draw, eventHandler)
  * \warning The engine runs in an infinite loop until the window is closed
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
  */
-SSGEDECL void SSGE_Run(void (*update)(Game *), void (*draw)(Game *), void (*eventHandler)(SSGE_Event, Game *), Game *data);
+SSGEDECL void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data);
 
 // Window functions
 

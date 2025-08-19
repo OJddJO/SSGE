@@ -1,0 +1,6 @@
+- [ ] Hiding objects
+- [ ] Optimize object drawing:
+  - [ ] group same texture objects
+  - [ ] culling
+  - [ ] partial updates
+- [ ] Automate draw for object/animation
