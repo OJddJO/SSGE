@@ -113,23 +113,24 @@ static int updateThreadFunc(void *data) {
     return 0;
 }
 
-SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data) {
+SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data, bool nothread) {
     _assert_engine_init
 
-    _updateMutex = SDL_CreateMutex();
-    _updateCond = SDL_CreateCond();
-    _updateDone = 0;
+    if (update && !nothread) { // initialization of thread
+        _updateMutex = SDL_CreateMutex();
+        _updateCond = SDL_CreateCond();
+        _updateDone = 0;
 
-    if (SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "Update Thread", (&(updThreadData){update, data})) == NULL)
-        SSGE_Error("Could not create 'update' thread")
+        if (SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "Update Thread", (&(updThreadData){update, data})) == NULL)
+            SSGE_Error("Could not create 'update' thread")
+    }
 
     uint32_t frameStart;
     int frameTime;
 
     _engine.isRunning = true;
 
-    // first update
-    if (update) {
+    if (update && !nothread) { // first update
         SDL_LockMutex(_updateMutex);
         _updateDone = 0;
         SDL_CondSignal(_updateCond);
@@ -145,10 +146,14 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
                 eventHandler(_event, data);
         }
 
-        if (update) { // Synchronize update thread with main thread
-            while (!_updateDone)
-                SDL_CondWait(_updateCond, _updateMutex);
-            SDL_UnlockMutex(_updateMutex);
+        if (update) {
+            if (!nothread) { // Synchronize update thread with main thread
+                while (!_updateDone)
+                    SDL_CondWait(_updateCond, _updateMutex);
+                SDL_UnlockMutex(_updateMutex);
+            } else {
+                update(data);
+            }
         }
 
         if (_update_frame || !_manual_update_frame) {
@@ -158,7 +163,7 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
             if (draw) draw(data);
         }
 
-        if (update) { // Run the update function
+        if (update && !nothread) { // Run the update function
             SDL_LockMutex(_updateMutex);
             _updateDone = 0;
             SDL_CondSignal(_updateCond);
@@ -249,10 +254,7 @@ SSGEAPI SSGE_Object *SSGE_GetHoveredObject() {
     int mousePos[2];
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);
 
-    #pragma GCC diagnostic push
-    #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
-    return SSGE_Array_Find(&_object_list, _is_hovered, mousePos);
-    #pragma GCC diagnostic pop
+    return SSGE_Array_Find(&_object_list, (bool (*)(void *, void *))_is_hovered, mousePos);
 }
 
 SSGEAPI uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {

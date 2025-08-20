@@ -10,7 +10,8 @@
 - Tilemap support
 - Audio support
 - Font and text rendering
-- ... and more
+- Fully compatible with `SDL2`
+- and more ...
 
 ## Usage
 To use the engine, download the release and copy the files into your project. You will need to link against `SDL2` and `SSGE` libraries.
