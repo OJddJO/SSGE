@@ -31,14 +31,14 @@ typedef struct _SSGE_Array {
  * Creates a new array
  * \param array The array to initialize
  */
-SSGEDECL void SSGE_Array_Create(SSGE_Array *array);
+SSGEAPI void SSGE_Array_Create(SSGE_Array *array);
 
 /**
  * Add an element to an array
  * \param array The array to add the element to
  * \return The index of the element
  */
-SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element);
+SSGEAPI uint32_t SSGE_Array_Add(SSGE_Array *array, void *element);
 
 /**
  * Get an element from an array
@@ -46,7 +46,7 @@ SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element);
  * \param idx The index of the element to get
  * \return The pointer to the element
  */
-SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx);
+SSGEAPI void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx);
 
 /**
  * Remove an element from an array
@@ -54,7 +54,7 @@ SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx);
  * \param idx The index of the element to remove
  * \param destroyData The function to destroy the element to remove from the array
  */
-SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *));
+SSGEAPI void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *));
 
 /**
  * Pop an element from an array
@@ -62,7 +62,7 @@ SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyD
  * \param idx The index of the element to pop
  * \return The pointer to the popped element
  */
-SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx);
+SSGEAPI void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx);
 
 /**
  * Find an element from an array with a condition
@@ -71,7 +71,7 @@ SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx);
  * \param argument The argument to pass to the condition function
  * \return The pointer to the first element that matches the condition, or NULL if not found
  */
-SSGEDECL void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *arg);
+SSGEAPI void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *arg);
 
 /**
  * Find an element from array with a condition and pops it
@@ -80,14 +80,14 @@ SSGEDECL void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void
  * \param argument The argument to pass to the condition function
  * \return The pointer to the first element that matches the condition, or NULL if not found
  */
-SSGEDECL void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *arg);
+SSGEAPI void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *arg);
 
 /**
  * Destroy an array
  * \param array The array to destroy
  * \param destroyData The function to destroy the elements of the array. Can be `NULL`
  */
-SSGEDECL void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *));
+SSGEAPI void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *));
 
 #ifdef __cplusplus
 }

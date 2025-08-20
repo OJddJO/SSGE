@@ -16,7 +16,7 @@ extern "C" {
  * \param y2 The y coordinate of the second point
  * \param color The color of the line
  */
-SSGEDECL void SSGE_DrawLine(int x1, int y1, int x2, int y2, SSGE_Color color);
+SSGEAPI void SSGE_DrawLine(int x1, int y1, int x2, int y2, SSGE_Color color);
 
 /**
  * Draw a rectangle
@@ -26,7 +26,7 @@ SSGEDECL void SSGE_DrawLine(int x1, int y1, int x2, int y2, SSGE_Color color);
  * \param y2 The y coordinate of the point at the bottom-right corner of the rectangle
  * \param color The color of the rectangle
  */
-SSGEDECL void SSGE_DrawRect(int x1, int y1, int x2, int y2, SSGE_Color color);
+SSGEAPI void SSGE_DrawRect(int x1, int y1, int x2, int y2, SSGE_Color color);
 
 /**
  * Draw an ellipse
@@ -36,7 +36,7 @@ SSGEDECL void SSGE_DrawRect(int x1, int y1, int x2, int y2, SSGE_Color color);
  * \param ry The y radius of the ellipse
  * \param color The color of the ellipse
  */
-SSGEDECL void SSGE_DrawCircle(int x, int y, int radius, SSGE_Color color);
+SSGEAPI void SSGE_DrawCircle(int x, int y, int radius, SSGE_Color color);
 
 /**
  * Draw a circle
@@ -45,7 +45,7 @@ SSGEDECL void SSGE_DrawCircle(int x, int y, int radius, SSGE_Color color);
  * \param radius The radius of the circle
  * \param color The color of the circle
  */
-SSGEDECL void SSGE_DrawEllipse(int x, int y, int rx, int ry, SSGE_Color color);
+SSGEAPI void SSGE_DrawEllipse(int x, int y, int rx, int ry, SSGE_Color color);
 
 /**
  * Draw a line with a specified thickness
@@ -56,7 +56,7 @@ SSGEDECL void SSGE_DrawEllipse(int x, int y, int rx, int ry, SSGE_Color color);
  * \param color The color of the line
  * \param thickness The thickness of the line
  */
-SSGEDECL void SSGE_DrawLineThick(int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
+SSGEAPI void SSGE_DrawLineThick(int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
 
 /**
  * Draw a rectangle with a specified thickness
@@ -67,7 +67,7 @@ SSGEDECL void SSGE_DrawLineThick(int x1, int y1, int x2, int y2, SSGE_Color colo
  * \param color The color of the rectangle
  * \param thickness The thickness of the rectangle
  */
-SSGEDECL void SSGE_DrawRectThick(int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
+SSGEAPI void SSGE_DrawRectThick(int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
 
 /**
  * Draw a circle with a specified thickness
@@ -77,7 +77,7 @@ SSGEDECL void SSGE_DrawRectThick(int x1, int y1, int x2, int y2, SSGE_Color colo
  * \param color The color of the circle
  * \param thickness The thickness of the circle
  */
-SSGEDECL void SSGE_DrawCircleThick(int x, int y, int radius, SSGE_Color color, int thickness);
+SSGEAPI void SSGE_DrawCircleThick(int x, int y, int radius, SSGE_Color color, int thickness);
 
 /**
  * Draw an ellipse with a specified thickness
@@ -88,7 +88,7 @@ SSGEDECL void SSGE_DrawCircleThick(int x, int y, int radius, SSGE_Color color, i
  * \param color The color of the ellipse
  * \param thickness The thickness of the ellipse
  */
-SSGEDECL void SSGE_DrawEllipseThick(int x, int y, int rx, int ry, SSGE_Color color, int thickness);
+SSGEAPI void SSGE_DrawEllipseThick(int x, int y, int rx, int ry, SSGE_Color color, int thickness);
 
 /**
  * Fill a rectangle
@@ -97,7 +97,7 @@ SSGEDECL void SSGE_DrawEllipseThick(int x, int y, int rx, int ry, SSGE_Color col
  * \param x2 The x coordinate of the point at the bottom-right corner of the rectangle
  * \param y2 The y coordinate of the point at the bottom-right corner of the rectangle
  */
-SSGEDECL void SSGE_FillRect(int x1, int y1, int x2, int y2, SSGE_Color color);
+SSGEAPI void SSGE_FillRect(int x1, int y1, int x2, int y2, SSGE_Color color);
 
 /**
  * Fill a circle
@@ -106,7 +106,7 @@ SSGEDECL void SSGE_FillRect(int x1, int y1, int x2, int y2, SSGE_Color color);
  * \param radius The radius of the circle
  * \param color The color of the circle
  */
-SSGEDECL void SSGE_FillCircle(int x, int y, int radius, SSGE_Color color);
+SSGEAPI void SSGE_FillCircle(int x, int y, int radius, SSGE_Color color);
 
 /**
  * Fill an ellipse
@@ -116,7 +116,7 @@ SSGEDECL void SSGE_FillCircle(int x, int y, int radius, SSGE_Color color);
  * \param ry The y radius of the ellipse
  * \param color The color of the ellipse
  */
-SSGEDECL void SSGE_FillEllipse(int x, int y, int rx, int ry, SSGE_Color color);
+SSGEAPI void SSGE_FillEllipse(int x, int y, int rx, int ry, SSGE_Color color);
 
 /**
  * Draw geometry from a texture
@@ -124,7 +124,7 @@ SSGEDECL void SSGE_FillEllipse(int x, int y, int rx, int ry, SSGE_Color color);
  * \param x The x coordinate at which the texture is drawn
  * \param y The y coordinate at which the texture is drawn
  */
-SSGEDECL void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y);
+SSGEAPI void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y);
 
 /**
  * Create a line as a texture
@@ -138,7 +138,7 @@ SSGEDECL void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y);
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color);
 
 /**
  * Create a rectangle as a texture
@@ -152,7 +152,7 @@ SSGEDECL SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, int x1, int y1,
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color);
 
 /**
  * Create a circle as a texture
@@ -165,7 +165,7 @@ SSGEDECL SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, int x1, int y1,
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, int x, int y, int radius, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, int x, int y, int radius, SSGE_Color color);
 
 /**
  * Create an ellipse as a texture
@@ -179,7 +179,7 @@ SSGEDECL SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, int x, int y,
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, int x, int y, int rx, int ry, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, int x, int y, int rx, int ry, SSGE_Color color);
 
 /**
  * Create a line with a specified thickness as a texture
@@ -194,7 +194,7 @@ SSGEDECL SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, int x, int y
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
+SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
 
 /**
  * Create a rectangle with a specified thickness as a texture
@@ -209,7 +209,7 @@ SSGEDECL SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, int x1, in
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
+SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness);
 
 /**
  * Create a circle with a specified thickness as a texture
@@ -223,7 +223,7 @@ SSGEDECL SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, int x1, in
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, int x, int y, int radius, SSGE_Color color, int thickness);
+SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, int x, int y, int radius, SSGE_Color color, int thickness);
 
 /**
  * Create an ellipse with a specified thickness as a texture
@@ -238,7 +238,7 @@ SSGEDECL SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, int x, i
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEDECL SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, int x, int y, int rx, int ry, SSGE_Color color, int thickness);
+SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, int x, int y, int rx, int ry, SSGE_Color color, int thickness);
 
 #ifdef __cplusplus
 }

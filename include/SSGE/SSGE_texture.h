@@ -16,21 +16,21 @@ extern "C" {
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name or its id
  */
-SSGEDECL SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *name);
+SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *name);
 
 /**
  * Get a texture by id
  * \param id The id of the texture
  * \return The texture
  */
-SSGEDECL SSGE_Texture *SSGE_Texture_Get(uint32_t id);
+SSGEAPI SSGE_Texture *SSGE_Texture_Get(uint32_t id);
 
 /**
  * Get a texture by name
  * \param name The name of the texture
  * \return The texture
  */
-SSGEDECL SSGE_Texture *SSGE_Texture_GetName(char *name);
+SSGEAPI SSGE_Texture *SSGE_Texture_GetName(char *name);
 
 /**
  * Set the anchor of a texture
@@ -38,7 +38,7 @@ SSGEDECL SSGE_Texture *SSGE_Texture_GetName(char *name);
  * \param x The anchor's x coordinate
  * \param y The anchor's y coordinate
  */
-SSGEDECL void SSGE_Texture_Anchor(SSGE_Texture *texture, int x, int y);
+SSGEAPI void SSGE_Texture_Anchor(SSGE_Texture *texture, int x, int y);
 
 /**
  * Draw a texture
@@ -48,7 +48,7 @@ SSGEDECL void SSGE_Texture_Anchor(SSGE_Texture *texture, int x, int y);
  * \param width The width of the texture
  * \param height The height of the texture
  */
-SSGEDECL void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, int height);
+SSGEAPI void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, int height);
 
 /**
  * Draw a texture with more options
@@ -61,7 +61,7 @@ SSGEDECL void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, 
  * \param center The center of the rotation, can be NULL
  * \param flip The flip of the texture
  */
-SSGEDECL void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip);
+SSGEAPI void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip);
 
 /**
  * Draw a texture from a file
@@ -71,24 +71,24 @@ SSGEDECL void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width
  * \param width The width of the texture
  * \param height The height of the texture
  */
-SSGEDECL void SSGE_Texture_DrawFile(char *filename, int x, int y, int width, int height);
+SSGEAPI void SSGE_Texture_DrawFile(char *filename, int x, int y, int width, int height);
 
 /**
  * Destroy a texture
  * \param id The id of the texture
  */
-SSGEDECL void SSGE_Texture_Destroy(uint32_t id);
+SSGEAPI void SSGE_Texture_Destroy(uint32_t id);
 
 /**
  * Destroy a texture
  * \param name The name of the texture
  */
-SSGEDECL void SSGE_Texture_DestroyName(char *name);
+SSGEAPI void SSGE_Texture_DestroyName(char *name);
 
 /**
  * Destroy all texture
  */
-SSGEDECL void SSGE_Texture_DestroyAll();
+SSGEAPI void SSGE_Texture_DestroyAll();
 
 #ifdef __cplusplus
 }

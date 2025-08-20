@@ -17,7 +17,7 @@ extern "C" {
  * \param height The height of the frames
  * \return The animation
  */
-SSGEDECL SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, uint32_t frameCount, uint16_t width, uint16_t height);
+SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, uint32_t frameCount, uint16_t width, uint16_t height);
 
 /**
  * Create an animation with a draw function
@@ -26,7 +26,7 @@ SSGEDECL SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, u
  * \param draw The draw function to call when playing the animation
  * \return The animation
  */
-SSGEDECL SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void (*draw)(SSGE_AnimationState *));
+SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void (*draw)(SSGE_AnimationState *));
 
 /**
  * Set the anchor the frames
@@ -36,7 +36,7 @@ SSGEDECL SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, voi
  * \note This only works for animation with frames
  * \note Using this function on an animation with a function will throw an error
  */
-SSGEDECL void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y);
+SSGEAPI void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y);
 
 /**
  * Add a frame to an animation
@@ -46,7 +46,7 @@ SSGEDECL void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y);
  * \note This only works for animation with frames
  * \note Using this function on an animation with a function will throw an error
  */
-SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, char *file);
+SSGEAPI void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, char *file);
 
 /**
  * Add a frame from a tilemap to an animation
@@ -58,7 +58,7 @@ SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frameti
  * \note This only works for animation with frames
  * \note Using this function on an animation with a function will throw an error
  */
-SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t frametime, SSGE_Tilemap *tilemap, int row, int col);
+SSGEAPI void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t frametime, SSGE_Tilemap *tilemap, int row, int col);
 
 /**
  * Play an animation
@@ -70,42 +70,42 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t 
  * \param pingpong If the animation should pingpong (normal -> reversed)
  * \return The id of the animation state bound to the animation
  */
-SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint32_t loop, bool reversed, bool pingpong);
+SSGEAPI uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint32_t loop, bool reversed, bool pingpong);
 
 /**
  * Pause an animation
  * \param id The id of the animation state bound to the animation to pause
  */
-SSGEDECL void SSGE_Animation_Pause(uint32_t id);
+SSGEAPI void SSGE_Animation_Pause(uint32_t id);
 
 /**
  * Resume an animation
  * \param id The id of the animation state bound to the animation to resume
  */
-SSGEDECL void SSGE_Animation_Resume(uint32_t id);
+SSGEAPI void SSGE_Animation_Resume(uint32_t id);
 
 /**
  * Stop an animation
  * \param id The id of the animation state bound to the animation to stop
  */
-SSGEDECL void SSGE_Animation_Stop(uint32_t id);
+SSGEAPI void SSGE_Animation_Stop(uint32_t id);
 
 /**
  * Move an animation
  * \param id The id of the animation state bound to the animation to move
  */
-SSGEDECL void SSGE_Animation_Move(uint32_t id, int x, int y);
+SSGEAPI void SSGE_Animation_Move(uint32_t id, int x, int y);
 
 /**
  * Update an animation
  * \param id The id of the animation state bound to the animation to update
  */
-SSGEDECL void SSGE_Animation_Update(uint32_t id);
+SSGEAPI void SSGE_Animation_Update(uint32_t id);
 
 /**
  * Update all currently playing animations
  */
-SSGEDECL void SSGE_Animation_UpdateAll();
+SSGEAPI void SSGE_Animation_UpdateAll();
 
 #ifdef __cplusplus
 }

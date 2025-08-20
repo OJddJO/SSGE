@@ -3,7 +3,7 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_objtemplate.h"
 
-SSGEDECL SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
@@ -19,7 +19,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *nam
     return template;
 }
 
-SSGEDECL SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
@@ -35,7 +35,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name,
     return template;
 }
 
-SSGEDECL SSGE_ObjectTemplate *SSGE_Template_Get(uint32_t id) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Get(uint32_t id) {
     _assert_engine_init
     SSGE_ObjectTemplate *ptr = SSGE_Array_Get(&_object_template_list, id);
     if (ptr == NULL) 
@@ -47,7 +47,7 @@ static bool _find_template_name(void *ptr, void *name) {
     return strcmp(((SSGE_ObjectTemplate *)ptr)->name, name) == 0;
 }
 
-SSGEDECL SSGE_ObjectTemplate *SSGE_Template_GetName(char *name) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_GetName(char *name) {
     _assert_engine_init
     SSGE_ObjectTemplate *ptr = SSGE_Array_Find(&_object_template_list, _find_template_name, name);
     if (ptr == NULL) 
@@ -55,7 +55,7 @@ SSGEDECL SSGE_ObjectTemplate *SSGE_Template_GetName(char *name) {
     return ptr;
 }
 
-SSGEDECL void SSGE_Template_Destroy(uint32_t id) {
+SSGEAPI void SSGE_Template_Destroy(uint32_t id) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = SSGE_Array_Pop(&_object_template_list, id);
     if (template == NULL) 
@@ -64,7 +64,7 @@ SSGEDECL void SSGE_Template_Destroy(uint32_t id) {
     free(template);
 }
 
-SSGEDECL void SSGE_Template_DestroyName(char *name) {
+SSGEAPI void SSGE_Template_DestroyName(char *name) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = SSGE_Array_FindPop(&_object_template_list, _find_template_name, name);
     if (template == NULL) 
@@ -73,7 +73,7 @@ SSGEDECL void SSGE_Template_DestroyName(char *name) {
     free(template);
 }
 
-SSGEDECL void SSGE_Template_DestroyAll() {
+SSGEAPI void SSGE_Template_DestroyAll() {
     _assert_engine_init
     SSGE_Array_Destroy(&_object_template_list, _destroy_template);
     SSGE_Array_Create(&_object_template_list);

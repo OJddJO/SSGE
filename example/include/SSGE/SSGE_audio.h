@@ -15,21 +15,21 @@ extern "C" {
  * \param name The name of the audio
  * \return The audio
  */
-SSGEDECL SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name);
+SSGEAPI SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name);
 
 /**
  * Get an audio
  * \param id The id of the audio
  * \return The audio
  */
-SSGEDECL SSGE_Audio *SSGE_Audio_Get(uint32_t id);
+SSGEAPI SSGE_Audio *SSGE_Audio_Get(uint32_t id);
 
 /**
  * Get an audio by name
  * \param name The name of the audio
  * \return The audio
  */
-SSGEDECL SSGE_Audio *SSGE_Audio_GetName(char *name);
+SSGEAPI SSGE_Audio *SSGE_Audio_GetName(char *name);
 
 /**
  * Play an audio by id
@@ -37,42 +37,42 @@ SSGEDECL SSGE_Audio *SSGE_Audio_GetName(char *name);
  * \param channel The channel to play the audio on, -1 for first free channel.
  * \return The channel used to play the audio
  */
-SSGEDECL int SSGE_Audio_Play(SSGE_Audio *audio, int channel);
+SSGEAPI int SSGE_Audio_Play(SSGE_Audio *audio, int channel);
 
 /**
  * Resume an audio
  * \param channel The channel to resume the audio on, -1 for all
  */
-SSGEDECL void SSGE_Audio_Resume(int channel);
+SSGEAPI void SSGE_Audio_Resume(int channel);
 
 /**
  * Pause an audio
  * \param channel The channel to pause the audio on, -1 for all
  */
-SSGEDECL void SSGE_Audio_Pause(int channel);
+SSGEAPI void SSGE_Audio_Pause(int channel);
 
 /**
  * Stop an audio
  * \param channel The channel to stop the audio on, -1 for all
  */
-SSGEDECL void SSGE_Audio_Stop(int channel);
+SSGEAPI void SSGE_Audio_Stop(int channel);
 
 /**
  * Close an audio by id
  * \param id The id of the audio
  */
-SSGEDECL void SSGE_Audio_Close(uint32_t id);
+SSGEAPI void SSGE_Audio_Close(uint32_t id);
 
 /**
  * Close an audio by name
  * \param name The name of the audio
  */
-SSGEDECL void SSGE_Audio_CloseName(char *name);
+SSGEAPI void SSGE_Audio_CloseName(char *name);
 
 /**
  * Close all audios
  */
-SSGEDECL void SSGE_Audio_CloseAll();
+SSGEAPI void SSGE_Audio_CloseAll();
 
 #ifdef __cplusplus
 }

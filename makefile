@@ -12,28 +12,34 @@ endif
 
 SRC				= $(wildcard src/*.c)
 OBJ				= $(subst src,$(OSDIR)/build,$(patsubst %.c, %.o, $(SRC)))
+OBJ_STATIC		= $(subst src,$(OSDIR)/build_static,$(patsubst %.c, %.o, $(SRC)))
 
 INCLUDE			= -I include
 LIB				= -L $(OSDIR)/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-EXTRA			= -Werror -Wall -O3 -fPIC
+EXTRA			= -Werror -Wall -O3 -fPIC -DSSGE_BUILD
 
 all: create_dirs static dll
-	@echo Static library:           $(STATIC_BUILD)
-	@echo Dynamic library:          $(DLL_BUILD)
-	@echo Implementation library:   $(IMPLIB_BUILD)
+	@echo Static library:    $(STATIC_BUILD)
+	@echo Dynamic library:   $(DLL_BUILD)
+	@echo Imp. library:      $(IMPLIB_BUILD)
 
 remake: clean all
 
 $(OSDIR)/build/%.o: src/%.c
-	@echo Compiling $*.c...
+	@echo [DYNAMIC] Compiling $*.c ...
 	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build/$*.o $(EXTRA)
+
+$(OSDIR)/build_static/%.o: src/%.c
+	@echo [STATIC] Compiling $*.c ...
+	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build_static/$*.o $(EXTRA) -DSSGE_STATIC -static
 
 clean:
 	@echo Cleaning up...
 ifeq ($(OS),Windows_NT)
 	@erase /q $(subst /,\,$(OBJ))
+	@erase /q $(subst /,\,$(OBJ_STATIC))
 else
-	@rm -f $(OBJ)
+	@rm -f $(OBJ) $(OBJ_STATIC)
 endif
 
 create_dirs:
@@ -42,17 +48,18 @@ ifeq ($(OS),Windows_NT)
 	@if not exist $(OSDIR) mkdir $(OSDIR)
 	@if not exist $(OSDIR)\bin mkdir $(OSDIR)\bin
 	@if not exist $(OSDIR)\build mkdir $(OSDIR)\build
+	@if not exist $(OSDIR)\build_static mkdir $(OSDIR)\build_static
 	@if not exist $(OSDIR)\lib mkdir $(OSDIR)\lib
 else
-	@mkdir -p $(OSDIR)/bin $(OSDIR)/build $(OSDIR)/lib
+	@mkdir -p $(OSDIR)/bin $(OSDIR)/build $(OSDIR)/build_static $(OSDIR)/lib
 endif
 
-static: $(OBJ)
-	@echo Creating static library...
-	@ar rcs $(STATIC_BUILD) $(OBJ)
+static: $(OBJ_STATIC)
+	@echo [STATIC] Creating static library...
+	@ar rcs $(STATIC_BUILD) $(OBJ_STATIC)
 
 dll: $(OBJ)
-	@echo Creating dynamic library...
+	@echo [DYNAMIC] Creating dynamic library...
 ifeq ($(OS),Windows_NT)
 	@gcc -shared -o $(DLL_BUILD) $(OBJ) $(LIB) -Wl,--out-implib=$(IMPLIB_BUILD)
 else

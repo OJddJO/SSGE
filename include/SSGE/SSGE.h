@@ -33,13 +33,13 @@ extern "C" {
  * \param fps The frames per second
  * \return The engine struct
  */
-SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps);
+SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps);
 
 /**
  * Quit the engine
  * \note This function must be called at the end of the program
  */
-SSGEDECL void SSGE_Quit();
+SSGEAPI void SSGE_Quit();
 
 /**
  * Run the engine
@@ -51,7 +51,7 @@ SSGEDECL void SSGE_Quit();
  * \note The update function is threaded. Please be careful to not write data in the eventHandler and the update at the same time
  * \note The order of execution is as follows: Event handling, (Udpate synchronization), (Clear screen), Draw
  */
-SSGEDECL void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data);
+SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data);
 
 // Window functions
 
@@ -59,32 +59,32 @@ SSGEDECL void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*even
  * Set the window title
  * \param title The title of the window
  */
-SSGEDECL void SSGE_SetWindowTitle(char *title);
+SSGEAPI void SSGE_SetWindowTitle(char *title);
 
 /**
  * Set the window icon
  * \param filename The path to the icon
  */
-SSGEDECL void SSGE_SetWindowIcon(char *filename);
+SSGEAPI void SSGE_SetWindowIcon(char *filename);
 
 /**
  * Set the window size
  * \param width The target width
  * \param height The target height
  */
-SSGEDECL void SSGE_WindowResize(uint16_t width, uint16_t height);
+SSGEAPI void SSGE_WindowResize(uint16_t width, uint16_t height);
 
 /**
  * Set the window as resizable
  * \param resizable True if the window should be resizable, false otherwise
  */
-SSGEDECL void SSGE_WindowResizable(bool resizable);
+SSGEAPI void SSGE_WindowResizable(bool resizable);
 
 /**
  * Set the window as fullscreen
  * \param fullscreen True if the window should be fullscreen, false otherwise
  */
-SSGEDECL void SSGE_WindowFullscreen(bool fullscreen);
+SSGEAPI void SSGE_WindowFullscreen(bool fullscreen);
 
 /**
  * Set the manual update mode
@@ -93,14 +93,14 @@ SSGEDECL void SSGE_WindowFullscreen(bool fullscreen);
  * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `SSGE_ManualUpdate` function is called.
  * \note Setting the manual update mode may be more efficient when the screen does not need to be updated every frame
  */
-SSGEDECL void SSGE_SetManualUpdate(bool manualUpdate);
+SSGEAPI void SSGE_SetManualUpdate(bool manualUpdate);
 
 /**
  * Manually updates the screen
  * \note This function should be called when the manual update mode is enabled
  * \note It does nothing if the manual update mode is disabled
  */
-SSGEDECL void SSGE_ManualUpdate();
+SSGEAPI void SSGE_ManualUpdate();
 
 // Utility functions
 
@@ -108,13 +108,13 @@ SSGEDECL void SSGE_ManualUpdate();
  * Set the color of the renderer
  * \param color The color to set
  */
-SSGEDECL void SSGE_SetColor(SSGE_Color color);
+SSGEAPI void SSGE_SetColor(SSGE_Color color);
 
 /**
  * Change the background color
  * \param color The color to set
  */
-SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color);
+SSGEAPI void SSGE_SetBackgroundColor(SSGE_Color color);
 
 // Event functions
 
@@ -123,21 +123,21 @@ SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color);
  * \param x The variable to store the x coordinate of the mouse
  * \param y The variable to store the y coordinate of the mouse
  */
-SSGEDECL void SSGE_GetMousePosition(int *x, int *y);
+SSGEAPI void SSGE_GetMousePosition(int *x, int *y);
 
 /**
  * Check if an object is hovered
  * \param object The object to check
  * \return True if the object is hovered, false otherwise
  */
-SSGEDECL bool SSGE_ObjectIsHovered(SSGE_Object *object);
+SSGEAPI bool SSGE_ObjectIsHovered(SSGE_Object *object);
 
 /**
  * Get the hovered object
  * \return The hovered object, NULL if no object is hovered
  * \warning If multiple objects are hovered, returns the hovered object with the smallest id
  */
-SSGEDECL SSGE_Object *SSGE_GetHoveredObject();
+SSGEAPI SSGE_Object *SSGE_GetHoveredObject();
 
 /**
  * Get the list of the objects that are hovered
@@ -145,7 +145,7 @@ SSGEDECL SSGE_Object *SSGE_GetHoveredObject();
  * \param size The size of the array
  * \return The number of objects retrieved
  */
-SSGEDECL uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size);
+SSGEAPI uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size);
 
 #ifdef __cplusplus
 }

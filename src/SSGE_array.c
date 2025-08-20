@@ -11,7 +11,7 @@
  * Creates a new array
  * \param array The array to initialize
  */
-SSGEDECL void SSGE_Array_Create(SSGE_Array *array) {
+SSGEAPI void SSGE_Array_Create(SSGE_Array *array) {
     array->array = (void **)calloc(_INITIAL_SIZE, sizeof(void *));
     if (array->array == NULL) 
         SSGE_Error("Failed to allocate memory for array")
@@ -29,7 +29,7 @@ SSGEDECL void SSGE_Array_Create(SSGE_Array *array) {
  * \param array The array to add the element to
  * \return The index of the element
  */
-SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
+SSGEAPI uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
     if (array->size <= array->count) { // if the array is full, extend
         void **newArray = (void **)realloc(array->array, sizeof(void *) * array->size * _GROWTH_FACTOR);
         if (newArray == NULL) 
@@ -57,7 +57,7 @@ SSGEDECL uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
  * \param idx The index of the element to get
  * \return The pointer to the element
  */
-SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
+SSGEAPI void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
     if (idx >= array->size)
         return NULL;
 
@@ -70,7 +70,7 @@ SSGEDECL void *SSGE_Array_Get(SSGE_Array *array, uint32_t idx) {
  * \param idx The index of the element to remove
  * \param destroyData The function to destroy the element to remove from the array
  */
-SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *)) {
+SSGEAPI void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyData)(void *)) {
     if (idx >= array->size) {
         return;
     }
@@ -98,7 +98,7 @@ SSGEDECL void SSGE_Array_Remove(SSGE_Array *array, uint32_t idx, void (*destroyD
  * \param idx The index of the element to pop
  * \return The pointer to the popped element
  */
-SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
+SSGEAPI void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
     if (idx >= array->size) 
         return NULL;
 
@@ -124,7 +124,7 @@ SSGEDECL void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
  * \param argument The argument to pass to the condition function
  * \return The pointer to the first element that matches the condition, or NULL if not found
  */
-SSGEDECL void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
+SSGEAPI void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
     uint32_t i = 0, count = 0;
     while (count < array->count || count >= array->size) {
         void *element = array->array[i++];
@@ -144,7 +144,7 @@ SSGEDECL void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void
  * \param argument The argument to pass to the condition function
  * \return The pointer to the first element that matches the condition, or NULL if not found
  */
-SSGEDECL void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
+SSGEAPI void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
     uint32_t i = 0, count = 0;
     while (count < array->count || count >= array->size) {
         void *element = array->array[i++];
@@ -162,7 +162,7 @@ SSGEDECL void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, v
  * \param array The array to destroy
  * \param destroyData The function to destroy the elements of the array. Can be `NULL`
  */
-SSGEDECL void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *)) {
+SSGEAPI void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *)) {
     uint32_t i = 0, count = 0;
     while (count < array->count || count >= array->size) {
         void *element = array->array[i++];

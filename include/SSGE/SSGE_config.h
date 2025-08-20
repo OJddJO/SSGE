@@ -4,11 +4,22 @@
 #ifndef __SSGE_CONFIG_H__
 #define __SSGE_CONFIG_H__
 
-#ifdef DLL_EXPORT
+#ifndef SSGE_STATIC
     #define SSGEDECL __declspec(dllexport)
+    #define SSGEIMPORT __declspec(dllimport)
 #else
     #define SSGEDECL
+    #define SSGEIMPORT
 #endif
+
+#define SSGECALL __cdecl
+
+#ifdef SSGE_BUILD
+    #define SSGEAPI SSGEDECL SSGECALL
+#else
+    #define SSGEAPI SSGEIMPORT SSGECALL
+#endif
+
 
 #ifdef SSGE_GET_SDL
     #include <SDL2/SDL.h>

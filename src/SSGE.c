@@ -24,7 +24,7 @@ static int _event_filter(void *userdata, SDL_Event *event) {
     }
 }
 
-SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
+SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
     if (_engine.initialized)
         SSGE_Error("Engine already initialized")
 
@@ -72,7 +72,7 @@ SSGEDECL SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, ui
     return &_engine;
 }
 
-SSGEDECL void SSGE_Quit() {
+SSGEAPI void SSGE_Quit() {
     _assert_engine_init
 
     SSGE_Array_Destroy(&_texture_list, _destroy_texture);
@@ -113,14 +113,15 @@ static int updateThreadFunc(void *data) {
     return 0;
 }
 
-SSGEDECL void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data) {
+SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data) {
     _assert_engine_init
 
     _updateMutex = SDL_CreateMutex();
     _updateCond = SDL_CreateCond();
     _updateDone = 0;
 
-    SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "Update Thread", (&(updThreadData){update, data}));
+    if (SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "Update Thread", (&(updThreadData){update, data})) == NULL)
+        SSGE_Error("Could not create 'update' thread")
 
     uint32_t frameStart;
     int frameTime;
@@ -155,31 +156,31 @@ SSGEDECL void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*even
             SDL_RenderClear(_engine.renderer);
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
             if (draw) draw(data);
-            _update_frame = false;
         }
 
-        if (update) {
+        if (update) { // Run the update function
             SDL_LockMutex(_updateMutex);
             _updateDone = 0;
             SDL_CondSignal(_updateCond);
         }
 
-        if (_update_frame || !_manual_update_frame)
+        if (_update_frame || !_manual_update_frame) {
             SDL_RenderPresent(_engine.renderer);
+            _update_frame = false;
+        }
 
         frameTime = SDL_GetTicks() - frameStart;
         if ((double)frameTime < (double)1000 / _engine.fps)
             SDL_Delay((1000 / _engine.fps) - frameTime);
     }
-
 }
 
-SSGEDECL void SSGE_SetWindowTitle(char *title) {
+SSGEAPI void SSGE_SetWindowTitle(char *title) {
     _assert_engine_init
     SDL_SetWindowTitle(_engine.window, title);
 }
 
-SSGEDECL void SSGE_SetWindowIcon(char *filename) {
+SSGEAPI void SSGE_SetWindowIcon(char *filename) {
     _assert_engine_init
     SDL_Surface *icon = IMG_Load(filename);
     if (icon == NULL) {
@@ -190,47 +191,47 @@ SSGEDECL void SSGE_SetWindowIcon(char *filename) {
     SDL_FreeSurface(icon);
 }
 
-SSGEDECL void SSGE_WindowResize(uint16_t width, uint16_t height) {
+SSGEAPI void SSGE_WindowResize(uint16_t width, uint16_t height) {
     _assert_engine_init
     SDL_SetWindowSize(_engine.window, width, height);
 }
 
-SSGEDECL void SSGE_WindowResizable(bool resizable) {
+SSGEAPI void SSGE_WindowResizable(bool resizable) {
     _assert_engine_init
     SDL_SetWindowResizable(_engine.window, resizable ? SDL_TRUE : SDL_FALSE);
 }
 
-SSGEDECL void SSGE_WindowFullscreen(bool fullscreen) {
+SSGEAPI void SSGE_WindowFullscreen(bool fullscreen) {
     _assert_engine_init
     SDL_SetWindowFullscreen(_engine.window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
 }
 
-SSGEDECL void SSGE_SetManualUpdate(bool manualUpdate) {
+SSGEAPI void SSGE_SetManualUpdate(bool manualUpdate) {
     _assert_engine_init
     _manual_update_frame = manualUpdate;
 }
 
-SSGEDECL void SSGE_ManualUpdate() {
+SSGEAPI void SSGE_ManualUpdate() {
     _update_frame = true;
 }
 
-SSGEDECL void SSGE_SetColor(SSGE_Color color) {
+SSGEAPI void SSGE_SetColor(SSGE_Color color) {
     _assert_engine_init
     _color = color;
     SDL_SetRenderDrawColor(_engine.renderer, color.r, color.g, color.b, color.a);
 }
 
-SSGEDECL void SSGE_SetBackgroundColor(SSGE_Color color) {
+SSGEAPI void SSGE_SetBackgroundColor(SSGE_Color color) {
     _assert_engine_init
     _bg_color = color;
 }
 
-SSGEDECL void SSGE_GetMousePosition(int *x, int *y) {
+SSGEAPI void SSGE_GetMousePosition(int *x, int *y) {
     _assert_engine_init
     SDL_GetMouseState(x, y);
 }
 
-SSGEDECL bool SSGE_ObjectIsHovered(SSGE_Object *object) {
+SSGEAPI bool SSGE_ObjectIsHovered(SSGE_Object *object) {
     _assert_engine_init
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
@@ -243,7 +244,7 @@ static bool _is_hovered(SSGE_Object *ptr, int *mousePos) {
     return mouseX >= ptr->x && mouseX <= ptr->x + ptr->width && mouseY >= ptr->y && mouseY <= ptr->y + ptr->height;
 }
 
-SSGEDECL SSGE_Object *SSGE_GetHoveredObject() {
+SSGEAPI SSGE_Object *SSGE_GetHoveredObject() {
     _assert_engine_init
     int mousePos[2];
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);
@@ -254,7 +255,7 @@ SSGEDECL SSGE_Object *SSGE_GetHoveredObject() {
     #pragma GCC diagnostic pop
 }
 
-SSGEDECL uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {
+SSGEAPI uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {
     _assert_engine_init
     int mousePos[2];
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);

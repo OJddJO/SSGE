@@ -5,7 +5,7 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_animation.h"
 
-SSGEDECL SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, uint32_t frameCount, uint16_t width, uint16_t height) {
+SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, uint32_t frameCount, uint16_t width, uint16_t height) {
     _assert_engine_init
 
     SSGE_Animation *anim = (SSGE_Animation *)malloc(sizeof(SSGE_Animation));
@@ -22,7 +22,7 @@ SSGEDECL SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, u
     return anim;
 }
 
-SSGEDECL SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void (*draw)(SSGE_AnimationState *)) {
+SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void (*draw)(SSGE_AnimationState *)) {
     _assert_engine_init
 
     SSGE_Animation *anim = (SSGE_Animation *)malloc(sizeof(SSGE_Animation));
@@ -36,7 +36,7 @@ SSGEDECL SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, voi
     return anim;
 }
 
-SSGEDECL void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
+SSGEAPI void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
     _assert_engine_init
 
     if (animation->type != SSGE_ANIM_FRAMES)
@@ -46,7 +46,7 @@ SSGEDECL void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
     animation->data.anchorY = y;
 }
 
-SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, char *file) {
+SSGEAPI void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, char *file) {
     _assert_engine_init
 
     if (animation->type != SSGE_ANIM_FRAMES)
@@ -63,7 +63,7 @@ SSGEDECL void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frameti
     animation->data.frametimes[animation->data.currentCount++] = frametime;
 }
 
-SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t frametime, SSGE_Tilemap *tilemap, int row, int col) {
+SSGEAPI void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t frametime, SSGE_Tilemap *tilemap, int row, int col) {
     _assert_engine_init
 
     if (animation->type != SSGE_ANIM_FRAMES)
@@ -86,7 +86,7 @@ SSGEDECL void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t 
     animation->data.frametimes[animation->data.currentCount++] = frametime;
 }
 
-SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint32_t loop, bool reversed, bool pingpong) {
+SSGEAPI uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint32_t loop, bool reversed, bool pingpong) {
     _assert_engine_init
 
     SSGE_AnimationState *state = (SSGE_AnimationState*)malloc(sizeof(SSGE_AnimationState));
@@ -106,7 +106,7 @@ SSGEDECL uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, u
     return SSGE_Array_Add(&_playingAnim, state);
 }
 
-SSGEDECL void SSGE_Animation_Pause(uint32_t id) {
+SSGEAPI void SSGE_Animation_Pause(uint32_t id) {
     _assert_engine_init
 
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
@@ -116,7 +116,7 @@ SSGEDECL void SSGE_Animation_Pause(uint32_t id) {
     state->isPlaying = false;
 }
 
-SSGEDECL void SSGE_Animation_Resume(uint32_t id) {
+SSGEAPI void SSGE_Animation_Resume(uint32_t id) {
     _assert_engine_init
 
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
@@ -126,7 +126,7 @@ SSGEDECL void SSGE_Animation_Resume(uint32_t id) {
     state->isPlaying = true;
 }
 
-SSGEDECL void SSGE_Animation_Stop(uint32_t id) {
+SSGEAPI void SSGE_Animation_Stop(uint32_t id) {
     _assert_engine_init
 
     SSGE_AnimationState *state = SSGE_Array_Pop(&_playingAnim, id);
@@ -136,7 +136,7 @@ SSGEDECL void SSGE_Animation_Stop(uint32_t id) {
     free(state);
 }
 
-SSGEDECL void SSGE_Animation_Move(uint32_t id, int x, int y) {
+SSGEAPI void SSGE_Animation_Move(uint32_t id, int x, int y) {
     _assert_engine_init
 
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
@@ -147,7 +147,7 @@ SSGEDECL void SSGE_Animation_Move(uint32_t id, int x, int y) {
     state->y = y;
 }
 
-SSGEDECL void SSGE_Animation_Update(uint32_t id) {
+SSGEAPI void SSGE_Animation_Update(uint32_t id) {
     _assert_engine_init
 
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
@@ -196,7 +196,7 @@ SSGEDECL void SSGE_Animation_Update(uint32_t id) {
     }
 }
 
-SSGEDECL void SSGE_Animation_UpdateAll() {
+SSGEAPI void SSGE_Animation_UpdateAll() {
     _assert_engine_init
 
     uint32_t i = 0, count = _playingAnim.count;

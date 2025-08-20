@@ -3,7 +3,7 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_tilemap.h"
 
-SSGEDECL SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint16_t tileWidth, uint16_t tileHeight, uint16_t spacing, uint16_t nbRows, uint16_t nbCols) {
+SSGEAPI SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint16_t tileWidth, uint16_t tileHeight, uint16_t spacing, uint16_t nbRows, uint16_t nbCols) {
     _assert_engine_init
     SSGE_Tilemap *tilemap = (SSGE_Tilemap *)malloc(sizeof(SSGE_Tilemap));
     if (tilemap == NULL)
@@ -22,7 +22,7 @@ SSGEDECL SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint16_t tileWidth, u
     return tilemap;
 }
 
-SSGEDECL SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col) {
+SSGEAPI SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col) {
     _assert_engine_init
     if (row >= tilemap->nbRows || col >= tilemap->nbCols)
         SSGE_ErrorEx2("Tile out of bounds: (row: %u col: %u)", row, col)
@@ -38,7 +38,7 @@ SSGEDECL SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, uint16_t row, ui
     return tile;
 }
 
-SSGEDECL SSGE_Texture *SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, uint32_t *id, char *name) {
+SSGEAPI SSGE_Texture *SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, uint32_t *id, char *name) {
     _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
@@ -59,7 +59,7 @@ SSGEDECL SSGE_Texture *SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint
     return texture;
 }
 
-SSGEDECL void SSGE_Tilemap_DrawTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, int x, int y) {
+SSGEAPI void SSGE_Tilemap_DrawTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, int x, int y) {
     _assert_engine_init
     if (row >= tilemap->nbRows || col >= tilemap->nbCols) 
         SSGE_ErrorEx2("Tile out of bounds (row: %u col: %u)", row, col)
@@ -69,7 +69,7 @@ SSGEDECL void SSGE_Tilemap_DrawTile(SSGE_Tilemap *tilemap, uint16_t row, uint16_
     SDL_RenderCopy(_engine.renderer, tilemap->texture, &src, &dest);
 }
 
-SSGEDECL void SSGE_Tilemap_DrawTileSize(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, int x, int y, uint16_t width, uint16_t height) {
+SSGEAPI void SSGE_Tilemap_DrawTileSize(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, int x, int y, uint16_t width, uint16_t height) {
     _assert_engine_init
     if (row >= tilemap->nbRows || col >= tilemap->nbCols) 
         SSGE_ErrorEx2("Tile out of bounds (row: %u col: %u)", row, col)
@@ -79,25 +79,25 @@ SSGEDECL void SSGE_Tilemap_DrawTileSize(SSGE_Tilemap *tilemap, uint16_t row, uin
     SDL_RenderCopy(_engine.renderer, tilemap->texture, &src, &dest);
 }
 
-SSGEDECL void SSGE_Tilemap_DrawTileAlt(SSGE_Tile *tile, int x, int y) {
+SSGEAPI void SSGE_Tilemap_DrawTileAlt(SSGE_Tile *tile, int x, int y) {
     _assert_engine_init
     SDL_Rect src = {tile->col * (tile->tilemap->tileWidth + tile->tilemap->spacing), tile->row * (tile->tilemap->tileHeight + tile->tilemap->spacing), tile->tilemap->tileWidth, tile->tilemap->tileHeight};
     SDL_Rect dest = {x, y, tile->tilemap->tileWidth, tile->tilemap->tileHeight};
     SDL_RenderCopy(_engine.renderer, tile->tilemap->texture, &src, &dest);
 }
 
-SSGEDECL void SSGE_Tilemap_DrawTileSizeAlt(SSGE_Tile *tile, int x, int y, uint16_t width, uint16_t height) {
+SSGEAPI void SSGE_Tilemap_DrawTileSizeAlt(SSGE_Tile *tile, int x, int y, uint16_t width, uint16_t height) {
     _assert_engine_init
     SDL_Rect src = {tile->col * (tile->tilemap->tileWidth + tile->tilemap->spacing), tile->row * (tile->tilemap->tileHeight + tile->tilemap->spacing), tile->tilemap->tileWidth, tile->tilemap->tileHeight};
     SDL_Rect dest = {x, y, width, height};
     SDL_RenderCopy(_engine.renderer, tile->tilemap->texture, &src, &dest);
 }
 
-SSGEDECL void SSGE_Tilemap_DestroyTile(SSGE_Tile *tile) {
+SSGEAPI void SSGE_Tilemap_DestroyTile(SSGE_Tile *tile) {
     free(tile);
 }
 
-SSGEDECL void SSGE_Tilemap_Destroy(SSGE_Tilemap *tilemap) {
+SSGEAPI void SSGE_Tilemap_Destroy(SSGE_Tilemap *tilemap) {
     _assert_engine_init
     SDL_DestroyTexture(tilemap->texture);
     free(tilemap);

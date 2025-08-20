@@ -4,7 +4,7 @@
 #include "SSGE/SSGE_object.h"
 #include "SSGE/SSGE_animation.h"
 
-SSGEDECL SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *)) {
+SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_Object *object = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (object == NULL) 
@@ -24,7 +24,7 @@ SSGEDECL SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y,
     return object;
 }
 
-SSGEDECL SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *template, char *name, int x, int y, void *data) {
+SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *template, char *name, int x, int y, void *data) {
     _assert_engine_init
     SSGE_Object *object = SSGE_Object_Create(id, name, x, y, template->width, template->height, template->hitbox, data, template->destroyData);
     if (template->spriteType == SSGE_SPRITE_STATIC)
@@ -34,7 +34,7 @@ SSGEDECL SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate 
     return object;
 }
 
-SSGEDECL bool SSGE_Object_Exists(uint32_t id) {
+SSGEAPI bool SSGE_Object_Exists(uint32_t id) {
     _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Get(&_object_list, id);
     return ptr == NULL ? false : true;
@@ -44,13 +44,13 @@ static bool _find_object_name(void *ptr, void *name) {
     return strcmp(((SSGE_Object *)ptr)->name, (char *)name) == 0 ;
 }
 
-SSGEDECL bool SSGE_Object_ExistsName(char *name) {
+SSGEAPI bool SSGE_Object_ExistsName(char *name) {
     _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Find(&_object_list, _find_object_name, name);
     return ptr == NULL ? false : true;
 }
 
-SSGEDECL void SSGE_Object_Draw(SSGE_Object *object) {
+SSGEAPI void SSGE_Object_Draw(SSGE_Object *object) {
     _assert_engine_init
     if (object->width == 0 || object->height == 0 ||
         object->spriteType == SSGE_SPRITE_ANIM) return;
@@ -64,7 +64,7 @@ SSGEDECL void SSGE_Object_Draw(SSGE_Object *object) {
     }
 }
 
-SSGEDECL void SSGE_Object_DrawAll() {
+SSGEAPI void SSGE_Object_DrawAll() {
     _assert_engine_init
     for (uint32_t i = 0; i < _object_list.count; i++) {
         SSGE_Object *object = SSGE_Array_Get(&_object_list, i);
@@ -82,7 +82,7 @@ SSGEDECL void SSGE_Object_DrawAll() {
     }
 }
 
-SSGEDECL void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
+SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
     _assert_engine_init
     object->x = x;
     object->y = y;
@@ -90,25 +90,25 @@ SSGEDECL void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
         SSGE_Animation_Move(object->animation, x, y);
 }
 
-SSGEDECL void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture) {
+SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture) {
     _assert_engine_init
     object->spriteType = SSGE_SPRITE_STATIC;
     object->texture = texture;
 }
 
-SSGEDECL void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation) {
+SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation) {
     _assert_engine_init
     object->spriteType = SSGE_SPRITE_ANIM;
     object->animation = SSGE_Animation_Play(animation, object->x, object->y, -1, false, false);
 }
 
-SSGEDECL void SSGE_Object_RemoveSprite(SSGE_Object *object) {
+SSGEAPI void SSGE_Object_RemoveSprite(SSGE_Object *object) {
     _assert_engine_init
     object->spriteType = SSGE_SPRITE_STATIC;
     object->texture = NULL;
 }
 
-SSGEDECL SSGE_Object *SSGE_Object_Get(uint32_t id) {
+SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id) {
     _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Get(&_object_list, id);
     if (ptr == NULL) 
@@ -116,7 +116,7 @@ SSGEDECL SSGE_Object *SSGE_Object_Get(uint32_t id) {
     return ptr;
 }
 
-SSGEDECL SSGE_Object *SSGE_Object_GetName(char *name) {
+SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name) {
     _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Find(&_object_list, _find_object_name, name);
     if (ptr == NULL) 
@@ -124,7 +124,7 @@ SSGEDECL SSGE_Object *SSGE_Object_GetName(char *name) {
     return ptr;
 }
 
-SSGEDECL void SSGE_Object_Destroy(uint32_t id) {
+SSGEAPI void SSGE_Object_Destroy(uint32_t id) {
     _assert_engine_init
     SSGE_Object *object = SSGE_Array_Pop(&_object_list, id);
     if (object == NULL)
@@ -132,7 +132,7 @@ SSGEDECL void SSGE_Object_Destroy(uint32_t id) {
     _destroy_object(object);
 }
 
-SSGEDECL void SSGE_Object_DestroyName(char *name) {
+SSGEAPI void SSGE_Object_DestroyName(char *name) {
     _assert_engine_init
     SSGE_Object *object = SSGE_Array_FindPop(&_object_list, _find_object_name, name);
     if (object == NULL) 
@@ -140,13 +140,13 @@ SSGEDECL void SSGE_Object_DestroyName(char *name) {
     _destroy_object(object);
 }
 
-SSGEDECL void SSGE_Object_DestroyAll() {
+SSGEAPI void SSGE_Object_DestroyAll() {
     _assert_engine_init
     SSGE_Array_Destroy(&_object_list, _destroy_object);
     SSGE_Array_Create(&_object_list);
 }
 
-SSGEDECL bool SSGE_Object_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2) {
+SSGEAPI bool SSGE_Object_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2) {
     if (!hitbox1->hitbox || !hitbox2->hitbox) return false;
     return hitbox1->x < hitbox2->x + hitbox2->width && hitbox1->x + hitbox1->width > hitbox2->x && hitbox1->y < hitbox2->y + hitbox2->height && hitbox1->y + hitbox1->height > hitbox2->y;
 }

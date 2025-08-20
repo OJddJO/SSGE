@@ -3,7 +3,7 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_audio.h"
 
-SSGEDECL SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name) {
+SSGEAPI SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name) {
     _assert_engine_init
     SSGE_Audio *audio = (SSGE_Audio *)malloc(sizeof(SSGE_Audio));
     if (audio == NULL) 
@@ -17,7 +17,7 @@ SSGEDECL SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name)
     return audio;
 }
 
-SSGEDECL SSGE_Audio *SSGE_Audio_Get(uint32_t id) {
+SSGEAPI SSGE_Audio *SSGE_Audio_Get(uint32_t id) {
     _assert_engine_init
     SSGE_Audio *ptr = SSGE_Array_Get(&_audio_list, id);
     if (ptr == NULL) 
@@ -29,7 +29,7 @@ static bool _find_audio_name(void *ptr, void *name) {
     return strcmp(((SSGE_Audio *)ptr)->name, (char *)name) == 0;
 }
 
-SSGEDECL SSGE_Audio *SSGE_Audio_GetName(char *name) {
+SSGEAPI SSGE_Audio *SSGE_Audio_GetName(char *name) {
     _assert_engine_init
     SSGE_Audio *ptr = (SSGE_Audio *)SSGE_Array_Find(&_audio_list, _find_audio_name, name);
     if (ptr == NULL) 
@@ -37,7 +37,7 @@ SSGEDECL SSGE_Audio *SSGE_Audio_GetName(char *name) {
     return ptr;
 }
 
-SSGEDECL int SSGE_Audio_Play(SSGE_Audio *audio, int channel) {
+SSGEAPI int SSGE_Audio_Play(SSGE_Audio *audio, int channel) {
     _assert_engine_init
 
     if ((channel = Mix_PlayChannel(channel, audio->audio, 0)) == -1) 
@@ -46,22 +46,22 @@ SSGEDECL int SSGE_Audio_Play(SSGE_Audio *audio, int channel) {
     return channel;
 }
 
-SSGEDECL void SSGE_Audio_Resume(int channel) {
+SSGEAPI void SSGE_Audio_Resume(int channel) {
     _assert_engine_init
     Mix_Resume(channel);
 }
 
-SSGEDECL void SSGE_Audio_Pause(int channel) {
+SSGEAPI void SSGE_Audio_Pause(int channel) {
     _assert_engine_init
     Mix_Pause(channel);
 }
 
-SSGEDECL void SSGE_Audio_Stop(int channel) {
+SSGEAPI void SSGE_Audio_Stop(int channel) {
     _assert_engine_init
     Mix_HaltChannel(channel);
 }
 
-SSGEDECL void SSGE_Audio_Close(uint32_t id) {
+SSGEAPI void SSGE_Audio_Close(uint32_t id) {
     _assert_engine_init
     SSGE_Audio *audio = SSGE_Array_Pop(&_audio_list, id);
     if (audio == NULL) 
@@ -69,7 +69,7 @@ SSGEDECL void SSGE_Audio_Close(uint32_t id) {
     _destroy_audio(audio);
 }
 
-SSGEDECL void SSGE_Audio_CloseName(char *name) {
+SSGEAPI void SSGE_Audio_CloseName(char *name) {
     _assert_engine_init
     SSGE_Audio *audio = SSGE_Array_FindPop(&_audio_list, _find_audio_name, name);
     if (audio == NULL) 
@@ -77,7 +77,7 @@ SSGEDECL void SSGE_Audio_CloseName(char *name) {
     _destroy_audio(audio);
 }
 
-SSGEDECL void SSGE_Audio_CloseAll() {
+SSGEAPI void SSGE_Audio_CloseAll() {
     _assert_engine_init
     SSGE_Array_Destroy(&_audio_list, _destroy_audio);
     SSGE_Array_Create(&_audio_list);

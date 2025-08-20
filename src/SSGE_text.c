@@ -3,7 +3,7 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_text.h"
 
-SSGEDECL void SSGE_Font_Create(char *filename, int size, char *name) {
+SSGEAPI void SSGE_Font_Create(char *filename, int size, char *name) {
     _assert_engine_init
     SSGE_Font *font = (SSGE_Font *)malloc(sizeof(SSGE_Font));
     if (font == NULL) 
@@ -34,7 +34,7 @@ static SSGE_Font *_get_font(char *name, char *funcname) {
     return ptr;
 }
 
-SSGEDECL void SSGE_Font_Close(char *name) {
+SSGEAPI void SSGE_Font_Close(char *name) {
     _assert_engine_init
     SSGE_Font *font = SSGE_Array_FindPop(&_font_list, _find_font_name, name);
     if (font == NULL) 
@@ -42,13 +42,13 @@ SSGEDECL void SSGE_Font_Close(char *name) {
     _destroy_font(font);
 }
 
-SSGEDECL void SSGE_Font_CloseAll() {
+SSGEAPI void SSGE_Font_CloseAll() {
     _assert_engine_init
     SSGE_Array_Destroy(&_font_list, _destroy_font);
     SSGE_Array_Create(&_font_list);
 }
 
-SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor) {
+SSGEAPI void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor) {
     _assert_engine_init
 
     if (color.a == 0) return;
@@ -105,7 +105,7 @@ SSGEDECL void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Colo
     SDL_DestroyTexture(texture);
 }
 
-SSGEDECL SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text, SSGE_Color color, char *textureName) {
+SSGEAPI SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text, SSGE_Color color, char *textureName) {
     _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 

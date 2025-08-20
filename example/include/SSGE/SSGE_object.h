@@ -22,7 +22,7 @@ extern "C" {
  * \return The object
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEDECL SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *));
+SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *));
 
 /**
  * Instantiate an object from an object template
@@ -34,21 +34,21 @@ SSGEDECL SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y,
  * \return The object
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEDECL SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *template, char *name, int x, int y, void *data);
+SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *template, char *name, int x, int y, void *data);
 
 /**
  * Check if an object exists
  * \param id The id of the object
  * \return True if the object exists, false otherwise
  */
-SSGEDECL bool SSGE_Object_Exists(uint32_t id);
+SSGEAPI bool SSGE_Object_Exists(uint32_t id);
 
 /**
  * Check if an object exists
  * \param name The name of the object
  * \return True if the object exists, false otherwise
  */
-SSGEDECL bool SSGE_Object_ExistsName(char *name);
+SSGEAPI bool SSGE_Object_ExistsName(char *name);
 
 /**
  * Draw an object
@@ -56,14 +56,14 @@ SSGEDECL bool SSGE_Object_ExistsName(char *name);
  * \note This function does not draw objects with animation
  * \note To update object with animations use `SSGE_Animation_Update` or `SSGE_Animation_UpdateAll`
  */
-SSGEDECL void SSGE_Object_Draw(SSGE_Object *object);
+SSGEAPI void SSGE_Object_Draw(SSGE_Object *object);
 
 /**
  * Draws all the objects
  * \note This function does not draw objects with animation
  * \note To update object with animations use `SSGE_Animation_Update` or `SSGE_Animation_UpdateAll`
  */
-SSGEDECL void SSGE_Object_DrawAll();
+SSGEAPI void SSGE_Object_DrawAll();
 
 /**
  * Move an object
@@ -71,27 +71,27 @@ SSGEDECL void SSGE_Object_DrawAll();
  * \param x The new x coordinate
  * \param y The new y coordinate
  */
-SSGEDECL void SSGE_Object_Move(SSGE_Object *object, int x, int y);
+SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y);
 
 /**
  * Bind a texture to an object
  * \param object The object to bind the texture to
  * \param texture The new texture of the object
  */
-SSGEDECL void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture);
+SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture);
 
 /**
  * Bind an animation to an object
  * \param object The object to bind the animation to
  * \param animation The new animation of the texture
  */
-SSGEDECL void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation);
+SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation);
 
 /**
  * Remove the texure of an object
  * \param object The object to remove the texture of
  */
-SSGEDECL void SSGE_Object_RemoveSprite(SSGE_Object *object);
+SSGEAPI void SSGE_Object_RemoveSprite(SSGE_Object *object);
 #define SSGE_Object_RemoveTexture SSGE_Object_RemoveSprite
 #define SSGE_Object_RemoveAnim SSGE_Object_RemoveSprite
 
@@ -100,31 +100,31 @@ SSGEDECL void SSGE_Object_RemoveSprite(SSGE_Object *object);
  * \param id The id of the object
  * \return The object
  */
-SSGEDECL SSGE_Object *SSGE_Object_Get(uint32_t id);
+SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id);
 
 /**
  * Get an object by name
  * \param name The name of the object
  * \return The object with the given name
  */
-SSGEDECL SSGE_Object *SSGE_Object_GetName(char *name);
+SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name);
 
 /**
  * Destroy an object by id
  * \param id The id of the object
  */
-SSGEDECL void SSGE_Object_Destroy(uint32_t id);
+SSGEAPI void SSGE_Object_Destroy(uint32_t id);
 
 /**
  * Destroy all objects with a given name
  * \param name The name of the object
  */
-SSGEDECL void SSGE_Object_DestroyName(char *name);
+SSGEAPI void SSGE_Object_DestroyName(char *name);
 
 /**
  * Destroy all objects
  */
-SSGEDECL void SSGE_Object_DestroyAll();
+SSGEAPI void SSGE_Object_DestroyAll();
 
 /**
  * Check if a hitbox is colliding with another hitbox
@@ -132,7 +132,7 @@ SSGEDECL void SSGE_Object_DestroyAll();
  * \param hitbox2 The second hitbox
  * \return True if the hitboxes are colliding, false otherwise
  */
-SSGEDECL bool SSGE_Hitbox_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2);
+SSGEAPI bool SSGE_Hitbox_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2);
 
 #ifdef __cplusplus
 }
