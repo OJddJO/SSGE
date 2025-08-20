@@ -3,7 +3,7 @@
 #include "game.h"
 
 static void init_game(Game *game);
-static void create_hitboxes(uint32_t *hitboxes);
+static void create_hitboxes(uint32_t hitboxes[3][3]);
 static int check_winner(Game *game);
 
 static void update(Game *game);
@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     // Run the engine
     SSGE_Audio_Play(start, -1);
 
-    SSGE_Run(update, draw, event_handler, &game);
+    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, (SSGE_EventHandler)event_handler, &game, true);
 
     // Quit the engine
     SSGE_Quit();
@@ -54,12 +54,12 @@ int main(int argc, char *argv[]) {
  * Create hitboxes for the tic-tac-toe grid
  * \note The hitboxes are created as objects with the name "hitbox_i_j" where i and j are the row and column of the hitbox
  */
-static void create_hitboxes(uint32_t *hitboxes) {
-    for (int i = 0; i < 3; i++) {
-        for (int j = 0; j < 3; j++) {
+static void create_hitboxes(uint32_t hitboxes[3][3]) {
+    for (short i = 0; i < 3; i++) {
+        for (short j = 0; j < 3; j++) {
             char name[30];
             sprintf(name, "hitbox_%d_%d", i, j);
-            SSGE_Object_Create(&hitboxes[i*3+j], name, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, true, NULL, NULL);
+            SSGE_Object_Create(&hitboxes[i][j], name, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, true, NULL, NULL);
         }
     }
 }
@@ -69,9 +69,11 @@ static void create_hitboxes(uint32_t *hitboxes) {
  * \param game The game struct to init
  */
 static void init_game(Game *game) {
-    for (short i = 0; i < 9; i++) {
-        game->hitboxes[i] = 0;
-        game->matrix[i/3][i%3] = 0; // fill matrix with 0s
+    for (short i = 0; i < 3; i++) {
+        for (short j = 0; j < 3; j++) {
+            game->hitboxes[i][j] = 0;
+            game->matrix[i][j] = 0; // fill matrix with 0s
+        }
     }
 
     game->current_player = 1;
@@ -172,14 +174,15 @@ static void event_handler(SSGE_Event event, Game *game) {
 
                 // check if a hitbox is clicked
                 SSGE_Object *hitbox = SSGE_GetHoveredObject();
-                if (hitbox != NULL && game->matrix[i][j] == 0) {
+                if (hitbox != NULL) {
                     // play the click sound
                     SSGE_Audio_Play(SSGE_Audio_Get(A_CLICK), -1);
                     // update the game datas
                     game->matrix[i][j] = game->current_player;
                     game->current_player = game->current_player == 1 ? 2 : 1;
                     game->turn++;
-                    // update the game
+                    SSGE_Object_Destroy(game->hitboxes[i][j]);
+                    // update the screen
                     SSGE_ManualUpdate(); // note that we used SSGE_SetManualUpdate(true) in the main function
                 }
             } else { // if the game is over

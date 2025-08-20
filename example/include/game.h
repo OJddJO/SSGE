@@ -12,7 +12,7 @@
 #define WIN_H MAP_H * TILE_SIZE
 
 typedef struct _Game {
-    uint32_t hitboxes[9];
+    uint32_t hitboxes[3][3];
     int matrix[3][3];
     int current_player;
     int winner;

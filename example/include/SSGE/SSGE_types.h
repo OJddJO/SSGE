@@ -38,7 +38,15 @@ typedef enum {
 } SSGE_Flip;
 
 /*************************************************
- * SSGE Structures
+ * SSGE Types
+ *************************************************/
+
+typedef void (*SSGE_UpdateFunc)(void *);
+typedef void (*SSGE_DrawFunc)(void *);
+typedef void (*SSGE_EventHandler)(SSGE_Event, void *);
+
+/*************************************************
+ * SSGE Structures / Enums
  *************************************************/
 
 // Engine struct
