@@ -61,6 +61,20 @@ SSGEAPI void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametim
 SSGEAPI void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t frametime, SSGE_Tilemap *tilemap, int row, int col);
 
 /**
+ * Get an animation
+ * \param id The id of the animation
+ * \return The animation
+ */
+SSGEAPI SSGE_Animation *SSGE_Animation_Get(uint32_t id);
+
+/**
+ * Get an animation by its name
+ * \param name The name of the animation
+ * \return The animation
+ */
+SSGEAPI SSGE_Animation *SSGE_Animation_GetName(char *name);
+
+/**
  * Play an animation
  * \param animation The animation to play
  * \param x The x coordinate where to play the animation

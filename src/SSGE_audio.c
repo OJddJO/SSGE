@@ -13,25 +13,25 @@ SSGEAPI SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name) 
     if (audio->audio == NULL) 
         SSGE_ErrorEx("Failed to load audio: %s", Mix_GetError());
 
-    _add_to_list(&_audio_list, audio, name, id, __func__);
+    _add_to_list(&_audioList, audio, name, id, __func__);
     return audio;
 }
 
 SSGEAPI SSGE_Audio *SSGE_Audio_Get(uint32_t id) {
     _assert_engine_init
-    SSGE_Audio *ptr = SSGE_Array_Get(&_audio_list, id);
+    SSGE_Audio *ptr = SSGE_Array_Get(&_audioList, id);
     if (ptr == NULL) 
         SSGE_ErrorEx("Audio not found: %u", id)
     return ptr;
 }
 
-static bool _find_audio_name(void *ptr, void *name) {
+inline static bool _find_audio_name(void *ptr, void *name) {
     return strcmp(((SSGE_Audio *)ptr)->name, (char *)name) == 0;
 }
 
 SSGEAPI SSGE_Audio *SSGE_Audio_GetName(char *name) {
     _assert_engine_init
-    SSGE_Audio *ptr = (SSGE_Audio *)SSGE_Array_Find(&_audio_list, _find_audio_name, name);
+    SSGE_Audio *ptr = (SSGE_Audio *)SSGE_Array_Find(&_audioList, _find_audio_name, name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Audio not found: %s", name)
     return ptr;
@@ -63,7 +63,7 @@ SSGEAPI void SSGE_Audio_Stop(int channel) {
 
 SSGEAPI void SSGE_Audio_Close(uint32_t id) {
     _assert_engine_init
-    SSGE_Audio *audio = SSGE_Array_Pop(&_audio_list, id);
+    SSGE_Audio *audio = SSGE_Array_Pop(&_audioList, id);
     if (audio == NULL) 
         SSGE_ErrorEx("Audio not found: %u", id)
     _destroy_audio(audio);
@@ -71,7 +71,7 @@ SSGEAPI void SSGE_Audio_Close(uint32_t id) {
 
 SSGEAPI void SSGE_Audio_CloseName(char *name) {
     _assert_engine_init
-    SSGE_Audio *audio = SSGE_Array_FindPop(&_audio_list, _find_audio_name, name);
+    SSGE_Audio *audio = SSGE_Array_FindPop(&_audioList, _find_audio_name, name);
     if (audio == NULL) 
         SSGE_ErrorEx("Audio not found: %s", name)
     _destroy_audio(audio);
@@ -79,6 +79,6 @@ SSGEAPI void SSGE_Audio_CloseName(char *name) {
 
 SSGEAPI void SSGE_Audio_CloseAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_audio_list, _destroy_audio);
-    SSGE_Array_Create(&_audio_list);
+    SSGE_Array_Destroy(&_audioList, _destroy_audio);
+    SSGE_Array_Create(&_audioList);
 }

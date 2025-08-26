@@ -18,10 +18,26 @@ SSGE_LIB	= -L $(OSDIR)/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixe
 INCLUDE		= -I ../include
 EXTRA		= -Werror -Wall #-mwindows
 
-all: create_dirs link
+all: create_dirs setup link
 	@echo Done
 
 remake: clean all
+
+setup:
+	@echo "Setting up SSGE..."
+	@echo "Copying SSGE files to the project directory..."
+	@echo "This may take a while, please wait..."
+ifeq ($(OS),Windows_NT)
+	@erase /q $(OSDIR)\bin\SSGE.dll
+	@copy /y ..\$(OSDIR)\bin\ $(OSDIR)\bin\ 
+	@erase /q $(OSDIR)\lib\ 
+	@xcopy /y /s ..\$(OSDIR)\lib\ $(OSDIR)\lib\ 
+else
+	@rm -f $(OSDIR)/libSSGE.so
+	@cp ../$(OSDIR)/bin/ $(OSDIR)/bin/ 
+	@rm -rf $(OSDIR)/lib
+	@cp -r ../$(OSDIR)/lib $(OSDIR)/lib
+endif
 
 clean:
 	@echo Cleaning up...

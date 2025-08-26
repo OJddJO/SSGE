@@ -1,6 +1,6 @@
 #include <stdlib.h>
 
-#include "SSGE/SSGE_array.h"
+#include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_error.h"
 
 #define _INITIAL_SIZE 256

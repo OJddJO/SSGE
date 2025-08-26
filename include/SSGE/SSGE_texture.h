@@ -61,17 +61,7 @@ SSGEAPI void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, i
  * \param center The center of the rotation, can be NULL
  * \param flip The flip of the texture
  */
-SSGEAPI void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip);
-
-/**
- * Draw a texture from a file
- * \param filename The texture to draw
- * \param x The x coordinate at which the texture is drawn
- * \param y The y coordinate at which the texture is drawn
- * \param width The width of the texture
- * \param height The height of the texture
- */
-SSGEAPI void SSGE_Texture_DrawFile(char *filename, int x, int y, int width, int height);
+SSGEAPI void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point center, SSGE_Flip flip);
 
 /**
  * Destroy a texture

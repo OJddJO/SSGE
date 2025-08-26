@@ -11,7 +11,8 @@ SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, 
         SSGE_Error("Failed to allocate memory for object")
 
     object->spriteType = SSGE_SPRITE_STATIC;
-    object->texture = NULL;
+    object->texture.texture = NULL;
+    object->texture.blendDataIdx = 0;
     object->x = x;
     object->y = y;
     object->width = width;
@@ -20,7 +21,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, 
     object->data = data;
     object->destroyData = destroyData;
 
-    _add_to_list(&_object_list, object, name, id, __func__);
+    _add_to_list(&_objectList, object, name, id, __func__);
     return object;
 }
 
@@ -36,50 +37,18 @@ SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *
 
 SSGEAPI bool SSGE_Object_Exists(uint32_t id) {
     _assert_engine_init
-    SSGE_Object *ptr = SSGE_Array_Get(&_object_list, id);
+    SSGE_Object *ptr = SSGE_Array_Get(&_objectList, id);
     return ptr == NULL ? false : true;
 }
 
-static bool _find_object_name(void *ptr, void *name) {
+inline static bool _find_object_name(void *ptr, void *name) {
     return strcmp(((SSGE_Object *)ptr)->name, (char *)name) == 0 ;
 }
 
 SSGEAPI bool SSGE_Object_ExistsName(char *name) {
     _assert_engine_init
-    SSGE_Object *ptr = SSGE_Array_Find(&_object_list, _find_object_name, name);
+    SSGE_Object *ptr = SSGE_Array_Find(&_objectList, _find_object_name, name);
     return ptr == NULL ? false : true;
-}
-
-SSGEAPI void SSGE_Object_Draw(SSGE_Object *object) {
-    _assert_engine_init
-    if (object->width == 0 || object->height == 0 ||
-        object->spriteType == SSGE_SPRITE_ANIM) return;
-
-    if (object->spriteType == SSGE_SPRITE_STATIC) {
-        SSGE_Texture *texture = object->texture;
-        if (texture == NULL)
-            return;
-        SDL_Rect rect = {object->x + texture->anchorX, object->y + texture->anchorY, object->width, object->height};
-        SDL_RenderCopy(_engine.renderer, texture->texture, NULL, &rect);
-    }
-}
-
-SSGEAPI void SSGE_Object_DrawAll() {
-    _assert_engine_init
-    for (uint32_t i = 0; i < _object_list.count; i++) {
-        SSGE_Object *object = SSGE_Array_Get(&_object_list, i);
-        if (object == NULL) continue;
-
-        if (object->width == 0 || object->height == 0 ||
-            object->spriteType == SSGE_SPRITE_ANIM) continue;
-
-        if (object->spriteType == SSGE_SPRITE_STATIC) {
-            SSGE_Texture *texture = object->texture;
-            if (texture == NULL) continue;
-            SDL_Rect rect = {object->x + texture->anchorX, object->y + texture->anchorY, object->width, object->height};
-            SDL_RenderCopy(_engine.renderer, texture->texture, NULL, &rect);
-        }
-    }
 }
 
 SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
@@ -88,29 +57,46 @@ SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
     object->y = y;
     if (object->spriteType == SSGE_SPRITE_ANIM)
         SSGE_Animation_Move(object->animation, x, y);
+    else if (object->spriteType == SSGE_SPRITE_STATIC) {
+        _SSGE_RenderData *renderData = SSGE_Array_Get(&object->texture.texture->queue, object->texture.blendDataIdx);
+        renderData->x = x;
+        renderData->y = y;
+    }
 }
 
 SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture) {
     _assert_engine_init
     object->spriteType = SSGE_SPRITE_STATIC;
-    object->texture = texture;
+    _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
+    *renderData = (_SSGE_RenderData){
+        .x = object->x,
+        .y = object->y,
+        .width = object->width,
+        .height = object->height,
+        .once = false
+    };
+    object->texture.blendDataIdx = SSGE_Array_Add(&texture->queue, renderData);
+    object->texture.texture = texture;
 }
 
 SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation) {
     _assert_engine_init
+    if (object->spriteType == SSGE_SPRITE_STATIC)
+        free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.blendDataIdx));
     object->spriteType = SSGE_SPRITE_ANIM;
     object->animation = SSGE_Animation_Play(animation, object->x, object->y, -1, false, false);
 }
 
 SSGEAPI void SSGE_Object_RemoveSprite(SSGE_Object *object) {
     _assert_engine_init
-    object->spriteType = SSGE_SPRITE_STATIC;
-    object->texture = NULL;
+    if (object->spriteType == SSGE_SPRITE_STATIC)
+        free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.blendDataIdx));
+    object->spriteType = SSGE_SPRITE_NONE;
 }
 
 SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id) {
     _assert_engine_init
-    SSGE_Object *ptr = SSGE_Array_Get(&_object_list, id);
+    SSGE_Object *ptr = SSGE_Array_Get(&_objectList, id);
     if (ptr == NULL) 
         SSGE_ErrorEx("Object not found: %u", id)
     return ptr;
@@ -118,7 +104,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id) {
 
 SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name) {
     _assert_engine_init
-    SSGE_Object *ptr = SSGE_Array_Find(&_object_list, _find_object_name, name);
+    SSGE_Object *ptr = SSGE_Array_Find(&_objectList, _find_object_name, name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Object not found: %s", name)
     return ptr;
@@ -126,7 +112,7 @@ SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name) {
 
 SSGEAPI void SSGE_Object_Destroy(uint32_t id) {
     _assert_engine_init
-    SSGE_Object *object = SSGE_Array_Pop(&_object_list, id);
+    SSGE_Object *object = SSGE_Array_Pop(&_objectList, id);
     if (object == NULL)
         SSGE_ErrorEx("Object not found: %u", id)
     _destroy_object(object);
@@ -134,7 +120,7 @@ SSGEAPI void SSGE_Object_Destroy(uint32_t id) {
 
 SSGEAPI void SSGE_Object_DestroyName(char *name) {
     _assert_engine_init
-    SSGE_Object *object = SSGE_Array_FindPop(&_object_list, _find_object_name, name);
+    SSGE_Object *object = SSGE_Array_FindPop(&_objectList, _find_object_name, name);
     if (object == NULL) 
         SSGE_ErrorEx("Object not found: %s", name)
     _destroy_object(object);
@@ -142,8 +128,8 @@ SSGEAPI void SSGE_Object_DestroyName(char *name) {
 
 SSGEAPI void SSGE_Object_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_object_list, _destroy_object);
-    SSGE_Array_Create(&_object_list);
+    SSGE_Array_Destroy(&_objectList, _destroy_object);
+    SSGE_Array_Create(&_objectList);
 }
 
 SSGEAPI bool SSGE_Object_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2) {

@@ -15,7 +15,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name
     template->hitbox = hitbox;
     template->destroyData = destroyData;
 
-    _add_to_list(&_object_template_list, template, name, id, __func__);
+    _add_to_list(&_objectTemplateList, template, name, id, __func__);
     return template;
 }
 
@@ -31,25 +31,25 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, 
     template->hitbox = hitbox;
     template->destroyData = destroyData;
 
-    _add_to_list(&_object_template_list, template, name, id, __func__);
+    _add_to_list(&_objectTemplateList, template, name, id, __func__);
     return template;
 }
 
 SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Get(uint32_t id) {
     _assert_engine_init
-    SSGE_ObjectTemplate *ptr = SSGE_Array_Get(&_object_template_list, id);
+    SSGE_ObjectTemplate *ptr = SSGE_Array_Get(&_objectTemplateList, id);
     if (ptr == NULL) 
         SSGE_ErrorEx("Object template not found: %u", id)
     return ptr;
 }
 
-static bool _find_template_name(void *ptr, void *name) {
+inline static bool _find_template_name(void *ptr, void *name) {
     return strcmp(((SSGE_ObjectTemplate *)ptr)->name, name) == 0;
 }
 
 SSGEAPI SSGE_ObjectTemplate *SSGE_Template_GetName(char *name) {
     _assert_engine_init
-    SSGE_ObjectTemplate *ptr = SSGE_Array_Find(&_object_template_list, _find_template_name, name);
+    SSGE_ObjectTemplate *ptr = SSGE_Array_Find(&_objectTemplateList, _find_template_name, name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Object template not found: %s", name)
     return ptr;
@@ -57,7 +57,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_GetName(char *name) {
 
 SSGEAPI void SSGE_Template_Destroy(uint32_t id) {
     _assert_engine_init
-    SSGE_ObjectTemplate *template = SSGE_Array_Pop(&_object_template_list, id);
+    SSGE_ObjectTemplate *template = SSGE_Array_Pop(&_objectTemplateList, id);
     if (template == NULL) 
         SSGE_ErrorEx("Object template not found: %u", id)
     free(template->name);
@@ -66,7 +66,7 @@ SSGEAPI void SSGE_Template_Destroy(uint32_t id) {
 
 SSGEAPI void SSGE_Template_DestroyName(char *name) {
     _assert_engine_init
-    SSGE_ObjectTemplate *template = SSGE_Array_FindPop(&_object_template_list, _find_template_name, name);
+    SSGE_ObjectTemplate *template = SSGE_Array_FindPop(&_objectTemplateList, _find_template_name, name);
     if (template == NULL) 
         SSGE_ErrorEx("Object template not found: %s", name)
     free(template->name);
@@ -75,6 +75,6 @@ SSGEAPI void SSGE_Template_DestroyName(char *name) {
 
 SSGEAPI void SSGE_Template_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_object_template_list, _destroy_template);
-    SSGE_Array_Create(&_object_template_list);
+    SSGE_Array_Destroy(&_objectTemplateList, _destroy_template);
+    SSGE_Array_Create(&_objectTemplateList);
 }

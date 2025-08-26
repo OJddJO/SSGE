@@ -5,21 +5,22 @@
 #include "SSGE/SSGE_local.h"
 
 SSGE_Engine _engine             = {0};
-SSGE_Array _texture_list        = {0};
-SSGE_Array _object_list         = {0};
-SSGE_Array _object_template_list = {0};
-SSGE_Array _font_list           = {0};
-SSGE_Array _audio_list          = {0};
-SSGE_Array _animation_list      = {0};
+SSGE_Array _textureList         = {0};
+SSGE_Array _objectList          = {0};
+SSGE_Array _objectTemplateList  = {0};
+SSGE_Array _fontList            = {0};
+SSGE_Array _audioList           = {0};
+SSGE_Array _animationList       = {0};
 SSGE_Array _playingAnim         = {0};
 SSGE_Event _event               = {0};
 SSGE_Color _color               = {0, 0, 0, 255};
-SSGE_Color _bg_color            = {0, 0, 0, 255};
-bool _manual_update_frame       = false;
-bool _update_frame              = true; // set to true to draw the first frame
+SSGE_Color _bgColor             = {0, 0, 0, 255};
+bool _manualUpdateFrame         = false;
+bool _updateFrame               = true; // set to true to draw the first frame
 
 void _destroy_texture(void *ptr) {
     SDL_DestroyTexture(((SSGE_Texture *)ptr)->texture);
+    SSGE_Array_Destroy(&((SSGE_Texture *)ptr)->queue, free);
     free(((SSGE_Texture *)ptr)->name);
     free(ptr);
 }

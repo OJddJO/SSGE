@@ -51,21 +51,6 @@ SSGEAPI bool SSGE_Object_Exists(uint32_t id);
 SSGEAPI bool SSGE_Object_ExistsName(char *name);
 
 /**
- * Draw an object
- * \param object The object to draw
- * \note This function does not draw objects with animation
- * \note To update object with animations use `SSGE_Animation_Update` or `SSGE_Animation_UpdateAll`
- */
-SSGEAPI void SSGE_Object_Draw(SSGE_Object *object);
-
-/**
- * Draws all the objects
- * \note This function does not draw objects with animation
- * \note To update object with animations use `SSGE_Animation_Update` or `SSGE_Animation_UpdateAll`
- */
-SSGEAPI void SSGE_Object_DrawAll();
-
-/**
  * Move an object
  * \param object The object to move
  * \param x The new x coordinate

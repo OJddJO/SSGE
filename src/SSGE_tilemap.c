@@ -55,7 +55,7 @@ SSGEAPI SSGE_Texture *SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint1
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
 

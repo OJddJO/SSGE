@@ -18,15 +18,15 @@ SSGEAPI void SSGE_Font_Create(char *filename, int size, char *name) {
         SSGE_Error("Failed to allocate memory for font name")
     strcpy(font->name, name);
 
-    SSGE_Array_Add(&_font_list, font);
+    SSGE_Array_Add(&_fontList, font);
 }
 
-static bool _find_font_name(void *ptr, void *name) {
+inline static bool _find_font_name(void *ptr, void *name) {
     return strcmp(((SSGE_Font *)ptr)->name, (char *)name) == 0;
 }
 
 static SSGE_Font *_get_font(char *name, char *funcname) {
-    SSGE_Font *ptr = SSGE_Array_Find(&_font_list, _find_font_name, name);
+    SSGE_Font *ptr = SSGE_Array_Find(&_fontList, _find_font_name, name);
     if (ptr == NULL) {
         fprintf(stderr, "[SSGE][%s] Font not found: %s\n", funcname, name);
         exit(1);
@@ -36,7 +36,7 @@ static SSGE_Font *_get_font(char *name, char *funcname) {
 
 SSGEAPI void SSGE_Font_Close(char *name) {
     _assert_engine_init
-    SSGE_Font *font = SSGE_Array_FindPop(&_font_list, _find_font_name, name);
+    SSGE_Font *font = SSGE_Array_FindPop(&_fontList, _find_font_name, name);
     if (font == NULL) 
         SSGE_ErrorEx("Font not found: %s", name)
     _destroy_font(font);
@@ -44,8 +44,8 @@ SSGEAPI void SSGE_Font_Close(char *name) {
 
 SSGEAPI void SSGE_Font_CloseAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_font_list, _destroy_font);
-    SSGE_Array_Create(&_font_list);
+    SSGE_Array_Destroy(&_fontList, _destroy_font);
+    SSGE_Array_Create(&_fontList);
 }
 
 SSGEAPI void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor) {
@@ -132,6 +132,6 @@ SSGEAPI SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text,
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, textureName, id, __func__);
+    _add_to_list(&_textureList, texture, textureName, id, __func__);
     return texture;
 }

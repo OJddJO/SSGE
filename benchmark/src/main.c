@@ -5,7 +5,7 @@
 
 #define WWIDTH 1080
 #define WHEIGHT 720
-#define OBJPOW2 10
+#define OBJPOW2 13
 
 typedef struct _Game {
     clock_t start;
@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
     }
 
     data.start = clock();
-    SSGE_Run(update, draw, NULL, &data);
+    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, NULL, &data);
 
     SSGE_Quit();
     return 0;
@@ -48,8 +48,6 @@ void update(Game *game) {
 }
 
 void draw(Game *data) {
-    SSGE_Object_DrawAll();
-
     double fpt = (double)++data->frame / (double)(clock() - data->start);
     char fptchar[50];
     sprintf(fptchar, "Avg. FPT: %f", fpt);

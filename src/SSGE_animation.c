@@ -18,7 +18,7 @@ SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, ui
     anim->data.width = width;
     anim->data.height = height;
 
-    _add_to_list(&_animation_list, anim, name, id, __func__);
+    _add_to_list(&_animationList, anim, name, id, __func__);
     return anim;
 }
 
@@ -32,7 +32,7 @@ SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void
     anim->type = SSGE_ANIM_FUNCTION;
     anim->draw = draw;
 
-    _add_to_list(&_animation_list, anim, name, id, __func__);
+    _add_to_list(&_animationList, anim, name, id, __func__);
     return anim;
 }
 
@@ -84,6 +84,26 @@ SSGEAPI void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t f
 
     animation->data.frames[animation->data.currentCount] = frame;
     animation->data.frametimes[animation->data.currentCount++] = frametime;
+}
+
+SSGEAPI SSGE_Animation *SSGE_Animation_Get(uint32_t id) {
+    _assert_engine_init
+    SSGE_Animation *ptr = SSGE_Array_Get(&_animationList, id);
+    if (ptr == NULL)
+        SSGE_ErrorEx("Animation not found: %u", id)
+    return ptr;
+}
+
+inline static bool _find_animation_name(void *ptr, void *name) {
+    return strcmp(((SSGE_Animation *)ptr)->name, (char *)name) == 0;
+}
+
+SSGEAPI SSGE_Animation *SSGE_Animation_GetName(char *name) {
+    _assert_engine_init
+    SSGE_Animation *ptr = SSGE_Array_Find(&_animationList, _find_animation_name, name);
+    if (ptr == NULL)
+        SSGE_ErrorEx("Animation not found: %s", name)
+    return ptr;
 }
 
 SSGEAPI uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint32_t loop, bool reversed, bool pingpong) {

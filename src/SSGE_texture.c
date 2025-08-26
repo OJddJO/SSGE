@@ -16,13 +16,15 @@ SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *na
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    SSGE_Array_Create(&texture->queue);
+
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
 SSGEAPI SSGE_Texture *SSGE_Texture_Get(uint32_t id) {
     _assert_engine_init
-    SSGE_Texture *ptr = SSGE_Array_Get(&_texture_list, id);
+    SSGE_Texture *ptr = SSGE_Array_Get(&_textureList, id);
     if (ptr == NULL) 
         SSGE_ErrorEx("Texture not found: %u", id)
     return ptr;
@@ -34,7 +36,7 @@ static bool _find_texture_name(void *ptr, void *name) {
 
 SSGEAPI SSGE_Texture *SSGE_Texture_GetName(char *name) {
     _assert_engine_init
-    SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(&_texture_list, _find_texture_name, name);
+    SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(&_textureList, _find_texture_name, name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Texture not found: %s", name)
     return ptr;
@@ -48,29 +50,36 @@ SSGEAPI void SSGE_Texture_Anchor(SSGE_Texture *texture, int x, int y) {
 
 SSGEAPI void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, int height) {
     _assert_engine_init
-    SDL_Rect rect = {x + texture->anchorX, y + texture->anchorY, width, height};
-    SDL_RenderCopy(_engine.renderer, texture->texture, NULL, &rect);
+    _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
+    *renderData = (_SSGE_RenderData){
+        .x = x,
+        .y = y,
+        .width = width,
+        .height = height,
+        .once = true
+    };
+    SSGE_Array_Add(&texture->queue, renderData);
 }
 
-SSGEAPI void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point *center, SSGE_Flip flip) {
+SSGEAPI void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point center, SSGE_Flip flip) {
     _assert_engine_init
-    SDL_Rect rect = {x + texture->anchorX, y + texture->anchorY, width, height};
-    SDL_RenderCopyEx(_engine.renderer, texture->texture, NULL, &rect, angle, (SDL_Point *)&center, (SDL_RendererFlip)flip);
-}
-
-SSGEAPI void SSGE_Texture_DrawFile(char *filename, int x, int y, int width, int height) {
-    _assert_engine_init
-    SDL_Texture *texture = IMG_LoadTexture(_engine.renderer, filename);
-
-    SDL_Rect rect = {x, y, width, height};
-    SDL_RenderCopy(_engine.renderer, texture, NULL, &rect);
-
-    SDL_DestroyTexture(texture);
+    _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
+    *renderData = (_SSGE_RenderData){
+        .x = x,
+        .y = y,
+        .width = width,
+        .height = height,
+        .once = true,
+        .angle = angle,
+        .rotationCenter = center,
+        .flip = flip
+    };
+    SSGE_Array_Add(&texture->queue, renderData);
 }
 
 SSGEAPI void SSGE_Texture_Destroy(uint32_t id) {
     _assert_engine_init
-    SSGE_Texture *texture = SSGE_Array_Pop(&_texture_list, id);
+    SSGE_Texture *texture = SSGE_Array_Pop(&_textureList, id);
     if (texture == NULL) 
         SSGE_ErrorEx("Texture not found: %u", id)
     _destroy_texture(texture);
@@ -78,7 +87,7 @@ SSGEAPI void SSGE_Texture_Destroy(uint32_t id) {
 
 SSGEAPI void SSGE_Texture_DestroyName(char *name) {
     _assert_engine_init
-    SSGE_Texture *texture = SSGE_Array_FindPop(&_texture_list, _find_texture_name, name);
+    SSGE_Texture *texture = SSGE_Array_FindPop(&_textureList, _find_texture_name, name);
     if (texture == NULL) 
         SSGE_ErrorEx("Texture not found: %s", name)
     _destroy_texture(texture);
@@ -86,6 +95,6 @@ SSGEAPI void SSGE_Texture_DestroyName(char *name) {
 
 SSGEAPI void SSGE_Texture_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_texture_list, _destroy_texture);
-    SSGE_Array_Create(&_texture_list);
+    SSGE_Array_Destroy(&_textureList, _destroy_texture);
+    SSGE_Array_Create(&_textureList);
 }

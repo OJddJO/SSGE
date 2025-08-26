@@ -18,15 +18,6 @@
 extern "C" {
 #endif
 
-typedef struct _SSGE_Array {
-    void        **array;    // Array of pointers
-    uint32_t    size;       // Size of the array
-    uint32_t    count;      // Number of elements in the array
-    uint32_t    *indexes;   // Pointer to the pile of unused indexes
-    uint32_t    idxSize;    // The size of the pile of indexes
-    uint32_t    idxCount;   // Number of unused indexes
-} SSGE_Array;
-
 /**
  * Creates a new array
  * \param array The array to initialize

@@ -55,12 +55,12 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
 
     SDL_SetRenderDrawColor(_engine.renderer, 0, 0, 0, 255);
 
-    SSGE_Array_Create(&_texture_list);
-    SSGE_Array_Create(&_object_list);
-    SSGE_Array_Create(&_object_template_list);
-    SSGE_Array_Create(&_font_list);
-    SSGE_Array_Create(&_audio_list);
-    SSGE_Array_Create(&_animation_list);
+    SSGE_Array_Create(&_textureList);
+    SSGE_Array_Create(&_objectList);
+    SSGE_Array_Create(&_objectTemplateList);
+    SSGE_Array_Create(&_fontList);
+    SSGE_Array_Create(&_audioList);
+    SSGE_Array_Create(&_animationList);
     SSGE_Array_Create(&_playingAnim);
 
     _engine.isRunning = false;
@@ -75,12 +75,12 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
 SSGEAPI void SSGE_Quit() {
     _assert_engine_init
 
-    SSGE_Array_Destroy(&_texture_list, _destroy_texture);
-    SSGE_Array_Destroy(&_object_list, _destroy_object);
-    SSGE_Array_Destroy(&_object_template_list, _destroy_template);
-    SSGE_Array_Destroy(&_font_list, _destroy_font);
-    SSGE_Array_Destroy(&_audio_list, _destroy_audio);
-    SSGE_Array_Destroy(&_animation_list, _destroy_animation);
+    SSGE_Array_Destroy(&_textureList, _destroy_texture);
+    SSGE_Array_Destroy(&_objectList, _destroy_object);
+    SSGE_Array_Destroy(&_objectTemplateList, _destroy_template);
+    SSGE_Array_Destroy(&_fontList, _destroy_font);
+    SSGE_Array_Destroy(&_audioList, _destroy_audio);
+    SSGE_Array_Destroy(&_animationList, _destroy_animation);
     SSGE_Array_Destroy(&_playingAnim, free);
 
     SDL_DestroyRenderer(_engine.renderer);
@@ -90,51 +90,34 @@ SSGEAPI void SSGE_Quit() {
     SDL_Quit();
 }
 
-// For update threading
-static SDL_mutex *_updateMutex;
-static SDL_cond *_updateCond;
-static bool _updateDone = 0;
-typedef struct _updThreadData {
-    void (*update)(void *);
-    void *data;
-} updThreadData;
-
-static int updateThreadFunc(void *data) {
-    while (_engine.isRunning) {
-        SDL_LockMutex(_updateMutex);
-        while (_updateDone)
-            SDL_CondWait(_updateCond, _updateMutex);
-
-        ((updThreadData *)data)->update(((updThreadData *)data)->data);
-        _updateDone = 1;
-        SDL_CondSignal(_updateCond);
-        SDL_UnlockMutex(_updateMutex);
+inline static void _render_textures() {
+    for (int i = 0; i < _textureList.count; i++) {
+        SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
+        if (texture->queue.count == 0)
+            continue;
+        SDL_Texture *sdlTexture = texture->texture;
+        SSGE_Array queue = texture->queue;
+        for (int j = 0; j < queue.count; j++) {
+            _SSGE_RenderData *data = SSGE_Array_Get(&queue, j);
+            if (data->width == 0 || data->height == 0) continue;
+            SDL_Rect rect = {data->x + texture->anchorX, data->y + texture->anchorY, data->width, data->height};
+            if (data->angle == 0 && data->flip == 0)
+                SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &rect);
+            else
+                SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &rect, data->angle, (SDL_Point *)&data->rotationCenter, data->flip);
+            if (data->destroyTexture) 
+            if (data->once) free(SSGE_Array_Pop(&queue, j)); // free the render data if once is set
+        }
     }
-    return 0;
 }
 
-SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data, bool nothread) {
+SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data) {
     _assert_engine_init
-
-    if (update && !nothread) { // initialization of thread
-        _updateMutex = SDL_CreateMutex();
-        _updateCond = SDL_CreateCond();
-        _updateDone = 0;
-
-        if (SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "Update Thread", (&(updThreadData){update, data})) == NULL)
-            SSGE_Error("Could not create 'update' thread")
-    }
 
     uint32_t frameStart;
     int frameTime;
 
     _engine.isRunning = true;
-
-    if (update && !nothread) { // first update
-        SDL_LockMutex(_updateMutex);
-        _updateDone = 0;
-        SDL_CondSignal(_updateCond);
-    }
 
     while (_engine.isRunning) {
         frameStart = SDL_GetTicks();
@@ -146,32 +129,19 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
                 eventHandler(_event, data);
         }
 
-        if (update) {
-            if (!nothread) { // Synchronize update thread with main thread
-                while (!_updateDone)
-                    SDL_CondWait(_updateCond, _updateMutex);
-                SDL_UnlockMutex(_updateMutex);
-            } else {
-                update(data);
-            }
-        }
+        if (update) update(data);
 
-        if (_update_frame || !_manual_update_frame) {
-            SDL_SetRenderDrawColor(_engine.renderer, _bg_color.r, _bg_color.g, _bg_color.b, _bg_color.a);
+        if (_updateFrame || !_manualUpdateFrame) {
+            SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);
             SDL_RenderClear(_engine.renderer);
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
+            _render_textures();
             if (draw) draw(data);
         }
 
-        if (update && !nothread) { // Run the update function
-            SDL_LockMutex(_updateMutex);
-            _updateDone = 0;
-            SDL_CondSignal(_updateCond);
-        }
-
-        if (_update_frame || !_manual_update_frame) {
+        if (_updateFrame || !_manualUpdateFrame) {
             SDL_RenderPresent(_engine.renderer);
-            _update_frame = false;
+            _updateFrame = false;
         }
 
         frameTime = SDL_GetTicks() - frameStart;
@@ -213,11 +183,11 @@ SSGEAPI void SSGE_WindowFullscreen(bool fullscreen) {
 
 SSGEAPI void SSGE_SetManualUpdate(bool manualUpdate) {
     _assert_engine_init
-    _manual_update_frame = manualUpdate;
+    _manualUpdateFrame = manualUpdate;
 }
 
 SSGEAPI void SSGE_ManualUpdate() {
-    _update_frame = true;
+    _updateFrame = true;
 }
 
 SSGEAPI void SSGE_SetColor(SSGE_Color color) {
@@ -228,7 +198,7 @@ SSGEAPI void SSGE_SetColor(SSGE_Color color) {
 
 SSGEAPI void SSGE_SetBackgroundColor(SSGE_Color color) {
     _assert_engine_init
-    _bg_color = color;
+    _bgColor = color;
 }
 
 SSGEAPI void SSGE_GetMousePosition(int *x, int *y) {
@@ -254,7 +224,7 @@ SSGEAPI SSGE_Object *SSGE_GetHoveredObject() {
     int mousePos[2];
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);
 
-    return SSGE_Array_Find(&_object_list, (bool (*)(void *, void *))_is_hovered, mousePos);
+    return SSGE_Array_Find(&_objectList, (bool (*)(void *, void *))_is_hovered, mousePos);
 }
 
 SSGEAPI uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {
@@ -263,8 +233,8 @@ SSGEAPI uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);
     
     uint32_t i = 0, count = 0;
-    while ((i < _object_list.count || i >= _object_list.size) && count < size) {
-        SSGE_Object *obj = _object_list.array[i++];
+    while ((i < _objectList.count || i >= _objectList.size) && count < size) {
+        SSGE_Object *obj = _objectList.array[i++];
 
         if (obj != NULL && _is_hovered(obj, mousePos))
             objects[count++] = obj;

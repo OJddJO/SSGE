@@ -60,6 +60,16 @@ typedef struct _SSGE_Engine {
     bool                initialized; // If the `SSGE_Engine` has been initialized
 } SSGE_Engine;
 
+// Array struct
+typedef struct _SSGE_Array {
+    void        **array;    // Array of pointers
+    uint32_t    size;       // Size of the array
+    uint32_t    count;      // Number of elements in the array
+    uint32_t    *indexes;   // Pointer to the pile of unused indexes
+    uint32_t    idxSize;    // The size of the pile of indexes
+    uint32_t    idxCount;   // Number of unused indexes
+} SSGE_Array;
+
 // Texture struct
 typedef struct _SSGE_Texture {
     char                *name;      // The name of the texture
@@ -67,7 +77,20 @@ typedef struct _SSGE_Texture {
     struct SDL_Texture  *texture;   // The SDL_Texture
     int                 anchorX;    // Anchor x coordinate (relative to the texture)
     int                 anchorY;    // Anchor y coordinate (relative to the texture)
+    SSGE_Array          queue;      // Queue of every render call for this texture
 } SSGE_Texture;
+
+typedef struct _SSGE_RenderData {
+    int         x;
+    int         y;
+    uint16_t    width;
+    uint16_t    height;
+    bool        once;
+    bool        destroyTexture;
+    SSGE_Flip   flip;
+    SSGE_Point  rotationCenter;
+    double      angle;
+} _SSGE_RenderData;
 
 typedef enum _SSGE_AnimationType {
     SSGE_ANIM_FRAMES = 0,
@@ -116,7 +139,8 @@ typedef struct _SSGE_AnimationState {
 
 typedef enum _SSGE_SpriteType {
     SSGE_SPRITE_STATIC = 0,
-    SSGE_SPRITE_ANIM
+    SSGE_SPRITE_ANIM,
+    SSGE_SPRITE_NONE
 } SSGE_SpriteType;
 
 // Object struct
@@ -130,7 +154,10 @@ typedef struct _SSGE_Object {
     bool            hitbox;     // If the object has a hitbox
     SSGE_SpriteType spriteType; // If the sprite is animated or static
     union {
-        SSGE_Texture        *texture;   // The texture of the object
+        struct {
+            SSGE_Texture        *texture;   // The texture of the object
+            uint32_t            blendDataIdx; // The index of the blend data in the texture render queue
+        } texture;
         uint32_t            animation;  // The id of the animation state
     };
     void            *data;      // The data of the object

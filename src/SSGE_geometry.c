@@ -113,7 +113,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, int x1, int y1, 
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -139,7 +139,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, int x1, int y1, 
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -165,7 +165,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, int x, int y, 
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -191,7 +191,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, int x, int y,
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -217,7 +217,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, int x1, int
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -245,7 +245,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, int x1, int
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -271,7 +271,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, int x, in
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -297,6 +297,6 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, int x, i
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_texture_list, texture, name, id, __func__);
+    _add_to_list(&_textureList, texture, name, id, __func__);
     return texture;
 }
