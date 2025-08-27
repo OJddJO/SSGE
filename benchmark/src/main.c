@@ -2,22 +2,31 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 #define WWIDTH 1080
 #define WHEIGHT 720
 #define OBJPOW2 13
 
-typedef struct _Game {
+typedef struct _BenchData {
     clock_t start;
     uint64_t frame;
-} Game;
+    uint64_t update;
+} BenchData;
 
-Game data = {0};
-
-void update(Game *game);
-void draw(Game *data);
+void update(BenchData *game);
+void draw(BenchData *data);
 
 int main(int argc, char *argv[]) {
+    bool nothread = false;
+    for (int i = 0; i < argc; i++)
+    if (strcmp(argv[i], "nothread") == 0) {
+        puts("Threading disabled");
+        nothread = true;
+    }
+
+    BenchData data = {0};
+
     SSGE_Init("Benchmark", WWIDTH, WHEIGHT, 60);
     SSGE_WindowResizable(true);
     
@@ -35,22 +44,24 @@ int main(int argc, char *argv[]) {
     }
 
     data.start = clock();
-    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, NULL, &data);
+    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, NULL, &data, nothread);
 
     SSGE_Quit();
     return 0;
 }
 
-void update(Game *game) {
+void update(BenchData *data) {
     for (int i = 0; i < (1<<OBJPOW2); i++) {
         SSGE_Object_Move(SSGE_Object_Get(i), rand()%WWIDTH, rand()%WHEIGHT);
     }
+    ++data->update;
 }
 
-void draw(Game *data) {
+void draw(BenchData *data) {
     double fpt = (double)++data->frame / (double)(clock() - data->start);
+    double upt = data->update / (double)(clock() - data->start);
     char fptchar[50];
-    sprintf(fptchar, "Avg. FPT: %f", fpt);
+    sprintf(fptchar, "Avg. FPT: %f | Avg. UPT: %f", fpt, upt);
     SSGE_Text_Draw("font", fptchar, 2, 2, (SSGE_Color){0, 0, 0, 255}, SSGE_NW);
     SSGE_Text_Draw("font", fptchar, 0, 0, (SSGE_Color){255, 255, 255, 255}, SSGE_NW);
 }

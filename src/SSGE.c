@@ -25,7 +25,7 @@ static int _event_filter(void *userdata, SDL_Event *event) {
 }
 
 SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
-    if (_engine.initialized)
+    if (_engine.initialized == true)
         SSGE_Error("Engine already initialized")
 
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -68,6 +68,7 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
     _engine.height = height;
     _engine.fps = fps;
     _engine.initialized = true;
+    _engine.maxFrameskip = _MAX_FRAMESKIP;
 
     return &_engine;
 }
@@ -111,16 +112,64 @@ inline static void _render_textures() {
     }
 }
 
-SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data) {
+// For update threading
+static SDL_mutex *_updateMutex;
+static SDL_cond *_updateCond;
+static bool _updateDone = 0;
+typedef struct _updThreadData {
+    void (*update)(void *);
+    void *data;
+    uint64_t *nextUpdate;
+    int *loops;
+} updThreadData;
+
+static int updateThreadFunc(void *data) {
+    while (_engine.isRunning) {
+        SDL_LockMutex(_updateMutex);
+        while (_updateDone)
+            SDL_CondWait(_updateCond, _updateMutex);
+
+        while (SDL_GetTicks64() > *((updThreadData *)data)->nextUpdate &&
+                (*((updThreadData *)data)->loops)++ < _engine.maxFrameskip)
+            ((updThreadData *)data)->update(((updThreadData *)data)->data);
+
+        _updateDone = 1;
+        SDL_CondSignal(_updateCond);
+        SDL_UnlockMutex(_updateMutex);
+    }
+    return 0;
+}
+
+SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data, bool nothread) {
     _assert_engine_init
 
-    uint32_t frameStart;
-    int frameTime;
+    uint64_t frameStart;
+    double targetFrameTime = 1000.0 / (double)_engine.fps;
+    uint64_t nextUpdate = SDL_GetTicks64();
+    int loops;
+
+    updThreadData threadData = {update, data, &nextUpdate, &loops};
+
+    if (update && !nothread) { // initialization of thread
+        _updateMutex = SDL_CreateMutex();
+        _updateCond = SDL_CreateCond();
+        _updateDone = 0;
+
+        if (SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "SSGE Update Thread", &threadData) == NULL)
+            SSGE_Error("Could not create 'update' thread")
+    }
 
     _engine.isRunning = true;
 
+    if (update && !nothread) { // first update
+        SDL_LockMutex(_updateMutex);
+        _updateDone = 0;
+        SDL_CondSignal(_updateCond);
+    }
+
     while (_engine.isRunning) {
-        frameStart = SDL_GetTicks();
+        frameStart = SDL_GetTicks64();
+        loops = 0;
 
         while (SDL_PollEvent((SDL_Event *)&_event)) {
             if (_event.type == SDL_QUIT)
@@ -129,7 +178,16 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
                 eventHandler(_event, data);
         }
 
-        if (update) update(data);
+        if (update) {
+            if (!nothread) { // Synchronize update thread with main thread
+                while (!_updateDone)
+                    SDL_CondWait(_updateCond, _updateMutex);
+                SDL_UnlockMutex(_updateMutex);
+            } else while (SDL_GetTicks64() > nextUpdate && loops++ < _engine.maxFrameskip) {
+                update(data);
+                nextUpdate += (uint32_t)targetFrameTime;
+            }
+        }
 
         if (_updateFrame || !_manualUpdateFrame) {
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);
@@ -139,14 +197,20 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
             if (draw) draw(data);
         }
 
+        if (update && !nothread) { // Run the update function
+            SDL_LockMutex(_updateMutex);
+            _updateDone = 0;
+            SDL_CondSignal(_updateCond);
+        }
+
         if (_updateFrame || !_manualUpdateFrame) {
             SDL_RenderPresent(_engine.renderer);
             _updateFrame = false;
         }
 
-        frameTime = SDL_GetTicks() - frameStart;
-        if ((double)frameTime < (double)1000 / _engine.fps)
-            SDL_Delay((1000 / _engine.fps) - frameTime);
+        uint64_t frameTime = SDL_GetTicks64() - frameStart;
+        if ((double)frameTime < targetFrameTime)
+            SDL_Delay((uint32_t)(targetFrameTime - (double)frameTime));
     }
 }
 
@@ -179,6 +243,11 @@ SSGEAPI void SSGE_WindowResizable(bool resizable) {
 SSGEAPI void SSGE_WindowFullscreen(bool fullscreen) {
     _assert_engine_init
     SDL_SetWindowFullscreen(_engine.window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+}
+
+SSGEAPI void SSGE_SetFrameskipMax(uint8_t max) {
+    _assert_engine_init
+    _engine.maxFrameskip = max;
 }
 
 SSGEAPI void SSGE_SetManualUpdate(bool manualUpdate) {

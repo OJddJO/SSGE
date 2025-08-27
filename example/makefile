@@ -29,7 +29,7 @@ setup:
 	@echo "This may take a while, please wait..."
 ifeq ($(OS),Windows_NT)
 	@erase /q $(OSDIR)\SSGE.dll
-	@copy /y ..\$(OSDIR)\ $(OSDIR)\ 
+	@copy /y ..\$(OSDIR)\bin\SSGE.dll $(OSDIR)\SSGE.dll 
 	@erase /q include\SSGE\ 
 	@xcopy /y /s ..\include\SSGE\ include\SSGE\ 
 	@erase /q $(OSDIR)\lib\ 
