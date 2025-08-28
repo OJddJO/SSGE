@@ -51,13 +51,14 @@ typedef void (*SSGE_EventHandler)(SSGE_Event, void *);
 
 // Engine struct
 typedef struct _SSGE_Engine {
-    struct SDL_Window   *window;    // The window
-    struct SDL_Renderer *renderer;  // The renderer
-    uint16_t            width;      // The width of the window
-    uint16_t            height;     // The height of the window
-    uint16_t            fps;        // The frames per second
-    bool                isRunning;  // The running state of the engine
-    bool                initialized; // If the `SSGE_Engine` has been initialized
+    struct SDL_Window   *window;            // The window
+    struct SDL_Renderer *renderer;          // The renderer
+    uint16_t            width;              // The width of the window
+    uint16_t            height;             // The height of the window
+    uint16_t            fps;                // The frames per second
+    bool                isRunning;          // The running state of the engine
+    bool                initialized;        // If the `SSGE_Engine` has been initialized
+    uint8_t             maxFrameskip;       // Max frameskip, default to 3
 } SSGE_Engine;
 
 // Array struct

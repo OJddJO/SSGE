@@ -126,7 +126,7 @@ SSGEAPI void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
  */
 SSGEAPI void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
     uint32_t i = 0, count = 0;
-    while (count < array->count || count >= array->size) {
+    while (count < array->count && i < array->size) {
         void *element = array->array[i++];
 
         if (element == NULL) continue;
@@ -146,7 +146,7 @@ SSGEAPI void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void 
  */
 SSGEAPI void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
     uint32_t i = 0, count = 0;
-    while (count < array->count || count >= array->size) {
+    while (count < array->count && i < array->size) {
         void *element = array->array[i++];
 
         if (element == NULL) continue;
@@ -164,7 +164,7 @@ SSGEAPI void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, vo
  */
 SSGEAPI void SSGE_Array_Destroy(SSGE_Array *array, void (*destroyData)(void *)) {
     uint32_t i = 0, count = 0;
-    while (count < array->count || count >= array->size) {
+    while (count < array->count && i < array->size) {
         void *element = array->array[i++];
 
         if (element == NULL) continue;

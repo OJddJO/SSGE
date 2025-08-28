@@ -126,8 +126,14 @@ typedef struct _updThreadData {
 static int updateThreadFunc(void *data) {
     while (_engine.isRunning) {
         SDL_LockMutex(_updateMutex);
-        while (_updateDone)
+        while (_updateDone) {
             SDL_CondWait(_updateCond, _updateMutex);
+            if (!_engine.isRunning) {
+                SDL_CondSignal(_updateCond);
+                SDL_UnlockMutex(_updateMutex);
+                return 0;
+            }
+        }
 
         while (SDL_GetTicks64() > *((updThreadData *)data)->nextUpdate &&
                 (*((updThreadData *)data)->loops)++ < _engine.maxFrameskip)
@@ -172,8 +178,13 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
         loops = 0;
 
         while (SDL_PollEvent((SDL_Event *)&_event)) {
-            if (_event.type == SDL_QUIT)
+            if (_event.type == SDL_QUIT) {
                 _engine.isRunning = false;
+                if (update && !nothread)
+                    if (SDL_CondWait(_updateCond, _updateMutex) != 0)
+                        SSGE_ErrorEx("Failed to retrieve response from 'update' thread: %s", SDL_GetError())
+                return;
+            }
             if (eventHandler)
                 eventHandler(_event, data);
         }

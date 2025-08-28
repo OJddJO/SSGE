@@ -67,4 +67,9 @@ else
 	@cp $(DLL_BUILD) $(IMPLIB_BUILD)
 endif
 
+ubuntu-installsdl:
+	@echo Installing SDL2 ...
+	@sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
+	@echo Done
+
 .PHONY: all remake clean create_dirs static dll

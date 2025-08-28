@@ -86,6 +86,12 @@ SSGEAPI void SSGE_WindowResizable(bool resizable);
 SSGEAPI void SSGE_WindowFullscreen(bool fullscreen);
 
 /**
+ * Set the max number of frame to skip when frameskipping
+ * \param max The max to set
+ */
+SSGEAPI void SSGE_SetFrameskipMax(uint8_t max);
+
+/**
  * Set the manual update mode
  * \param manualUpdate True if the manual update mode should be enabled, false otherwise
  * \note This function should be called before the `SSGE_Run` function

@@ -4,15 +4,24 @@
 #ifndef __SSGE_CONFIG_H__
 #define __SSGE_CONFIG_H__
 
-#ifndef SSGE_STATIC
-    #define SSGEDECL __declspec(dllexport)
-    #define SSGEIMPORT __declspec(dllimport)
+#ifdef _WIN32
+    #ifndef SSGE_STATIC
+        #define SSGEDECL __declspec(dllexport)
+        #define SSGEIMPORT __declspec(dllimport)
+    #else
+        #define SSGEDECL
+        #define SSGEIMPORT
+    #endif
 #else
     #define SSGEDECL
     #define SSGEIMPORT
 #endif
 
-#define SSGECALL __cdecl
+#ifdef _WIN32
+    #define SSGECALL __cdecl
+#else
+    #define SSGECALL
+#endif
 
 #ifdef SSGE_BUILD
     #define SSGEAPI SSGEDECL SSGECALL

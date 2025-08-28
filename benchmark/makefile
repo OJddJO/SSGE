@@ -24,9 +24,9 @@ all: create_dirs setup link
 remake: clean all
 
 setup:
-	@echo "Setting up SSGE..."
-	@echo "Copying SSGE files to the project directory..."
-	@echo "This may take a while, please wait..."
+	@echo Setting up SSGE...
+	@echo Copying SSGE files to the project directory...
+	@echo This may take a while, please wait...
 ifeq ($(OS),Windows_NT)
 	@erase /q $(OSDIR)\bin\SSGE.dll
 	@copy /y ..\$(OSDIR)\bin\ $(OSDIR)\bin\ 
