@@ -68,8 +68,13 @@ else
 endif
 
 ubuntu-installsdl:
-	@echo Installing SDL2 ...
+	@echo Installing SDL2 (Ubuntu) ...
 	@sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
 	@echo Done
 
+arch-installsdl2:
+	@echo Installing SDL2 (Arch)...
+	@sudo pacman -Sq --noconfirm sdl2 sdl2_image sdl2_ttf sdl2_mixer
+	@echo Done
+	
 .PHONY: all remake clean create_dirs static dll

@@ -33,10 +33,10 @@ ifeq ($(OS),Windows_NT)
 	@erase /q $(OSDIR)\lib\ 
 	@xcopy /y /s ..\$(OSDIR)\lib\ $(OSDIR)\lib\ 
 else
-	@rm -f $(OSDIR)/libSSGE.so
-	@cp ../$(OSDIR)/bin/ $(OSDIR)/bin/ 
+	@rm -f $(OSDIR)/bin/libSSGE.so
+	@cp -f ../$(OSDIR)/bin/libSSGE.so $(OSDIR)/bin/libSSGE.so
 	@rm -rf $(OSDIR)/lib
-	@cp -r ../$(OSDIR)/lib $(OSDIR)/lib
+	@cp -rf ../$(OSDIR)/lib $(OSDIR)/lib
 endif
 
 clean:
@@ -65,5 +65,5 @@ link: $(OBJ)
 ifeq ($(OS),Windows_NT)
 	@gcc $(OBJ) -o $(EXE) $(LIB) $(SSGE_LIB) $(EXTRA)
 else
-	@gcc $(OBJ) -o $(EXE) $(LIB) $(SSGE_LIB) -Wl,-rpath='$$ORIGIN/lib' $(EXTRA)
+	@gcc $(OBJ) -o $(EXE) $(LIB) $(SSGE_LIB) -Wl,-rpath='$$ORIGIN' $(EXTRA)
 endif

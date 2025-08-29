@@ -123,21 +123,25 @@ typedef struct _updThreadData {
     int *loops;
 } updThreadData;
 
-static int updateThreadFunc(void *data) {
+static int updateThreadFunc(updThreadData *data) {
     while (_engine.isRunning) {
         SDL_LockMutex(_updateMutex);
-        while (_updateDone) {
+        while (_updateDone && _engine.isRunning)
             SDL_CondWait(_updateCond, _updateMutex);
-            if (!_engine.isRunning) {
-                SDL_CondSignal(_updateCond);
-                SDL_UnlockMutex(_updateMutex);
-                return 0;
-            }
-        }
 
-        while (SDL_GetTicks64() > *((updThreadData *)data)->nextUpdate &&
-                (*((updThreadData *)data)->loops)++ < _engine.maxFrameskip)
-            ((updThreadData *)data)->update(((updThreadData *)data)->data);
+        if (!_engine.isRunning) {
+            SDL_CondSignal(_updateCond);
+            SDL_UnlockMutex(_updateMutex);
+            return 0;
+        }
+        
+        uint64_t currentTime = SDL_GetTicks64();
+        double targetFrameTime = 1000.0 / (double)_engine.fps;
+
+        while (currentTime > *data->nextUpdate && (*data->loops)++ < _engine.maxFrameskip) {
+            data->update(data->data);
+            (*data->nextUpdate) += (uint64_t)targetFrameTime;
+        }
 
         _updateDone = 1;
         SDL_CondSignal(_updateCond);
@@ -180,9 +184,12 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
         while (SDL_PollEvent((SDL_Event *)&_event)) {
             if (_event.type == SDL_QUIT) {
                 _engine.isRunning = false;
-                if (update && !nothread)
+                if (update && !nothread) {
                     if (SDL_CondWait(_updateCond, _updateMutex) != 0)
                         SSGE_ErrorEx("Failed to retrieve response from 'update' thread: %s", SDL_GetError())
+                    SDL_DestroyMutex(_updateMutex);
+                    SDL_DestroyCond(_updateCond);
+                }
                 return;
             }
             if (eventHandler)
