@@ -1,11 +1,12 @@
 #include <stdlib.h>
+#include <stdatomic.h>
 
 #define SSGE_GET_SDL
 
 #include "SSGE/SSGE.h"
 #include "SSGE/SSGE_local.h"
 
-static int _event_filter(void *userdata, SDL_Event *event) {
+static int eventFilter(void *userdata, SDL_Event *event) {
     switch (event->type) {
         case SSGE_FIRSTEVENT:
         case SSGE_QUIT:
@@ -51,7 +52,7 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) 
         SSGE_ErrorEx("Failed to open audio device for playback: %s", SDL_GetError())
 
-    SDL_SetEventFilter(_event_filter, NULL);
+    SDL_SetEventFilter(eventFilter, NULL);
 
     SDL_SetRenderDrawColor(_engine.renderer, 0, 0, 0, 255);
 
@@ -69,19 +70,20 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
     _engine.fps = fps;
     _engine.initialized = true;
     _engine.maxFrameskip = _MAX_FRAMESKIP;
-
+    _engine.vsync = false;
+    
     return &_engine;
 }
 
 SSGEAPI void SSGE_Quit() {
     _assert_engine_init
 
-    SSGE_Array_Destroy(&_textureList, _destroy_texture);
-    SSGE_Array_Destroy(&_objectList, _destroy_object);
-    SSGE_Array_Destroy(&_objectTemplateList, _destroy_template);
-    SSGE_Array_Destroy(&_fontList, _destroy_font);
-    SSGE_Array_Destroy(&_audioList, _destroy_audio);
-    SSGE_Array_Destroy(&_animationList, _destroy_animation);
+    SSGE_Array_Destroy(&_textureList, destroyTexture);
+    SSGE_Array_Destroy(&_objectList, destroyObject);
+    SSGE_Array_Destroy(&_objectTemplateList, destroyTemplate);
+    SSGE_Array_Destroy(&_fontList, destroyFont);
+    SSGE_Array_Destroy(&_audioList, destroyAudio);
+    SSGE_Array_Destroy(&_animationList, destroyAnimation);
     SSGE_Array_Destroy(&_playingAnim, free);
 
     SDL_DestroyRenderer(_engine.renderer);
@@ -91,7 +93,17 @@ SSGEAPI void SSGE_Quit() {
     SDL_Quit();
 }
 
-inline static void _render_textures() {
+inline static bool isTextureVisible(int x, int y, int width, int height) {
+    // Check if object is completely outside viewport
+    if (x + width < 0) return false;
+    if (x > _engine.width) return false;
+    if (y + height < 0) return false;
+    if (y > _engine.height) return false;
+    
+    return true;
+}
+
+inline static void renderTextures() {
     for (int i = 0; i < _textureList.count; i++) {
         SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
         if (texture->queue.count == 0)
@@ -101,21 +113,21 @@ inline static void _render_textures() {
         for (int j = 0; j < queue.count; j++) {
             _SSGE_RenderData *data = SSGE_Array_Get(&queue, j);
             if (data->width == 0 || data->height == 0) continue;
+            if (!isTextureVisible(data->x, data->y, data->width, data->height)) continue;
+
             SDL_Rect rect = {data->x + texture->anchorX, data->y + texture->anchorY, data->width, data->height};
             if (data->angle == 0 && data->flip == 0)
                 SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &rect);
             else
                 SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &rect, data->angle, (SDL_Point *)&data->rotationCenter, data->flip);
-            if (data->destroyTexture) 
             if (data->once) free(SSGE_Array_Pop(&queue, j)); // free the render data if once is set
         }
     }
 }
 
 // For update threading
-static SDL_mutex *_updateMutex;
-static SDL_cond *_updateCond;
-static bool _updateDone = 0;
+static atomic_bool _updateReady = true; // Signal update thread to start
+static atomic_bool _updateDone = false; // Signal main thread that update is done
 typedef struct _updThreadData {
     void (*update)(void *);
     void *data;
@@ -124,28 +136,22 @@ typedef struct _updThreadData {
 } updThreadData;
 
 static int updateThreadFunc(updThreadData *data) {
+    double targetFrameTime = 1000.0 / (double)_engine.fps;
     while (_engine.isRunning) {
-        SDL_LockMutex(_updateMutex);
-        while (_updateDone && _engine.isRunning)
-            SDL_CondWait(_updateCond, _updateMutex);
+        while (!atomic_load(&_updateReady) && _engine.isRunning)
+            SDL_Delay(1);
 
-        if (!_engine.isRunning) {
-            SDL_CondSignal(_updateCond);
-            SDL_UnlockMutex(_updateMutex);
-            return 0;
-        }
+        if (!_engine.isRunning) return 0;
+
+        atomic_store(&_updateReady, false);
         
         uint64_t currentTime = SDL_GetTicks64();
-        double targetFrameTime = 1000.0 / (double)_engine.fps;
-
         while (currentTime > *data->nextUpdate && (*data->loops)++ < _engine.maxFrameskip) {
             data->update(data->data);
-            (*data->nextUpdate) += (uint64_t)targetFrameTime;
+            (*data->nextUpdate) += (uint32_t)(_engine.vsync ? (1000.0 / _engine.vsyncRate) : targetFrameTime);
         }
 
-        _updateDone = 1;
-        SDL_CondSignal(_updateCond);
-        SDL_UnlockMutex(_updateMutex);
+        atomic_store(&_updateDone, true);
     }
     return 0;
 }
@@ -156,39 +162,27 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
     uint64_t frameStart;
     double targetFrameTime = 1000.0 / (double)_engine.fps;
     uint64_t nextUpdate = SDL_GetTicks64();
-    int loops;
+    int loops = 0;
 
+    SDL_Thread *updateThread = NULL;
     updThreadData threadData = {update, data, &nextUpdate, &loops};
-
-    if (update && !nothread) { // initialization of thread
-        _updateMutex = SDL_CreateMutex();
-        _updateCond = SDL_CreateCond();
-        _updateDone = 0;
-
-        if (SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "SSGE Update Thread", &threadData) == NULL)
+    if (update && !nothread) { // initialization of thread     
+        updateThread = SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "SSGE Update Thread", &threadData);
+        if (updateThread == NULL)
             SSGE_Error("Could not create 'update' thread")
     }
 
     _engine.isRunning = true;
 
-    if (update && !nothread) { // first update
-        SDL_LockMutex(_updateMutex);
-        _updateDone = 0;
-        SDL_CondSignal(_updateCond);
-    }
-
     while (_engine.isRunning) {
         frameStart = SDL_GetTicks64();
-        loops = 0;
 
         while (SDL_PollEvent((SDL_Event *)&_event)) {
             if (_event.type == SDL_QUIT) {
                 _engine.isRunning = false;
                 if (update && !nothread) {
-                    if (SDL_CondWait(_updateCond, _updateMutex) != 0)
-                        SSGE_ErrorEx("Failed to retrieve response from 'update' thread: %s", SDL_GetError())
-                    SDL_DestroyMutex(_updateMutex);
-                    SDL_DestroyCond(_updateCond);
+                    atomic_store(&_updateReady, true);
+                    SDL_WaitThread(updateThread, NULL);
                 }
                 return;
             }
@@ -196,14 +190,13 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
                 eventHandler(_event, data);
         }
 
-        if (update) {
-            if (!nothread) { // Synchronize update thread with main thread
-                while (!_updateDone)
-                    SDL_CondWait(_updateCond, _updateMutex);
-                SDL_UnlockMutex(_updateMutex);
-            } else while (SDL_GetTicks64() > nextUpdate && loops++ < _engine.maxFrameskip) {
+        if (updateThread) { // Synchronize update thread with main thread
+            while (!atomic_load(&_updateDone)) SDL_Delay(0);
+        } else if (update) {
+            loops = 0;
+            while (SDL_GetTicks64() > nextUpdate && loops++ < _engine.maxFrameskip) {
                 update(data);
-                nextUpdate += (uint32_t)targetFrameTime;
+                nextUpdate += (uint32_t)(_engine.vsync ? (1000.0 / _engine.vsyncRate) : targetFrameTime);
             }
         }
 
@@ -211,14 +204,14 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);
             SDL_RenderClear(_engine.renderer);
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
-            _render_textures();
+            renderTextures();
             if (draw) draw(data);
         }
 
-        if (update && !nothread) { // Run the update function
-            SDL_LockMutex(_updateMutex);
-            _updateDone = 0;
-            SDL_CondSignal(_updateCond);
+        if (updateThread) { // Run the update function
+            loops = 0;
+            atomic_store(&_updateDone, false);
+            atomic_store(&_updateReady, true);
         }
 
         if (_updateFrame || !_manualUpdateFrame) {
@@ -226,6 +219,7 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
             _updateFrame = false;
         }
 
+        if (_engine.vsync) continue; // Skip frame limiter if vsync
         uint64_t frameTime = SDL_GetTicks64() - frameStart;
         if ((double)frameTime < targetFrameTime)
             SDL_Delay((uint32_t)(targetFrameTime - (double)frameTime));
@@ -255,17 +249,32 @@ SSGEAPI void SSGE_WindowResize(uint16_t width, uint16_t height) {
 
 SSGEAPI void SSGE_WindowResizable(bool resizable) {
     _assert_engine_init
-    SDL_SetWindowResizable(_engine.window, resizable ? SDL_TRUE : SDL_FALSE);
+    SDL_SetWindowResizable(_engine.window, resizable);
 }
 
 SSGEAPI void SSGE_WindowFullscreen(bool fullscreen) {
     _assert_engine_init
-    SDL_SetWindowFullscreen(_engine.window, fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+    SDL_SetWindowFullscreen(_engine.window, fullscreen);
 }
 
 SSGEAPI void SSGE_SetFrameskipMax(uint8_t max) {
     _assert_engine_init
     _engine.maxFrameskip = max;
+}
+
+SSGEAPI void SSGE_SetVSync(bool vsync) {
+    _assert_engine_init
+    if (SDL_RenderSetVSync(_engine.renderer, (_engine.vsync = vsync)) != 0) {
+        _engine.vsync = false;
+        SSGE_WarningEx("Failed to enable VSync, fallback to %d fps", _engine.fps);
+    }
+    if (vsync) {
+        SDL_DisplayMode mode;
+        int displayIndex = SDL_GetWindowDisplayIndex(_engine.window);
+        if (SDL_GetCurrentDisplayMode(displayIndex, &mode) == 0) {
+            _engine.vsyncRate = (uint32_t)mode.refresh_rate;
+        } else _engine.vsyncRate = (uint32_t)_engine.fps; // fallback to fps
+    }
 }
 
 SSGEAPI void SSGE_SetManualUpdate(bool manualUpdate) {

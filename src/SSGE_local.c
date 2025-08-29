@@ -18,38 +18,38 @@ SSGE_Color  _bgColor            = {0, 0, 0, 255};
 bool        _manualUpdateFrame  = false;
 bool        _updateFrame        = true; // set to true to draw the first frame
 
-void _destroy_texture(void *ptr) {
+void destroyTexture(void *ptr) {
     SDL_DestroyTexture(((SSGE_Texture *)ptr)->texture);
     SSGE_Array_Destroy(&((SSGE_Texture *)ptr)->queue, free);
     free(((SSGE_Texture *)ptr)->name);
     free(ptr);
 }
 
-void _destroy_object(void *ptr) {
+void destroyObject(void *ptr) {
     free(((SSGE_Object *)ptr)->name);
     if (((SSGE_Object *)ptr)->destroyData != NULL)
         ((SSGE_Object *)ptr)->destroyData(((SSGE_Object *)ptr)->data);
     free(ptr);
 }
 
-void _destroy_template(void *ptr) {
+void destroyTemplate(void *ptr) {
     free(((SSGE_ObjectTemplate *)ptr)->name);
     free(ptr);
 }
 
-void _destroy_font(void *ptr) {
+void destroyFont(void *ptr) {
     TTF_CloseFont(((SSGE_Font *)ptr)->font);
     free(((SSGE_Font *)ptr)->name);
     free(ptr);
 }
 
-void _destroy_audio(void *ptr) {
+void destroyAudio(void *ptr) {
     Mix_FreeChunk(((SSGE_Audio *)ptr)->audio);
     free(((SSGE_Audio *)ptr)->name);
     free(ptr);
 }
 
-void _destroy_animation(void *ptr) {
+void destroyAnimation(void *ptr) {
     if (((SSGE_Animation *)ptr)->type == SSGE_ANIM_FRAMES) {
         for (uint32_t i = 0; i < ((SSGE_Animation *)ptr)->data.frameCount; i++) {
             if (((SSGE_Animation *)ptr)->data.frames[i] != NULL) {

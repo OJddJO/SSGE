@@ -92,6 +92,12 @@ SSGEAPI void SSGE_WindowFullscreen(bool fullscreen);
 SSGEAPI void SSGE_SetFrameskipMax(uint8_t max);
 
 /**
+ * Set VSync state
+ * \param vsync If VSync should be enabled or disabled
+ */
+SSGEAPI void SSGE_SetVSync(bool vsync);
+
+/**
  * Set the manual update mode
  * \param manualUpdate True if the manual update mode should be enabled, false otherwise
  * \note This function should be called before the `SSGE_Run` function

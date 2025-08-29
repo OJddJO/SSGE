@@ -59,12 +59,12 @@ inline void _add_to_list(SSGE_Array *list, void *element, char *name, uint32_t *
     *id = (((DummyType *)element)->id = SSGE_Array_Add(list, element));
 }
 
-void _destroy_texture(void *ptr);
-void _destroy_object(void *ptr);
-void _destroy_template(void *ptr);
-void _destroy_font(void *ptr);
-void _destroy_audio(void *ptr);
-void _destroy_animation(void *ptr);
+void destroyTexture(void *ptr);
+void destroyObject(void *ptr);
+void destroyTemplate(void *ptr);
+void destroyFont(void *ptr);
+void destroyAudio(void *ptr);
+void destroyAnimation(void *ptr);
 
 #ifdef __cplusplus
 }

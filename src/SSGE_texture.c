@@ -82,7 +82,7 @@ SSGEAPI void SSGE_Texture_Destroy(uint32_t id) {
     SSGE_Texture *texture = SSGE_Array_Pop(&_textureList, id);
     if (texture == NULL) 
         SSGE_ErrorEx("Texture not found: %u", id)
-    _destroy_texture(texture);
+    destroyTexture(texture);
 }
 
 SSGEAPI void SSGE_Texture_DestroyName(char *name) {
@@ -90,11 +90,11 @@ SSGEAPI void SSGE_Texture_DestroyName(char *name) {
     SSGE_Texture *texture = SSGE_Array_FindPop(&_textureList, _find_texture_name, name);
     if (texture == NULL) 
         SSGE_ErrorEx("Texture not found: %s", name)
-    _destroy_texture(texture);
+    destroyTexture(texture);
 }
 
 SSGEAPI void SSGE_Texture_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_textureList, _destroy_texture);
+    SSGE_Array_Destroy(&_textureList, destroyTexture);
     SSGE_Array_Create(&_textureList);
 }

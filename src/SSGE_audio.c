@@ -66,7 +66,7 @@ SSGEAPI void SSGE_Audio_Close(uint32_t id) {
     SSGE_Audio *audio = SSGE_Array_Pop(&_audioList, id);
     if (audio == NULL) 
         SSGE_ErrorEx("Audio not found: %u", id)
-    _destroy_audio(audio);
+    destroyAudio(audio);
 }
 
 SSGEAPI void SSGE_Audio_CloseName(char *name) {
@@ -74,11 +74,11 @@ SSGEAPI void SSGE_Audio_CloseName(char *name) {
     SSGE_Audio *audio = SSGE_Array_FindPop(&_audioList, _find_audio_name, name);
     if (audio == NULL) 
         SSGE_ErrorEx("Audio not found: %s", name)
-    _destroy_audio(audio);
+    destroyAudio(audio);
 }
 
 SSGEAPI void SSGE_Audio_CloseAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_audioList, _destroy_audio);
+    SSGE_Array_Destroy(&_audioList, destroyAudio);
     SSGE_Array_Create(&_audioList);
 }

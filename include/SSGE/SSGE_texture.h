@@ -57,9 +57,9 @@ SSGEAPI void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, i
  * \param y The y coordinate at which the texture is drawn
  * \param width The width of the texture
  * \param height The height of the texture
- * \param angle The angle to rotate the texture, can be NULL
- * \param center The center of the rotation, can be NULL
- * \param flip The flip of the texture
+ * \param angle The angle in degrees to rotate the texture (clockwise rotation)
+ * \param center The center of the rotation
+ * \param flip The flip to apply to the texture
  */
 SSGEAPI void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point center, SSGE_Flip flip);
 

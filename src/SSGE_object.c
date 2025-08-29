@@ -115,7 +115,7 @@ SSGEAPI void SSGE_Object_Destroy(uint32_t id) {
     SSGE_Object *object = SSGE_Array_Pop(&_objectList, id);
     if (object == NULL)
         SSGE_ErrorEx("Object not found: %u", id)
-    _destroy_object(object);
+    destroyObject(object);
 }
 
 SSGEAPI void SSGE_Object_DestroyName(char *name) {
@@ -123,12 +123,12 @@ SSGEAPI void SSGE_Object_DestroyName(char *name) {
     SSGE_Object *object = SSGE_Array_FindPop(&_objectList, _find_object_name, name);
     if (object == NULL) 
         SSGE_ErrorEx("Object not found: %s", name)
-    _destroy_object(object);
+    destroyObject(object);
 }
 
 SSGEAPI void SSGE_Object_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_objectList, _destroy_object);
+    SSGE_Array_Destroy(&_objectList, destroyObject);
     SSGE_Array_Create(&_objectList);
 }
 
