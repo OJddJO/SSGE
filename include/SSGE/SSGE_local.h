@@ -45,7 +45,8 @@ typedef struct {
 
 typedef struct {
     SSGE_Array  renderQueue;    // Queue of buffered render item
-    bool        ready;          // If the buffer is ready for read
+    atomic_bool ready;          // If the buffer is ready for read
+    atomic_bool inUse;          // If the buffer is being used by the render thread
 } _SSGE_RenderBuffer;
 
 typedef struct {
