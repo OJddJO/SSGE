@@ -83,17 +83,6 @@ typedef struct _SSGE_Texture {
     SSGE_Array          queue;      // Queue of every render call for this texture
 } SSGE_Texture;
 
-typedef struct _SSGE_RenderData {
-    int         x;
-    int         y;
-    uint16_t    width;
-    uint16_t    height;
-    SSGE_Flip   flip;
-    SSGE_Point  rotationCenter;
-    double      angle;
-    bool        once;
-} _SSGE_RenderData;
-
 typedef enum _SSGE_AnimationType {
     SSGE_ANIM_FRAMES = 0,
     SSGE_ANIM_FUNCTION

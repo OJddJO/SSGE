@@ -1,6 +1,6 @@
 - [ ] Hiding objects
-- [ ] Optimize object drawing:
-  - [ ] group same texture objects
-  - [ ] culling
-  - [ ] partial updates
-- [ ] Automate draw for object/animation
+- [x] Optimize object drawing:
+  - [x] group same texture objects (batching)
+  - [x] culling
+  - [ ] partial updates (only redraw parts that changed)
+- [x] Automate draw for object

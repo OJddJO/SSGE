@@ -5,6 +5,7 @@
 #define __SSGE_LOCAL_H__
 
 #include <string.h>
+#include <stdatomic.h>
 #include "SSGE/SSGE_types.h"
 #include "SSGE/SSGE_array.h"
 #include "SSGE/SSGE_error.h"
@@ -30,6 +31,35 @@ extern SSGE_Color   _color;
 extern SSGE_Color   _bgColor;
 extern bool         _manualUpdateFrame;
 extern bool         _updateFrame;
+
+typedef struct {
+    int         x;
+    int         y;
+    uint16_t    width;
+    uint16_t    height;
+    SSGE_Flip   flip;
+    SSGE_Point  rotationCenter;
+    double      angle;
+    bool        once;
+} _SSGE_RenderData;
+
+typedef struct {
+    SSGE_Array  renderQueue;    // Queue of buffered render item
+    bool        ready;          // If the buffer is ready for read
+} _SSGE_RenderBuffer;
+
+typedef struct {
+    _SSGE_RenderBuffer  buffers[2];     // Double render buffer
+    atomic_int          writeBuffer;    // Index of the write buffer
+    atomic_int          readBuffer;     // Index of the read buffer
+} _SSGE_DoubleRenderBuffer;
+
+typedef struct {
+    _SSGE_RenderData    *renderDatas;   // Array of render data
+    SSGE_Texture        *texture;       // Texture pointer
+    uint32_t            textureId;      // Id of the texture (used for checking)
+    uint32_t            count;          // Number of renderData
+} _SSGE_BufferedRenderItem;
 
 #define _assert_engine_init \
 if (!_engine.initialized) {\

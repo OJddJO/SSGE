@@ -103,6 +103,7 @@ SSGEAPI void SSGE_SetVSync(bool vsync);
  * \note This function should be called before the `SSGE_Run` function
  * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `SSGE_ManualUpdate` function is called.
  * \note Setting the manual update mode may be more efficient when the screen does not need to be updated every frame
+ * \note If VSync is enabled, the manual update mode is ignored
  */
 SSGEAPI void SSGE_SetManualUpdate(bool manualUpdate);
 

@@ -79,6 +79,7 @@ static void init_game(Game *game) {
     game->current_player = 1;
     game->winner = 0;
     game->turn = 0;
+    game->wait = false;
 }
 
 /**
@@ -119,6 +120,9 @@ static int check_winner(Game *game) {
  */
 static void update(Game *game) {
     game->winner = check_winner(game);
+    if (game->winner && !game->wait) {
+        SSGE_ManualUpdate();
+    }
 }
 
 /**
@@ -144,7 +148,7 @@ static void draw(Game *game) {
                 }
             }
         }
-    } else {
+    } else if (!game->wait) {
         char text[20];
         if (game->winner == -1) {
             sprintf(text, "It's a draw!");
@@ -154,6 +158,7 @@ static void draw(Game *game) {
             SSGE_Audio_Play(SSGE_Audio_Get(A_WIN), -1);
         }
         SSGE_Text_Draw("font_32", text, WIN_W / 2, WIN_H / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
+        game->wait = true;
     }
 }
 
