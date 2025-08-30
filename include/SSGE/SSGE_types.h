@@ -60,7 +60,7 @@ typedef struct _SSGE_Engine {
     bool                initialized;        // If the `SSGE_Engine` has been initialized
     uint8_t             maxFrameskip;       // Max frameskip, default to 3
     bool                vsync;              // If VSync is enabled
-    uint32_t            vsyncRate;          // VSync rate
+    uint16_t            vsyncRate;          // VSync rate
 } SSGE_Engine;
 
 // Array struct

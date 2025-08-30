@@ -15,7 +15,7 @@ LIB			= -lm # other libraries
 endif
 
 SSGE_LIB	= -L $(OSDIR)/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSSGE # must include when using SSGE
-INCLUDE		= -I include # *.h files in ./include
+INCLUDE		= -I ../include # *.h files in include
 EXTRA		= -Werror -Wall -O3 #-mwindows
 
 all: create_dirs setup link
@@ -29,8 +29,6 @@ setup:
 	@echo "This may take a while, please wait..."
 	@rm -f $(OSDIR)/libSSGE.so
 	@cp -r ../$(OSDIR)/bin/* $(OSDIR)
-	@rm -rf include/SSGE
-	@cp -r ../include/SSGE include/SSGE
 	@rm -rf $(OSDIR)/lib
 	@cp -r ../$(OSDIR)/lib $(OSDIR)/lib
 
