@@ -17,7 +17,6 @@ typedef struct _BenchData {
 void update(BenchData *game);
 void draw(BenchData *data);
 
-
 int main(int argc, char *argv[]) {
     BenchData data = {0};
     bool vsync = false;
@@ -25,7 +24,7 @@ int main(int argc, char *argv[]) {
     data.nbobj = 1 << 12;
 
     for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "-objnb") == 0) {
+        if (strcmp(argv[i], "-nbobj") == 0) {
             if (i >= argc) return 1;
             data.nbobj = atoi(argv[++i]);
         }
