@@ -50,7 +50,7 @@ SSGEAPI void SSGE_Quit();
  * \warning The engine runs in an infinite loop until the window is closed
  * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
  */
-SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data, bool nothread);
+SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data);
 
 // Window functions
 
@@ -90,6 +90,12 @@ SSGEAPI void SSGE_WindowFullscreen(bool fullscreen);
  * \param max The max to set
  */
 SSGEAPI void SSGE_SetFrameskipMax(uint8_t max);
+
+/**
+ * Set VSync state
+ * \param vsync If VSync should be enabled or disabled
+ */
+SSGEAPI void SSGE_SetVSync(bool vsync);
 
 /**
  * Set the manual update mode

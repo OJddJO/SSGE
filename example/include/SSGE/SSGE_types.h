@@ -60,6 +60,7 @@ typedef struct _SSGE_Engine {
     bool                initialized;        // If the `SSGE_Engine` has been initialized
     uint8_t             maxFrameskip;       // Max frameskip, default to 3
     bool                vsync;              // If VSync is enabled
+    uint32_t            vsyncRate;          // VSync rate
 } SSGE_Engine;
 
 // Array struct
@@ -87,11 +88,10 @@ typedef struct _SSGE_RenderData {
     int         y;
     uint16_t    width;
     uint16_t    height;
-    bool        once;
-    bool        destroyTexture;
     SSGE_Flip   flip;
     SSGE_Point  rotationCenter;
     double      angle;
+    bool        once;
 } _SSGE_RenderData;
 
 typedef enum _SSGE_AnimationType {

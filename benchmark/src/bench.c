@@ -12,7 +12,6 @@ typedef struct _BenchData {
     uint64_t frame;
     uint64_t update;
     int nbobj;
-    bool nothread;
 } BenchData;
 
 void update(BenchData *game);
@@ -26,9 +25,6 @@ int main(int argc, char *argv[]) {
     data.nbobj = 1 << 12;
 
     for (int i = 0; i < argc; i++) {
-        if (strcmp(argv[i], "-nothread") == 0) {
-            data.nothread = true;
-        }
         if (strcmp(argv[i], "-objnb") == 0) {
             if (i >= argc) return 1;
             data.nbobj = atoi(argv[++i]);
@@ -42,7 +38,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    printf("nb. obj. : %d, fps: %u, vsync: %d, threading: %d\n", data.nbobj, fps, vsync, !data.nothread);
+    printf("nb. obj. : %d, fps: %u, vsync: %d\n", data.nbobj, fps, vsync);
     SSGE_Init("Benchmark", WWIDTH, WHEIGHT, fps);
     SSGE_WindowResizable(true);
     SSGE_SetVSync(vsync);
@@ -61,7 +57,7 @@ int main(int argc, char *argv[]) {
     }
 
     data.start = clock();
-    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, NULL, &data, data.nothread);
+    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, NULL, &data);
 
     SSGE_Quit();
     return 0;

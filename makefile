@@ -35,24 +35,11 @@ $(OSDIR)/build_static/%.o: src/%.c
 
 clean:
 	@echo Cleaning up...
-ifeq ($(OS),Windows_NT)
-	@erase /q $(subst /,\,$(OBJ))
-	@erase /q $(subst /,\,$(OBJ_STATIC))
-else
 	@rm -f $(OBJ) $(OBJ_STATIC)
-endif
 
 create_dirs:
 	@echo Creating directories...
-ifeq ($(OS),Windows_NT)
-	@if not exist $(OSDIR) mkdir $(OSDIR)
-	@if not exist $(OSDIR)\bin mkdir $(OSDIR)\bin
-	@if not exist $(OSDIR)\build mkdir $(OSDIR)\build
-	@if not exist $(OSDIR)\build_static mkdir $(OSDIR)\build_static
-	@if not exist $(OSDIR)\lib mkdir $(OSDIR)\lib
-else
 	@mkdir -p $(OSDIR)/bin $(OSDIR)/build $(OSDIR)/build_static $(OSDIR)/lib
-endif
 
 static: $(OBJ_STATIC)
 	@echo [STATIC] Creating static library...

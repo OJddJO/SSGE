@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     // Run the engine
     SSGE_Audio_Play(start, -1);
 
-    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, (SSGE_EventHandler)event_handler, &game, false);
+    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, (SSGE_EventHandler)event_handler, &game);
 
     // Quit the engine
     SSGE_Quit();

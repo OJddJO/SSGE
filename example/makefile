@@ -27,38 +27,20 @@ setup:
 	@echo "Setting up SSGE..."
 	@echo "Copying SSGE files to the project directory..."
 	@echo "This may take a while, please wait..."
-ifeq ($(OS),Windows_NT)
-	@erase /q $(OSDIR)\SSGE.dll
-	@copy /y ..\$(OSDIR)\bin\SSGE.dll $(OSDIR)\SSGE.dll 
-	@erase /q include\SSGE\ 
-	@xcopy /y /s ..\include\SSGE\ include\SSGE\ 
-	@erase /q $(OSDIR)\lib\ 
-	@xcopy /y /s ..\$(OSDIR)\lib\ $(OSDIR)\lib\ 
-else
 	@rm -f $(OSDIR)/libSSGE.so
-	@cp ../$(OSDIR)/ $(OSDIR)/
+	@cp -r ../$(OSDIR)/bin/* $(OSDIR)
 	@rm -rf include/SSGE
 	@cp -r ../include/SSGE include/SSGE
 	@rm -rf $(OSDIR)/lib
 	@cp -r ../$(OSDIR)/lib $(OSDIR)/lib
-endif
 
 clean:
 	@echo "Cleaning up..."
-ifeq ($(OS),Windows_NT)
-	@erase $(subst /, \, $(OBJ))
-else
 	@rm -f $(OBJ)
-endif
 
 create_dirs:
 	@echo "Creating necessary directories..."
-ifeq ($(OS),Windows_NT)
-	@if not exist $(OSDIR) mkdir $(OSDIR)
-	@if not exist $(OSDIR)\build mkdir $(OSDIR)\build
-else
 	@mkdir -p $(OSDIR) $(OSDIR)/build
-endif
 
 $(OSDIR)/build/%.o: src/%.c
 	@echo Compiling $*.c...

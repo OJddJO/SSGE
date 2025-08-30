@@ -125,52 +125,13 @@ inline static void renderTextures() {
     }
 }
 
-// For update threading
-static atomic_bool _updateReady = true; // Signal update thread to start
-static atomic_bool _updateDone = false; // Signal main thread that update is done
-typedef struct _updThreadData {
-    void (*update)(void *);
-    void *data;
-    uint64_t *nextUpdate;
-    int *loops;
-} updThreadData;
-
-static int updateThreadFunc(updThreadData *data) {
-    double targetFrameTime = 1000.0 / (double)_engine.fps;
-    while (_engine.isRunning) {
-        while (!atomic_load(&_updateReady) && _engine.isRunning)
-            SDL_Delay(1);
-
-        if (!_engine.isRunning) return 0;
-
-        atomic_store(&_updateReady, false);
-        
-        uint64_t currentTime = SDL_GetTicks64();
-        while (currentTime > *data->nextUpdate && (*data->loops)++ < _engine.maxFrameskip) {
-            data->update(data->data);
-            (*data->nextUpdate) += (uint32_t)(_engine.vsync ? (1000.0 / _engine.vsyncRate) : targetFrameTime);
-        }
-
-        atomic_store(&_updateDone, true);
-    }
-    return 0;
-}
-
-SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data, bool nothread) {
+SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data) {
     _assert_engine_init
 
     uint64_t frameStart;
     double targetFrameTime = 1000.0 / (double)_engine.fps;
     uint64_t nextUpdate = SDL_GetTicks64();
     int loops = 0;
-
-    SDL_Thread *updateThread = NULL;
-    updThreadData threadData = {update, data, &nextUpdate, &loops};
-    if (update && !nothread) { // initialization of thread     
-        updateThread = SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "SSGE Update Thread", &threadData);
-        if (updateThread == NULL)
-            SSGE_Error("Could not create 'update' thread")
-    }
 
     _engine.isRunning = true;
 
@@ -180,19 +141,13 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
         while (SDL_PollEvent((SDL_Event *)&_event)) {
             if (_event.type == SDL_QUIT) {
                 _engine.isRunning = false;
-                if (update && !nothread) {
-                    atomic_store(&_updateReady, true);
-                    SDL_WaitThread(updateThread, NULL);
-                }
                 return;
             }
             if (eventHandler)
                 eventHandler(_event, data);
         }
 
-        if (updateThread) { // Synchronize update thread with main thread
-            while (!atomic_load(&_updateDone)) SDL_Delay(0);
-        } else if (update) {
+        if (update) {
             loops = 0;
             while (SDL_GetTicks64() > nextUpdate && loops++ < _engine.maxFrameskip) {
                 update(data);
@@ -206,12 +161,6 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
             renderTextures();
             if (draw) draw(data);
-        }
-
-        if (updateThread) { // Run the update function
-            loops = 0;
-            atomic_store(&_updateDone, false);
-            atomic_store(&_updateReady, true);
         }
 
         if (_updateFrame || !_manualUpdateFrame) {
