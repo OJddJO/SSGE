@@ -46,7 +46,7 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
     if (SDL_SetRenderDrawBlendMode(_engine.renderer, SDL_BLENDMODE_BLEND) != 0)
         SSGE_ErrorEx("Failed to set renderer to blend mode: %s", SDL_GetError())
 
-    if (Mix_Init(MIX_INIT_MP3 || MIX_INIT_OGG || MIX_INIT_WAVPACK) == 0) 
+    if (Mix_Init(MIX_INIT_MP3 | MIX_INIT_OGG | MIX_INIT_WAVPACK) == 0) 
         SSGE_ErrorEx("Failed to initialize audio mixer: %s", SDL_GetError())
 
     if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) != 0) 
@@ -110,6 +110,8 @@ inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) 
 }
 
 static void _destroyBufferedRenderItem(void *ptr) {
+    textureRelease(((_SSGE_BufferedRenderItem *)ptr)->texture);
+
     free(((_SSGE_BufferedRenderItem *)ptr)->renderDatas);
     free(ptr);
 }
@@ -133,10 +135,13 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
 
     for (int i = 0; i < readBuffer->renderQueue.count; i++) {
         _SSGE_BufferedRenderItem *item = SSGE_Array_Get(&readBuffer->renderQueue, i);
+        if (!item) continue;
+
         SSGE_Texture *texture = item->texture;
-        if (!item || !item->texture) 
+        if (atomic_load(&texture->markedForDestroy))
             continue;
 
+        SDL_Texture *sdlTexture = texture->texture;
         _SSGE_RenderData *array = item->renderDatas;
 
         for (int j = 0; j < item->count; j++) {
@@ -145,17 +150,14 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
                 continue;
     
             SDL_Rect rect = {
-                data.x + item->texture->anchorX, 
-                data.y + item->texture->anchorY, 
+                data.x + texture->anchorX, 
+                data.y + texture->anchorY, 
                 data.width, 
                 data.height
             };
     
-            if (data.angle == 0 && data.flip == 0) {
-                SDL_RenderCopy(_engine.renderer, item->texture->texture, NULL, &rect);
-            } else {
-                SDL_RenderCopyEx(_engine.renderer, item->texture->texture, NULL, &rect, data.angle, (SDL_Point *)&data.rotationCenter, data.flip);
-            }
+            if (data.angle == 0 && data.flip == 0) SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &rect);
+            else SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &rect, data.angle, (SDL_Point *)&data.rotationCenter, data.flip);
         }
     }
 
@@ -166,13 +168,15 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
 inline static void _copyGameStateToBuffer(_SSGE_RenderBuffer *buffer) {
     for (int i = 0; i < _textureList.count; i++) {
         SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
-        if (!texture || texture->queue.count == 0) continue;
+        if (!texture || texture->markedForDestroy || texture->queue.count == 0) continue;
 
         _SSGE_BufferedRenderItem *item = (_SSGE_BufferedRenderItem *)malloc(sizeof(_SSGE_BufferedRenderItem));
         _SSGE_RenderData *array = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData) * texture->queue.count);
         item->renderDatas = array;
         item->texture = texture;
         item->count = texture->queue.count;
+
+        textureAcquire(texture);
 
         for (int j = 0; j < texture->queue.count; j++) {
             _SSGE_RenderData *data = SSGE_Array_Get(&texture->queue, j);
@@ -182,6 +186,7 @@ inline static void _copyGameStateToBuffer(_SSGE_RenderBuffer *buffer) {
 
             if (data->once) free(SSGE_Array_Pop(&texture->queue, j)); // free the render data if once is set
         }
+
         SSGE_Array_Add(&buffer->renderQueue, item);
     }
 }
@@ -268,8 +273,7 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
                 SSGE_Array_Destroy(&doubleBuffer.buffers[1].renderQueue, _destroyBufferedRenderItem);
                 return;
             }
-            if (eventHandler)
-            eventHandler(_event, data);
+            if (eventHandler) eventHandler(_event, data);
         }
         
         if (_updateFrame || !_manualUpdateFrame || _engine.vsync) {

@@ -19,10 +19,12 @@ bool        _manualUpdateFrame  = false;
 bool        _updateFrame        = true; // set to true to draw the first frame
 
 void destroyTexture(void *ptr) {
-    SDL_DestroyTexture(((SSGE_Texture *)ptr)->texture);
+    atomic_store(&((SSGE_Texture *)ptr)->markedForDestroy, true);
     SSGE_Array_Destroy(&((SSGE_Texture *)ptr)->queue, free);
-    free(((SSGE_Texture *)ptr)->name);
-    free(ptr);
+    SSGE_Array_Create(&((SSGE_Texture *)ptr)->queue);
+
+    // Release ref from _textureList
+    textureRelease(ptr);
 }
 
 void destroyObject(void *ptr) {
@@ -60,4 +62,20 @@ void destroyAnimation(void *ptr) {
     }
     free(((SSGE_Animation *)ptr)->name);
     free(ptr);
+}
+
+void textureAcquire(SSGE_Texture *texture) {
+    if (texture)
+        atomic_fetch_add(&texture->refCount, 1);
+}
+
+void textureRelease(SSGE_Texture *texture) {
+    if (!texture) return;
+    int oldCount = atomic_fetch_sub(&texture->refCount, 1);
+    if (oldCount == 1 && texture->markedForDestroy) { // No more reference to the texture
+        SDL_DestroyTexture(texture->texture);
+        SSGE_Array_Destroy(&texture->queue, free);
+        free(texture->name);
+        free(texture);
+    }
 }

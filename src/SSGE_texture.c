@@ -16,6 +16,9 @@ SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *na
     texture->anchorX = 0;
     texture->anchorY = 0;
 
+    atomic_init(&texture->refCount, 1);
+    atomic_init(&texture->markedForDestroy, false);
+
     SSGE_Array_Create(&texture->queue);
 
     _add_to_list(&_textureList, texture, name, id, __func__);

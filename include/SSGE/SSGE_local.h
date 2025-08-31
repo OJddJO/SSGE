@@ -98,6 +98,9 @@ void destroyFont(void *ptr);
 void destroyAudio(void *ptr);
 void destroyAnimation(void *ptr);
 
+void textureAcquire(SSGE_Texture *texture);
+void textureRelease(SSGE_Texture *texture);
+
 #ifdef __cplusplus
 }
 #endif
