@@ -3,6 +3,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdatomic.h>
 
 #include "SSGE/SSGE_config.h"
 #include "SSGE/SSGE_events.h"
