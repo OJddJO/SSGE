@@ -187,24 +187,16 @@ typedef struct _updThreadData {
     void (*update)(void *);
     void *data;
     _SSGE_DoubleRenderBuffer *doubleBuffer;
-    double targetFrameTime;
 } updThreadData;
 
 static int updateThreadFunc(updThreadData *data) {
-    uint64_t nextUpdate = SDL_GetTicks64();
-    int loops;
-    double targetFrameTime = data->targetFrameTime;
     _SSGE_DoubleRenderBuffer *doubleBuffer = data->doubleBuffer;
     void (*update)(void *) = data->update;
     void *updData = data->data;
 
     while (_engine.isRunning) {
-        uint64_t currentTime = SDL_GetTicks64();
-
         int writeIdx = atomic_load(&doubleBuffer->writeBuffer);
         _SSGE_RenderBuffer *writeBuffer = &doubleBuffer->buffers[writeIdx];
-
-        while (atomic_load(&writeBuffer->inUse) && _engine.isRunning) SDL_Delay(0);
 
         if (!_engine.isRunning) return 0;
 
@@ -213,16 +205,15 @@ static int updateThreadFunc(updThreadData *data) {
         SSGE_Array_Destroy(&writeBuffer->renderQueue, _destroyBufferedRenderItem);
         SSGE_Array_Create(&writeBuffer->renderQueue);
 
-        loops = 0;
-        while (currentTime > nextUpdate && loops++ < _engine.maxFrameskip) {
-            update(updData);
-            nextUpdate += (uint32_t)(_engine.vsync ? (1000.0 / _engine.vsyncRate) : targetFrameTime);
-        }
+        update(updData);
 
         _copyGameStateToBuffer(writeBuffer);
         atomic_store(&writeBuffer->ready, true);
-
+        
         int readIdx = atomic_load(&doubleBuffer->readBuffer);
+        atomic_bool *inUse = &doubleBuffer->buffers[readIdx].inUse;
+        while (atomic_load(inUse) && _engine.isRunning) SDL_Delay(0);
+
         atomic_store(&doubleBuffer->writeBuffer, readIdx);
         atomic_store(&doubleBuffer->readBuffer, writeIdx);
     }
@@ -244,8 +235,7 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
         threadData = (updThreadData){
             .update = update,
             .data = data,
-            .doubleBuffer = &doubleBuffer,
-            .targetFrameTime = targetFrameTime
+            .doubleBuffer = &doubleBuffer
         };
         updateThread = SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "SSGE Update", &threadData);
     }
