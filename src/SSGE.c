@@ -123,7 +123,7 @@ inline static bool _isTextureVisible(int x, int y, int width, int height) {
     return true;
 }
 
-static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
+inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
     int readIdx = atomic_load(&doubleBuffer->readBuffer);
     _SSGE_RenderBuffer *readBuffer = &doubleBuffer->buffers[readIdx];
 
@@ -134,7 +134,7 @@ static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
     for (int i = 0; i < readBuffer->renderQueue.count; i++) {
         _SSGE_BufferedRenderItem *item = SSGE_Array_Get(&readBuffer->renderQueue, i);
         SSGE_Texture *texture = item->texture;
-        if (!item || !item->texture || texture != SSGE_Array_Get(&_textureList, item->textureId)) 
+        if (!item || !item->texture) 
             continue;
 
         _SSGE_RenderData *array = item->renderDatas;
@@ -172,7 +172,6 @@ inline static void _copyGameStateToBuffer(_SSGE_RenderBuffer *buffer) {
         _SSGE_RenderData *array = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData) * texture->queue.count);
         item->renderDatas = array;
         item->texture = texture;
-        item->textureId = i;
         item->count = texture->queue.count;
 
         for (int j = 0; j < texture->queue.count; j++) {

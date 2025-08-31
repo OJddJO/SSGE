@@ -60,7 +60,6 @@ typedef struct {
 typedef struct {
     _SSGE_RenderData    *renderDatas;   // Array of render data
     SSGE_Texture        *texture;       // Texture pointer
-    uint32_t            textureId;      // Id of the texture (used for checking)
     uint32_t            count;          // Number of renderData
 } _SSGE_BufferedRenderItem;
 

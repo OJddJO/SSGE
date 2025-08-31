@@ -48,7 +48,8 @@ SSGEAPI void SSGE_Quit();
  * \param eventHandler The event handler function. Should takes a `SSGE_Event` and a `void *` as arguments and returns `void`
  * \param data The `void *` to pass to the functions (update, draw, eventHandler)
  * \warning The engine runs in an infinite loop until the window is closed
- * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
+ * \note The order of execution is as follows: Event handling, (Clear screen), Draw
+ * \note The update function is executed on a thread for double buffering. All `SSGE` draw functions should be called in the user `draw` function
  */
 SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data);
 
@@ -100,6 +101,8 @@ SSGEAPI void SSGE_SetVSync(bool vsync);
 /**
  * Set the manual update mode
  * \param manualUpdate True if the manual update mode should be enabled, false otherwise
+ * \warning Use manual update mode ONLY if you know what you are doing.
+ * \warning As the engine is threaded and double buffered, you should be carefull of timing and race conditions
  * \note This function should be called before the `SSGE_Run` function
  * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `SSGE_ManualUpdate` function is called.
  * \note Setting the manual update mode may be more efficient when the screen does not need to be updated every frame

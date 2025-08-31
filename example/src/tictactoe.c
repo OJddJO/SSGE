@@ -72,14 +72,14 @@ static void init_game(Game *game) {
     for (short i = 0; i < 3; i++) {
         for (short j = 0; j < 3; j++) {
             game->hitboxes[i][j] = 0;
-            game->matrix[i][j] = 0; // fill matrix with 0s
+            game->board[i][j] = 0; // fill board with 0s
         }
     }
 
     game->current_player = 1;
     game->winner = 0;
     game->turn = 0;
-    game->wait = false;
+    game->ended = false;
 }
 
 /**
@@ -90,22 +90,22 @@ static void init_game(Game *game) {
 static int check_winner(Game *game) {
     //check rows
     for (int i = 0; i < 3; i++) {
-        if (game->matrix[i][0] == game->matrix[i][1] && game->matrix[i][1] == game->matrix[i][2] && game->matrix[i][0] != 0) {
-            return game->matrix[i][0];
+        if (game->board[i][0] == game->board[i][1] && game->board[i][1] == game->board[i][2] && game->board[i][0] != 0) {
+            return game->board[i][0];
         }
     }
     //check columns
     for (int i = 0; i < 3; i++) {
-        if (game->matrix[0][i] == game->matrix[1][i] && game->matrix[1][i] == game->matrix[2][i] && game->matrix[0][i] != 0) {
-            return game->matrix[0][i];
+        if (game->board[0][i] == game->board[1][i] && game->board[1][i] == game->board[2][i] && game->board[0][i] != 0) {
+            return game->board[0][i];
         }
     }
     //check diagonals
-    if (game->matrix[0][0] == game->matrix[1][1] && game->matrix[1][1] == game->matrix[2][2] && game->matrix[0][0] != 0) {
-        return game->matrix[0][0];
+    if (game->board[0][0] == game->board[1][1] && game->board[1][1] == game->board[2][2] && game->board[0][0] != 0) {
+        return game->board[0][0];
     }
-    if (game->matrix[0][2] == game->matrix[1][1] && game->matrix[1][1] == game->matrix[2][0] && game->matrix[0][2] != 0) {
-        return game->matrix[0][2];
+    if (game->board[0][2] == game->board[1][1] && game->board[1][1] == game->board[2][0] && game->board[0][2] != 0) {
+        return game->board[0][2];
     }
     //check draw
     if (game->turn == 9) {
@@ -120,9 +120,12 @@ static int check_winner(Game *game) {
  */
 static void update(Game *game) {
     game->winner = check_winner(game);
-    if (game->winner && !game->wait) {
+    /**
+     * Carefull here we use `while` and not `if`
+     * because of the threading
+     */
+    while (game->winner && !game->ended)
         SSGE_ManualUpdate();
-    }
 }
 
 /**
@@ -141,14 +144,14 @@ static void draw(Game *game) {
         //draw X and O
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                if (game->matrix[i][j] == 1) {
+                if (game->board[i][j] == 1) {
                     SSGE_Text_Draw("font_64", "X", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
-                } else if (game->matrix[i][j] == 2) {
+                } else if (game->board[i][j] == 2) {
                     SSGE_Text_Draw("font_64", "O", i * TILE_SIZE + TILE_SIZE / 2, j * TILE_SIZE + TILE_SIZE / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
                 }
             }
         }
-    } else if (!game->wait) {
+    } else if (!game->ended) {
         char text[20];
         if (game->winner == -1) {
             sprintf(text, "It's a draw!");
@@ -158,7 +161,7 @@ static void draw(Game *game) {
             SSGE_Audio_Play(SSGE_Audio_Get(A_WIN), -1);
         }
         SSGE_Text_Draw("font_32", text, WIN_W / 2, WIN_H / 2, (SSGE_Color){255, 255, 255, 255}, SSGE_CENTER);
-        game->wait = true;
+        game->ended = true;
     }
 }
 
@@ -183,7 +186,7 @@ static void event_handler(SSGE_Event event, Game *game) {
                     // play the click sound
                     SSGE_Audio_Play(SSGE_Audio_Get(A_CLICK), -1);
                     // update the game datas
-                    game->matrix[i][j] = game->current_player;
+                    game->board[i][j] = game->current_player;
                     game->current_player = game->current_player == 1 ? 2 : 1;
                     game->turn++;
                     SSGE_Object_Destroy(game->hitboxes[i][j]);

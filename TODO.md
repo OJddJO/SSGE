@@ -4,3 +4,4 @@
   - [x] culling
   - [ ] partial updates (only redraw parts that changed)
 - [x] Automate draw for object
+- [ ] Automate draw for animation
