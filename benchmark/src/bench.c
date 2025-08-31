@@ -1,4 +1,5 @@
 #include <SSGE/SSGE.h>
+#include <SDL2/SDL_timer.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>

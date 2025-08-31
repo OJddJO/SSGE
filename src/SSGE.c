@@ -104,6 +104,9 @@ inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) 
     
     atomic_store(&doubleBuffer->writeBuffer, 0);
     atomic_store(&doubleBuffer->readBuffer, 1);
+    
+    atomic_store(&doubleBuffer->framesGenerated, 0);
+    atomic_store(&doubleBuffer->framesRendered, 0);
 }
 
 static void _destroyBufferedRenderItem(void *ptr) {
@@ -157,6 +160,7 @@ static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
     }
 
     atomic_store(&readBuffer->inUse, false);
+    atomic_fetch_add(&doubleBuffer->framesRendered, 1);
 }
 
 inline static void _copyGameStateToBuffer(_SSGE_RenderBuffer *buffer) {
@@ -193,12 +197,11 @@ static int updateThreadFunc(updThreadData *data) {
     _SSGE_DoubleRenderBuffer *doubleBuffer = data->doubleBuffer;
     void (*update)(void *) = data->update;
     void *updData = data->data;
+    uint8_t frameSkipped = 0;
 
     while (_engine.isRunning) {
         int writeIdx = atomic_load(&doubleBuffer->writeBuffer);
         _SSGE_RenderBuffer *writeBuffer = &doubleBuffer->buffers[writeIdx];
-
-        if (!_engine.isRunning) return 0;
 
         atomic_store(&writeBuffer->ready, false);
 
@@ -208,11 +211,21 @@ static int updateThreadFunc(updThreadData *data) {
         update(updData);
 
         _copyGameStateToBuffer(writeBuffer);
+        
+        uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
+        uintmax_t rendered = atomic_load(&doubleBuffer->framesRendered);
+        if ((int)((long long)generated - (long long)rendered) < 0 && frameSkipped < _engine.maxFrameskip) {
+            frameSkipped++;
+            continue;
+        } else frameSkipped = 0;
+
         atomic_store(&writeBuffer->ready, true);
+        atomic_store(&writeBuffer->inUse, true);
         
         int readIdx = atomic_load(&doubleBuffer->readBuffer);
         atomic_bool *inUse = &doubleBuffer->buffers[readIdx].inUse;
         while (atomic_load(inUse) && _engine.isRunning) SDL_Delay(0);
+        if (!_engine.isRunning) return 0;
 
         atomic_store(&doubleBuffer->writeBuffer, readIdx);
         atomic_store(&doubleBuffer->readBuffer, writeIdx);
@@ -267,12 +280,6 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
             SDL_RenderPresent(_engine.renderer);
             _updateFrame = false;
         }
-
-        // printf("read: %d, write: %d\nbuf0:    ready: %d, inuse: %d\nbuf1:    ready: %d, inuse: %d\n", 
-        //     atomic_load(&doubleBuffer.readBuffer), atomic_load(&doubleBuffer.writeBuffer),
-        //     atomic_load(&doubleBuffer.buffers[0].ready), atomic_load(&doubleBuffer.buffers[0].inUse),
-        //     atomic_load(&doubleBuffer.buffers[1].ready), atomic_load(&doubleBuffer.buffers[1].inUse)
-        // );
 
         if (!_engine.vsync) {
             uint64_t frameTime = SDL_GetTicks64() - frameStart;
