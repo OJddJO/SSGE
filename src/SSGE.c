@@ -204,24 +204,27 @@ static int updateThreadFunc(updThreadData *data) {
         _SSGE_RenderBuffer *writeBuffer = &doubleBuffer->buffers[writeIdx];
 
         atomic_store(&writeBuffer->ready, false);
-
+        
         SSGE_Array_Destroy(&writeBuffer->renderQueue, _destroyBufferedRenderItem);
         SSGE_Array_Create(&writeBuffer->renderQueue);
 
-        update(updData);
-
-        _copyGameStateToBuffer(writeBuffer);
-        
         uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
         uintmax_t rendered = atomic_load(&doubleBuffer->framesRendered);
-        if ((int)((long long)generated - (long long)rendered) < 0 && frameSkipped < _engine.maxFrameskip) {
+        while ((int)((long long)generated - (long long)rendered) < 0 && frameSkipped < _engine.maxFrameskip) {
+            update(updData);
+            generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
             frameSkipped++;
             continue;
-        } else frameSkipped = 0;
+        }
+
+        if (!frameSkipped) update(updData);
+        frameSkipped = 0;
+
+        _copyGameStateToBuffer(writeBuffer);
 
         atomic_store(&writeBuffer->ready, true);
         atomic_store(&writeBuffer->inUse, true);
-        
+
         int readIdx = atomic_load(&doubleBuffer->readBuffer);
         atomic_bool *inUse = &doubleBuffer->buffers[readIdx].inUse;
         while (atomic_load(inUse) && _engine.isRunning) SDL_Delay(0);
