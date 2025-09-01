@@ -78,12 +78,12 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
 SSGEAPI void SSGE_Quit() {
     _assert_engine_init
 
-    SSGE_Array_Destroy(&_textureList, destroyTexture);
-    SSGE_Array_Destroy(&_objectList, destroyObject);
-    SSGE_Array_Destroy(&_objectTemplateList, destroyTemplate);
-    SSGE_Array_Destroy(&_fontList, destroyFont);
-    SSGE_Array_Destroy(&_audioList, destroyAudio);
-    SSGE_Array_Destroy(&_animationList, destroyAnimation);
+    SSGE_Array_Destroy(&_textureList, (_SSGE_Destroy)destroyTexture);
+    SSGE_Array_Destroy(&_objectList, (_SSGE_Destroy)destroyObject);
+    SSGE_Array_Destroy(&_objectTemplateList, (_SSGE_Destroy)destroyTemplate);
+    SSGE_Array_Destroy(&_fontList, (_SSGE_Destroy)destroyFont);
+    SSGE_Array_Destroy(&_audioList, (_SSGE_Destroy)destroyAudio);
+    SSGE_Array_Destroy(&_animationList, (_SSGE_Destroy)destroyAnimation);
     SSGE_Array_Destroy(&_playingAnim, free);
 
     SDL_DestroyRenderer(_engine.renderer);

@@ -18,49 +18,51 @@ SSGE_Color  _bgColor            = {0, 0, 0, 255};
 bool        _manualUpdateFrame  = false;
 bool        _updateFrame        = true; // set to true to draw the first frame
 
-void destroyTexture(void *ptr) {
-    atomic_store(&((SSGE_Texture *)ptr)->markedForDestroy, true);
-    SSGE_Array_Destroy(&((SSGE_Texture *)ptr)->queue, free);
-    SSGE_Array_Create(&((SSGE_Texture *)ptr)->queue);
+void destroyTexture(SSGE_Texture *ptr) {
+    atomic_store(&ptr->markedForDestroy, true);
+    SSGE_Array_Destroy(&ptr->queue, free);
+    SSGE_Array_Create(&ptr->queue);
 
     // Release ref from _textureList
     textureRelease(ptr);
 }
 
-void destroyObject(void *ptr) {
-    free(((SSGE_Object *)ptr)->name);
-    if (((SSGE_Object *)ptr)->destroyData != NULL)
-        ((SSGE_Object *)ptr)->destroyData(((SSGE_Object *)ptr)->data);
+void destroyObject(SSGE_Object *ptr) {
+    free(ptr->name);
+    if (ptr->destroyData != NULL)
+        ptr->destroyData(ptr->data);
+    if (ptr->spriteType == SSGE_SPRITE_STATIC)
+        free(SSGE_Array_Pop(&ptr->texture.texture->queue, ptr->texture.renderDataIdx));
     free(ptr);
 }
 
-void destroyTemplate(void *ptr) {
-    free(((SSGE_ObjectTemplate *)ptr)->name);
+void destroyTemplate(SSGE_ObjectTemplate *ptr) {
+    free(ptr->name);
     free(ptr);
 }
 
-void destroyFont(void *ptr) {
-    TTF_CloseFont(((SSGE_Font *)ptr)->font);
-    free(((SSGE_Font *)ptr)->name);
+void destroyFont(SSGE_Font *ptr) {
+    TTF_CloseFont(ptr->font);
+    free(ptr->name);
     free(ptr);
 }
 
-void destroyAudio(void *ptr) {
-    Mix_FreeChunk(((SSGE_Audio *)ptr)->audio);
-    free(((SSGE_Audio *)ptr)->name);
+void destroyAudio(SSGE_Audio *ptr) {
+    Mix_FreeChunk(ptr->audio);
+    free(ptr->name);
     free(ptr);
 }
 
-void destroyAnimation(void *ptr) {
-    if (((SSGE_Animation *)ptr)->type == SSGE_ANIM_FRAMES) {
-        for (uint32_t i = 0; i < ((SSGE_Animation *)ptr)->data.frameCount; i++) {
-            if (((SSGE_Animation *)ptr)->data.frames[i] != NULL) {
-                SDL_DestroyTexture(((SSGE_Animation *)ptr)->data.frames[i]);
+void destroyAnimation(SSGE_Animation *ptr) {
+    if (ptr->type == SSGE_ANIM_FRAMES) {
+        for (uint32_t i = 0; i < ptr->data.frameCount; i++) {
+            if (ptr->data.frames[i] != NULL) {
+                SDL_DestroyTexture(ptr->data.frames[i]);
             }
         }
-        free(((SSGE_Animation *)ptr)->data.frames);
+        free(ptr->data.frames);
     }
-    free(((SSGE_Animation *)ptr)->name);
+    free(ptr->name);
     free(ptr);
 }
 

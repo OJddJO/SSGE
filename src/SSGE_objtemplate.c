@@ -91,6 +91,6 @@ SSGEAPI void SSGE_Template_DestroyName(char *name) {
 
 SSGEAPI void SSGE_Template_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_objectTemplateList, destroyTemplate);
+    SSGE_Array_Destroy(&_objectTemplateList, (_SSGE_Destroy)destroyTemplate);
     SSGE_Array_Create(&_objectTemplateList);
 }

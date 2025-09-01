@@ -158,7 +158,7 @@ SSGEAPI void SSGE_Object_DestroyName(char *name) {
 
 SSGEAPI void SSGE_Object_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_objectList, destroyObject);
+    SSGE_Array_Destroy(&_objectList, (_SSGE_Destroy)destroyObject);
     SSGE_Array_Create(&_objectList);
 }
 

@@ -64,6 +64,8 @@ typedef struct {
     uint32_t            count;          // Number of renderData
 } _SSGE_BufferedRenderItem;
 
+typedef void (*_SSGE_Destroy)(void *);
+
 #define _assert_engine_init \
 if (!_engine.initialized) {\
     fprintf(stderr, "[SSGE][%s] Engine not initialized\n", __func__);\
@@ -102,12 +104,12 @@ inline void _initTextureFields(SSGE_Texture *texture) {
     SSGE_Array_Create(&texture->queue);
 }
 
-void destroyTexture(void *ptr);
-void destroyObject(void *ptr);
-void destroyTemplate(void *ptr);
-void destroyFont(void *ptr);
-void destroyAudio(void *ptr);
-void destroyAnimation(void *ptr);
+void destroyTexture(SSGE_Texture *ptr);
+void destroyObject(SSGE_Object *ptr);
+void destroyTemplate(SSGE_ObjectTemplate *ptr);
+void destroyFont(SSGE_Font *ptr);
+void destroyAudio(SSGE_Audio *ptr);
+void destroyAnimation(SSGE_Animation *ptr);
 
 void textureAcquire(SSGE_Texture *texture);
 void textureRelease(SSGE_Texture *texture);

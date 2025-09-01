@@ -79,6 +79,6 @@ SSGEAPI void SSGE_Audio_CloseName(char *name) {
 
 SSGEAPI void SSGE_Audio_CloseAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_audioList, destroyAudio);
+    SSGE_Array_Destroy(&_audioList, (_SSGE_Destroy)destroyAudio);
     SSGE_Array_Create(&_audioList);
 }

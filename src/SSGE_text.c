@@ -44,7 +44,7 @@ SSGEAPI void SSGE_Font_Close(char *name) {
 
 SSGEAPI void SSGE_Font_CloseAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_fontList, destroyFont);
+    SSGE_Array_Destroy(&_fontList, (_SSGE_Destroy)destroyFont);
     SSGE_Array_Create(&_fontList);
 }
 
