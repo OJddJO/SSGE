@@ -133,7 +133,6 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
 
     if (!atomic_load(&readBuffer->ready)) return;
 
-    atomic_store(&readBuffer->inUse, true);
 
     for (int i = 0; i < readBuffer->renderQueue.count; i++) {
         _SSGE_BufferedRenderItem *item = SSGE_Array_Get(&readBuffer->renderQueue, i);
@@ -203,31 +202,32 @@ static int _updateThreadFunc(updThreadData *data) {
     _SSGE_DoubleRenderBuffer *doubleBuffer = data->doubleBuffer;
     void (*update)(void *) = data->update;
     void *updData = data->data;
-    uint8_t frameSkipped = 0;
 
     while (_engine.isRunning) {
         int writeIdx = atomic_load(&doubleBuffer->writeBuffer);
         _SSGE_RenderBuffer *writeBuffer = &doubleBuffer->buffers[writeIdx];
 
         atomic_store(&writeBuffer->ready, false);
-        
+
         SSGE_Array_Destroy(&writeBuffer->renderQueue, _destroyBufferedRenderItem);
         SSGE_Array_Create(&writeBuffer->renderQueue);
-        
+
         while (atomic_load(&doubleBuffer->evHandlerBusy) && _engine.isRunning) SDL_Delay(0);
         if (!_engine.isRunning) return 0;
-        
+
         uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
         uintmax_t rendered = atomic_load(&doubleBuffer->framesRendered);
-        while ((int)((long long)generated - (long long)rendered) < 0 && frameSkipped < _engine.maxFrameskip) {
-            update(updData);
-            generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
-            frameSkipped++;
-            continue;
+        int framesBehind = (int)(rendered - generated);
+        if (framesBehind > 0) {
+            int framesToCatchUp = (framesBehind > _engine.maxFrameskip) ? _engine.maxFrameskip : framesBehind;
+
+            for (int i = 0; i < framesToCatchUp; i++) {
+                update(updData);
+                atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
+            }
         }
 
-        if (!frameSkipped) update(updData);
-        frameSkipped = 0;
+        update(updData);
 
         _copyGameStateToBuffer(writeBuffer);
 
@@ -238,7 +238,7 @@ static int _updateThreadFunc(updThreadData *data) {
         atomic_bool *inUse = &doubleBuffer->buffers[readIdx].inUse;
         while (atomic_load(inUse) && _engine.isRunning) SDL_Delay(0);
         if (!_engine.isRunning) return 0;
-        
+
         atomic_store(&doubleBuffer->writeBuffer, readIdx);
         atomic_store(&doubleBuffer->readBuffer, writeIdx);
     }
@@ -263,6 +263,8 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
             .doubleBuffer = &doubleBuffer
         };
         updateThread = SDL_CreateThread((SDL_ThreadFunction)_updateThreadFunc, "SSGE Update", &threadData);
+        if (!updateThread)
+            SSGE_ErrorEx("Failed to create update thread: %s", SDL_GetError());
     }
     
     _engine.isRunning = true;
