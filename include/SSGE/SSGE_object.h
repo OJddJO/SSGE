@@ -64,7 +64,7 @@ SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y);
  * \param dx The change in x coordinate
  * \param dy The change in y coordinate
  */
-SSGEAPI void SSGE_ObjectMoveRel(SSGE_Object *object, int dx, int dy);
+SSGEAPI void SSGE_Object_MoveRel(SSGE_Object *object, int dx, int dy);
 
 /**
  * Bind a texture to an object
