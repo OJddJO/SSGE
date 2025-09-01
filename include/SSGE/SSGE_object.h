@@ -59,6 +59,14 @@ SSGEAPI bool SSGE_Object_ExistsName(char *name);
 SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y);
 
 /**
+ * Move an object relatively to its current position
+ * \param object The object to move
+ * \param dx The change in x coordinate
+ * \param dy The change in y coordinate
+ */
+SSGEAPI void SSGE_ObjectMoveRel(SSGE_Object *object, int dx, int dy);
+
+/**
  * Bind a texture to an object
  * \param object The object to bind the texture to
  * \param texture The new texture of the object
@@ -95,6 +103,12 @@ SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id);
 SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name);
 
 /**
+ * Get the data of the object
+ * \param object The object to get the data of
+ */
+SSGEAPI void *SSGE_Object_GetData(SSGE_Object *object);
+
+/**
  * Destroy an object by id
  * \param id The id of the object
  */
@@ -117,7 +131,7 @@ SSGEAPI void SSGE_Object_DestroyAll();
  * \param hitbox2 The second hitbox
  * \return True if the hitboxes are colliding, false otherwise
  */
-SSGEAPI bool SSGE_Hitbox_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2);
+SSGEAPI bool SSGE_Object_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2);
 
 #ifdef __cplusplus
 }

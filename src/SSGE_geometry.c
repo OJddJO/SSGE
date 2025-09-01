@@ -110,10 +110,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, int x1, int y1, 
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -136,10 +135,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, int x1, int y1, 
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -162,10 +160,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, int x, int y, 
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -188,10 +185,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, int x, int y,
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -214,10 +210,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, int x1, int
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -242,10 +237,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, int x1, int
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -268,10 +262,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, int x, in
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }
 
@@ -294,9 +287,8 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, int x, i
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
     }
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }

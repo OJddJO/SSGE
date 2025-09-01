@@ -52,10 +52,9 @@ SSGEAPI SSGE_Texture *SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint1
     SSGE_Tilemap_DrawTile(tilemap, row, col, 0, 0);
     SDL_SetRenderTarget(_engine.renderer, NULL);
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }
 

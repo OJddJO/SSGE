@@ -132,9 +132,9 @@ typedef struct _SSGE_AnimationState {
 } SSGE_AnimationState;
 
 typedef enum _SSGE_SpriteType {
+    SSGE_SPRITE_NONE = -1U,
     SSGE_SPRITE_STATIC = 0,
-    SSGE_SPRITE_ANIM,
-    SSGE_SPRITE_NONE
+    SSGE_SPRITE_ANIM
 } SSGE_SpriteType;
 
 // Object struct
@@ -149,8 +149,8 @@ typedef struct _SSGE_Object {
     SSGE_SpriteType spriteType; // If the sprite is animated or static
     union {
         struct {
-            SSGE_Texture        *texture;   // The texture of the object
-            uint32_t            blendDataIdx; // The index of the blend data in the texture render queue
+            SSGE_Texture        *texture;       // The texture of the object
+            uint32_t            renderDataIdx;  // The index of the render data in the texture render queue
         } texture;
         uint32_t            animation;  // The id of the animation state
     };

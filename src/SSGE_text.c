@@ -132,6 +132,11 @@ SSGEAPI SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text,
     texture->anchorX = 0;
     texture->anchorY = 0;
 
-    _add_to_list(&_textureList, texture, textureName, id, __func__);
+    atomic_init(&texture->refCount, 1);
+    atomic_init(&texture->markedForDestroy, false);
+
+    SSGE_Array_Create(&texture->queue);
+
+    _addToList(&_textureList, texture, textureName, id, __func__);
     return texture;
 }

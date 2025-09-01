@@ -13,7 +13,7 @@ SSGEAPI SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name) 
     if (audio->audio == NULL) 
         SSGE_ErrorEx("Failed to load audio: %s", Mix_GetError());
 
-    _add_to_list(&_audioList, audio, name, id, __func__);
+    _addToList(&_audioList, audio, name, id, __func__);
     return audio;
 }
 

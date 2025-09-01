@@ -9,19 +9,14 @@ SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *na
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
+
     texture->texture = IMG_LoadTexture(_engine.renderer, filename);
     if (texture == NULL) 
         SSGE_ErrorEx("Failed to load image: %s", IMG_GetError())
 
-    texture->anchorX = 0;
-    texture->anchorY = 0;
+    _initTextureFields(texture);
 
-    atomic_init(&texture->refCount, 1);
-    atomic_init(&texture->markedForDestroy, false);
-
-    SSGE_Array_Create(&texture->queue);
-
-    _add_to_list(&_textureList, texture, name, id, __func__);
+    _addToList(&_textureList, texture, name, id, __func__);
     return texture;
 }
 

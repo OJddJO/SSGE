@@ -26,11 +26,11 @@ all: create_dirs static dll
 remake: clean all
 
 $(OSDIR)/build/%.o: src/%.c
-	@echo [DYNAMIC] Compiling $*.c ...
+	@echo [DYNAMIC] Compiling $*.c...
 	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build/$*.o $(EXTRA)
 
 $(OSDIR)/build_static/%.o: src/%.c
-	@echo [STATIC] Compiling $*.c ...
+	@echo [STATIC] Compiling $*.c...
 	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build_static/$*.o $(EXTRA) -DSSGE_STATIC -static
 
 clean:
@@ -55,7 +55,7 @@ else
 endif
 
 ubuntu-installsdl:
-	@echo Installing SDL2 (Ubuntu) ...
+	@echo Installing SDL2 (Ubuntu)...
 	@sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
 	@echo Done
 

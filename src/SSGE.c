@@ -107,6 +107,8 @@ inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) 
     
     atomic_store(&doubleBuffer->framesGenerated, 0);
     atomic_store(&doubleBuffer->framesRendered, 0);
+
+    atomic_store(&doubleBuffer->evHandlerBusy, true);
 }
 
 static void _destroyBufferedRenderItem(void *ptr) {
@@ -212,6 +214,9 @@ static int updateThreadFunc(updThreadData *data) {
         SSGE_Array_Destroy(&writeBuffer->renderQueue, _destroyBufferedRenderItem);
         SSGE_Array_Create(&writeBuffer->renderQueue);
 
+        while (atomic_load(&doubleBuffer->evHandlerBusy) && _engine.isRunning) SDL_Delay(0);
+        if (!_engine.isRunning) return 0;
+
         uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
         uintmax_t rendered = atomic_load(&doubleBuffer->framesRendered);
         while ((int)((long long)generated - (long long)rendered) < 0 && frameSkipped < _engine.maxFrameskip) {
@@ -264,7 +269,8 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
     
     while (_engine.isRunning) {
         frameStart = SDL_GetTicks64();
-        
+
+        atomic_store(&doubleBuffer.evHandlerBusy, true);
         while (SDL_PollEvent((SDL_Event *)&_event)) {
             if (_event.type == SDL_QUIT) {
                 _engine.isRunning = false;
@@ -275,6 +281,7 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
             }
             if (eventHandler) eventHandler(_event, data);
         }
+        atomic_store(&doubleBuffer.evHandlerBusy, false);
         
         if (_updateFrame || !_manualUpdateFrame || _engine.vsync) {
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);

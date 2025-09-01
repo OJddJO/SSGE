@@ -12,7 +12,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, 
 
     object->spriteType = SSGE_SPRITE_STATIC;
     object->texture.texture = NULL;
-    object->texture.blendDataIdx = 0;
+    object->texture.renderDataIdx = 0;
     object->x = x;
     object->y = y;
     object->width = width;
@@ -21,7 +21,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, 
     object->data = data;
     object->destroyData = destroyData;
 
-    _add_to_list(&_objectList, object, name, id, __func__);
+    _addToList(&_objectList, object, name, id, __func__);
     return object;
 }
 
@@ -30,7 +30,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *
     SSGE_Object *object = SSGE_Object_Create(id, name, x, y, template->width, template->height, template->hitbox, data, template->destroyData);
     if (template->spriteType == SSGE_SPRITE_STATIC)
         SSGE_Object_BindTexture(object, template->texture);
-    else
+    else if (template->spriteType == SSGE_SPRITE_ANIM)
         SSGE_Object_BindAnimation(object, template->animation);
     return object;
 }
@@ -55,17 +55,42 @@ SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
     _assert_engine_init
     object->x = x;
     object->y = y;
-    if (object->spriteType == SSGE_SPRITE_ANIM)
-        SSGE_Animation_Move(object->animation, x, y);
-    else if (object->spriteType == SSGE_SPRITE_STATIC) {
-        _SSGE_RenderData *renderData = SSGE_Array_Get(&object->texture.texture->queue, object->texture.blendDataIdx);
-        renderData->x = x;
-        renderData->y = y;
+    switch (object->spriteType) {
+        case SSGE_SPRITE_ANIM:
+            SSGE_Animation_Move(object->animation, x, y);
+            break;
+        case SSGE_SPRITE_STATIC:
+            _SSGE_RenderData *renderData = SSGE_Array_Get(&object->texture.texture->queue, object->texture.renderDataIdx);
+            renderData->x = x;
+            renderData->y = y;
+            break;
+        default:
+            break;
+    }
+}
+
+SSGEAPI void SSGE_Object_MoveRel(SSGE_Object *object, int dx, int dy) {
+    _assert_engine_init
+    object->x += dx;
+    object->y += dy;
+    switch (object->spriteType) {
+        case SSGE_SPRITE_ANIM:
+            SSGE_Animation_Move(object->animation, object->x, object->y);
+            break;
+        case SSGE_SPRITE_STATIC:
+            _SSGE_RenderData *renderData = SSGE_Array_Get(&object->texture.texture->queue, object->texture.renderDataIdx);
+            renderData->x = object->x;
+            renderData->y = object->y;
+            break;
+        default:
+            break;
     }
 }
 
 SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture) {
     _assert_engine_init
+    if (object->spriteType == SSGE_SPRITE_STATIC)
+        free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.renderDataIdx));
     object->spriteType = SSGE_SPRITE_STATIC;
     _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
     *renderData = (_SSGE_RenderData){
@@ -75,14 +100,14 @@ SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture)
         .height = object->height,
         .once = false
     };
-    object->texture.blendDataIdx = SSGE_Array_Add(&texture->queue, renderData);
+    object->texture.renderDataIdx = SSGE_Array_Add(&texture->queue, renderData);
     object->texture.texture = texture;
 }
 
 SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation) {
     _assert_engine_init
     if (object->spriteType == SSGE_SPRITE_STATIC)
-        free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.blendDataIdx));
+        free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.renderDataIdx));
     object->spriteType = SSGE_SPRITE_ANIM;
     object->animation = SSGE_Animation_Play(animation, object->x, object->y, -1, false, false);
 }
@@ -90,7 +115,7 @@ SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *anim
 SSGEAPI void SSGE_Object_RemoveSprite(SSGE_Object *object) {
     _assert_engine_init
     if (object->spriteType == SSGE_SPRITE_STATIC)
-        free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.blendDataIdx));
+        free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.renderDataIdx));
     object->spriteType = SSGE_SPRITE_NONE;
 }
 
@@ -108,6 +133,11 @@ SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name) {
     if (ptr == NULL) 
         SSGE_ErrorEx("Object not found: %s", name)
     return ptr;
+}
+
+SSGEAPI void *SSGE_Object_GetData(SSGE_Object *object) {
+    _assert_engine_init
+    return object->data;
 }
 
 SSGEAPI void SSGE_Object_Destroy(uint32_t id) {

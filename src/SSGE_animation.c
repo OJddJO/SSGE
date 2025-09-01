@@ -18,7 +18,7 @@ SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, ui
     anim->data.width = width;
     anim->data.height = height;
 
-    _add_to_list(&_animationList, anim, name, id, __func__);
+    _addToList(&_animationList, anim, name, id, __func__);
     return anim;
 }
 
@@ -32,7 +32,7 @@ SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void
     anim->type = SSGE_ANIM_FUNCTION;
     anim->draw = draw;
 
-    _add_to_list(&_animationList, anim, name, id, __func__);
+    _addToList(&_animationList, anim, name, id, __func__);
     return anim;
 }
 

@@ -3,6 +3,22 @@
 #include "SSGE/SSGE_local.h"
 #include "SSGE/SSGE_objtemplate.h"
 
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
+    _assert_engine_init
+    SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
+    if (template == NULL) 
+        SSGE_Error("Failed to allocate memory for object template")
+    template->spriteType = SSGE_SPRITE_NONE;
+    template->texture = NULL;
+    template->width = width;
+    template->height = height;
+    template->hitbox = hitbox;
+    template->destroyData = destroyData;
+
+    _addToList(&_objectTemplateList, template, name, id, __func__);
+    return template;
+}
+
 SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
@@ -15,7 +31,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name
     template->hitbox = hitbox;
     template->destroyData = destroyData;
 
-    _add_to_list(&_objectTemplateList, template, name, id, __func__);
+    _addToList(&_objectTemplateList, template, name, id, __func__);
     return template;
 }
 
@@ -31,7 +47,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, 
     template->hitbox = hitbox;
     template->destroyData = destroyData;
 
-    _add_to_list(&_objectTemplateList, template, name, id, __func__);
+    _addToList(&_objectTemplateList, template, name, id, __func__);
     return template;
 }
 

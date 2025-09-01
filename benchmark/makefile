@@ -18,12 +18,12 @@ SSGE_LIB	= -L $(OSDIR)/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixe
 INCLUDE		= -I ../include
 EXTRA		= -Werror -Wall #-mwindows
 
-all: create_dirs setup link
+all: create_dirs copySSGE link
 	@echo Done
 
 remake: clean all
 
-setup:
+copySSGE:
 	@echo Setting up SSGE...
 	@echo Copying SSGE files to the project directory...
 	@echo This may take a while, please wait...

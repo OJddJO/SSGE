@@ -120,10 +120,7 @@ static int check_winner(Game *game) {
  */
 static void update(Game *game) {
     game->winner = check_winner(game);
-    /**
-     * Carefull here we use `while` and not `if`
-     * because of the threading
-     */
+    //Carefull here we use `while` and not `if` because of the threading
     while (game->winner && !game->ended)
         SSGE_ManualUpdate();
 }
