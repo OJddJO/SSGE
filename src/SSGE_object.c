@@ -10,7 +10,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, 
     if (object == NULL) 
         SSGE_Error("Failed to allocate memory for object")
 
-    object->spriteType = SSGE_SPRITE_STATIC;
+    object->spriteType = SSGE_SPRITE_NONE;
     object->texture.texture = NULL;
     object->texture.renderDataIdx = 0;
     object->x = x;

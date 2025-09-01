@@ -78,13 +78,13 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
 SSGEAPI void SSGE_Quit() {
     _assert_engine_init
 
-    SSGE_Array_Destroy(&_textureList, (_SSGE_Destroy)destroyTexture);
     SSGE_Array_Destroy(&_objectList, (_SSGE_Destroy)destroyObject);
     SSGE_Array_Destroy(&_objectTemplateList, (_SSGE_Destroy)destroyTemplate);
     SSGE_Array_Destroy(&_fontList, (_SSGE_Destroy)destroyFont);
     SSGE_Array_Destroy(&_audioList, (_SSGE_Destroy)destroyAudio);
     SSGE_Array_Destroy(&_animationList, (_SSGE_Destroy)destroyAnimation);
     SSGE_Array_Destroy(&_playingAnim, free);
+    SSGE_Array_Destroy(&_textureList, (_SSGE_Destroy)destroyTexture);
 
     SDL_DestroyRenderer(_engine.renderer);
     SDL_DestroyWindow(_engine.window);
@@ -108,7 +108,7 @@ inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) 
     atomic_store(&doubleBuffer->framesGenerated, 0);
     atomic_store(&doubleBuffer->framesRendered, 0);
 
-    atomic_store(&doubleBuffer->evHandlerBusy, true);
+    atomic_store(&doubleBuffer->evHandlerBusy, false);
 }
 
 static void _destroyBufferedRenderItem(void *ptr) {
@@ -199,7 +199,7 @@ typedef struct _updThreadData {
     _SSGE_DoubleRenderBuffer *doubleBuffer;
 } updThreadData;
 
-static int updateThreadFunc(updThreadData *data) {
+static int _updateThreadFunc(updThreadData *data) {
     _SSGE_DoubleRenderBuffer *doubleBuffer = data->doubleBuffer;
     void (*update)(void *) = data->update;
     void *updData = data->data;
@@ -213,10 +213,10 @@ static int updateThreadFunc(updThreadData *data) {
         
         SSGE_Array_Destroy(&writeBuffer->renderQueue, _destroyBufferedRenderItem);
         SSGE_Array_Create(&writeBuffer->renderQueue);
-
+        
         while (atomic_load(&doubleBuffer->evHandlerBusy) && _engine.isRunning) SDL_Delay(0);
         if (!_engine.isRunning) return 0;
-
+        
         uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
         uintmax_t rendered = atomic_load(&doubleBuffer->framesRendered);
         while ((int)((long long)generated - (long long)rendered) < 0 && frameSkipped < _engine.maxFrameskip) {
@@ -238,7 +238,7 @@ static int updateThreadFunc(updThreadData *data) {
         atomic_bool *inUse = &doubleBuffer->buffers[readIdx].inUse;
         while (atomic_load(inUse) && _engine.isRunning) SDL_Delay(0);
         if (!_engine.isRunning) return 0;
-
+        
         atomic_store(&doubleBuffer->writeBuffer, readIdx);
         atomic_store(&doubleBuffer->readBuffer, writeIdx);
     }
@@ -262,7 +262,7 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
             .data = data,
             .doubleBuffer = &doubleBuffer
         };
-        updateThread = SDL_CreateThread((SDL_ThreadFunction)updateThreadFunc, "SSGE Update", &threadData);
+        updateThread = SDL_CreateThread((SDL_ThreadFunction)_updateThreadFunc, "SSGE Update", &threadData);
     }
     
     _engine.isRunning = true;
