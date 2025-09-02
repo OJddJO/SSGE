@@ -103,6 +103,7 @@ SSGEAPI void *SSGE_Array_Pop(SSGE_Array *array, uint32_t idx) {
         return NULL;
 
     void *element = array->array[idx];
+    if (element == NULL) return NULL;
     array->array[idx] = NULL;
     --array->count;
 

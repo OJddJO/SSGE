@@ -57,11 +57,12 @@ typedef struct _SSGE_Engine {
     uint16_t            width;              // The width of the window
     uint16_t            height;             // The height of the window
     uint16_t            fps;                // The frames per second
-    bool                isRunning;          // The running state of the engine
-    bool                initialized;        // If the `SSGE_Engine` has been initialized
     uint8_t             maxFrameskip;       // Max frameskip, default to 3
     bool                vsync;              // If VSync is enabled
     uint16_t            vsyncRate;          // VSync rate
+    bool                isRunning;          // The running state of the engine
+    bool                initialized;        // If the `SSGE_Engine` has been initialized
+    bool                fullscreen;         // If the window is in fullscreen
 } SSGE_Engine;
 
 // Array struct

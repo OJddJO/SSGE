@@ -10,19 +10,19 @@ extern "C" {
 #include <stdint.h>
 
 typedef enum _SSGE_EventType {
-    SSGE_FIRSTEVENT         = 0, // UNUSED
+    SSGE_EVENT_FIRSTEVENT   = 0, // UNUSED
     // Application events
-    SSGE_QUIT               = 0x100,
+    SSGE_EVENT_QUIT         = 0x100,
     // Window events
-    SSGE_WINDOWEVENT        = 0x200,
+    SSGE_EVENT_WINDOWEVENT  = 0x200,
     // Keyboard events
-    SSGE_KEYDOWN            = 0x300,
-    SSGE_KEYUP,
+    SSGE_EVENT_KEYDOWN      = 0x300,
+    SSGE_EVENT_KEYUP,
     // Mouse events
-    SSGE_MOUSEMOTION        = 0x400,
-    SSGE_MOUSEBUTTONDOWN,
-    SSGE_MOUSEBUTTONUP,
-    SSGE_MOUSEWHEEL,
+    SSGE_EVENT_MOUSEMOTION  = 0x400,
+    SSGE_EVENT_MOUSEBUTTONDOWN,
+    SSGE_EVENT_MOUSEBUTTONUP,
+    SSGE_EVENT_MOUSEWHEEL,
 } SSGE_EventType;
 
 typedef struct _SSGE_CommonEvent {

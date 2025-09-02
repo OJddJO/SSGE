@@ -13,10 +13,12 @@ typedef struct _BenchData {
     uint64_t frame;
     uint64_t update;
     int nbobj;
+    bool fullscreen;
 } BenchData;
 
-void update(BenchData *game);
+void update(BenchData *data);
 void draw(BenchData *data);
+void eventHandler(SSGE_Event ev, BenchData *data);
 
 int main(int argc, char *argv[]) {
     BenchData data = {0};
@@ -57,7 +59,7 @@ int main(int argc, char *argv[]) {
     }
 
     data.start = clock();
-    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, NULL, &data);
+    SSGE_Run((SSGE_UpdateFunc)update, (SSGE_DrawFunc)draw, (SSGE_EventHandler)eventHandler, &data);
 
     SSGE_Quit();
     return 0;
@@ -77,4 +79,13 @@ void draw(BenchData *data) {
     sprintf(fptchar, "Avg. FPS: %.3f | Avg. UPS: %.3f", fps, ups);
     SSGE_Text_Draw("font", fptchar, 2, 2, (SSGE_Color){0, 0, 0, 255}, SSGE_NW);
     SSGE_Text_Draw("font", fptchar, 0, 0, (SSGE_Color){255, 255, 255, 255}, SSGE_NW);
+}
+
+void eventHandler(SSGE_Event ev, BenchData *data) {
+    printf("Event type: %d\n", ev.type);
+    switch (ev.type) {
+        case SSGE_EVENT_KEYDOWN:
+            if (ev.key.keysym.scancode == SSGE_SCANCODE_F11)
+                SSGE_WindowFullscreen((data->fullscreen = !data->fullscreen));
+    }
 }

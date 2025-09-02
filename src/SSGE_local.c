@@ -81,3 +81,10 @@ void textureRelease(SSGE_Texture *texture) {
         free(texture);
     }
 }
+
+void destroyBufferedRenderItem(void *ptr) {
+    textureRelease(((_SSGE_BufferedRenderItem *)ptr)->texture);
+
+    free(((_SSGE_BufferedRenderItem *)ptr)->renderDatas);
+    free(ptr);
+}
