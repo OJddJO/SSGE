@@ -42,7 +42,8 @@ int main(int argc, char *argv[]) {
 
     printf("nb. obj. : %d, fps: %u, vsync: %d\n", data.nbobj, fps, vsync);
     SSGE_Init("Benchmark", WWIDTH, WHEIGHT, fps);
-    SSGE_WindowResizable(true);
+    SSGE_SetWindowIcon("image.png");
+    SSGE_WindowResizable(false);
     SSGE_SetVSync(vsync);
 
     uint32_t id;
@@ -82,10 +83,11 @@ void draw(BenchData *data) {
 }
 
 void eventHandler(SSGE_Event ev, BenchData *data) {
-    printf("Event type: %d\n", ev.type);
     switch (ev.type) {
         case SSGE_EVENT_KEYDOWN:
-            if (ev.key.keysym.scancode == SSGE_SCANCODE_F11)
+            if (ev.key.keysym.scancode == SSGE_SCANCODE_F11) {
                 SSGE_WindowFullscreen((data->fullscreen = !data->fullscreen));
+            }
+            break;
     }
 }

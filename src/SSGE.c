@@ -25,7 +25,7 @@ static int _eventFilter(void *userdata, SDL_Event *event) {
     }
 }
 
-SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
+SSGEAPI const SSGE_Engine * const SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
     if (_engine.initialized == true)
         SSGE_Error("Engine already initialized")
 
@@ -35,7 +35,9 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
     if (TTF_Init() != 0)
         SSGE_ErrorEx("Failed to initialize TTF: %s", TTF_GetError())
 
-    _engine.window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
+    _engine.title = (_windowReq.title = (char *)malloc(strlen(title)));
+    strcpy(_engine.title, title);
+    _engine.window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (_windowReq.width = width), (_windowReq.height = height), 0);
     if (_engine.window == NULL)
         SSGE_ErrorEx("Failed to create window: %s", SDL_GetError())
 
@@ -64,16 +66,16 @@ SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uin
     SSGE_Array_Create(&_animationList);
     SSGE_Array_Create(&_playingAnim);
 
-    _engine.isRunning = false;
-    _engine.width = width;
-    _engine.height = height;
+    _engine.icon = NULL;
     _engine.fps = fps;
-    _engine.initialized = true;
     _engine.maxFrameskip = _MAX_FRAMESKIP;
     _engine.vsync = false;
     _engine.vsyncRate = 0;
+    _engine.isRunning = false;
+    _engine.initialized = true;
     _engine.fullscreen = false;
-    
+    _engine.resizable = false;
+
     return &_engine;
 }
 
@@ -87,6 +89,9 @@ SSGEAPI void SSGE_Quit() {
     SSGE_Array_Destroy(&_animationList, (_SSGE_Destroy)destroyAnimation);
     SSGE_Array_Destroy(&_playingAnim, free);
     SSGE_Array_Destroy(&_textureList, (_SSGE_Destroy)destroyTexture);
+
+    free(_engine.title);
+    SDL_FreeSurface(_engine.icon);
 
     SDL_DestroyRenderer(_engine.renderer);
     SDL_DestroyWindow(_engine.window);
@@ -253,6 +258,25 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
     return 0;
 }
 
+inline static void changeWindowState() {
+    if (_windowReq.width != _engine.width || _windowReq.height != _engine.height)
+        SDL_SetWindowSize(_engine.window, (_engine.width = _windowReq.width), (_engine.height = _windowReq.height));
+    if (_windowReq.fullscreen != _engine.fullscreen)
+        SDL_SetWindowFullscreen(_engine.window, (_engine.fullscreen = _windowReq.fullscreen));
+    if (_windowReq.resizable != _engine.resizable)
+        SDL_SetWindowResizable(_engine.window, (_engine.resizable = _windowReq.resizable));
+    if (_windowReq.title != _engine.title) {
+        free(_engine.title);
+        SDL_SetWindowTitle(_engine.window, (_engine.title = _windowReq.title));
+    }
+    if (_windowReq.icon != _engine.icon) {
+        SDL_FreeSurface(_engine.icon);
+        SDL_SetWindowIcon(_engine.window, (_engine.icon = _windowReq.icon));
+    }
+
+    _windowReq.changed = false;
+}
+
 SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data) {
     _assert_engine_init
 
@@ -281,6 +305,9 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
     
     while (_engine.isRunning) {
         frameStart = SDL_GetTicks64();
+
+        // Check if the window state has changed, and if it has, apply the changes
+        if (_windowReq.changed) changeWindowState();
 
         while (atomic_load(&doubleBuffer.evHandlerBusy)) SDL_Delay(0);
         atomic_store(&doubleBuffer.evQueueBusy, true);
@@ -322,33 +349,38 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
 
 SSGEAPI void SSGE_SetWindowTitle(char *title) {
     _assert_engine_init
-    SDL_SetWindowTitle(_engine.window, title);
+    _windowReq.title = (char *)malloc(strlen(title));
+    strcpy(_windowReq.title, title);
+    _windowReq.changed = true;
 }
 
 SSGEAPI void SSGE_SetWindowIcon(char *filename) {
     _assert_engine_init
-    SDL_Surface *icon = IMG_Load(filename);
-    if (icon == NULL) {
+    _windowReq.icon = IMG_Load(filename);
+    if (_windowReq.icon == NULL) {
         SSGE_ErrorEx("Failed to load icon: %s", IMG_GetError())
         return;
     }
-    SDL_SetWindowIcon(_engine.window, icon);
-    SDL_FreeSurface(icon);
+    _windowReq.changed = true;
 }
 
 SSGEAPI void SSGE_WindowResize(uint16_t width, uint16_t height) {
     _assert_engine_init
-    SDL_SetWindowSize(_engine.window, width, height);
+    _windowReq.width = width;
+    _windowReq.height = height;
+    _windowReq.changed = true;
 }
 
 SSGEAPI void SSGE_WindowResizable(bool resizable) {
     _assert_engine_init
-    SDL_SetWindowResizable(_engine.window, resizable);
+    _windowReq.resizable = resizable;
+    _windowReq.changed = true;
 }
 
-SSGEAPI void SSGE_WindowFullscreen(bool fullscreen) {
+SSGEAPI void SSGE_WindowFullscreen(SSGE_WindowMode fullscreen) {
     _assert_engine_init
-    _engine.fullscreen = fullscreen;
+    _windowReq.fullscreen = fullscreen;
+    _windowReq.changed = true;
 }
 
 SSGEAPI void SSGE_SetFrameskipMax(uint8_t max) {

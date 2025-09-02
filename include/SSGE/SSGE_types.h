@@ -38,6 +38,12 @@ typedef enum {
     SSGE_FLIP_HOR_VER    = 0x00000003  // Flip horizontally and vertically
 } SSGE_Flip;
 
+typedef enum {
+    SSGE_WINDOWMODE_WINDOWED = 0,
+    SSGE_WINDOWMODE_FULLSCREEN = 1,
+    SSGE_WINDOWMODE_FULLSCREEN_DESKTOP = 4097,
+} SSGE_WindowMode;
+
 /*************************************************
  * SSGE Types
  *************************************************/
@@ -52,17 +58,20 @@ typedef void (*SSGE_EventHandler)(SSGE_Event, void *);
 
 // Engine struct
 typedef struct _SSGE_Engine {
-    struct SDL_Window   *window;            // The window
-    struct SDL_Renderer *renderer;          // The renderer
-    uint16_t            width;              // The width of the window
-    uint16_t            height;             // The height of the window
-    uint16_t            fps;                // The frames per second
-    uint8_t             maxFrameskip;       // Max frameskip, default to 3
-    bool                vsync;              // If VSync is enabled
-    uint16_t            vsyncRate;          // VSync rate
-    bool                isRunning;          // The running state of the engine
-    bool                initialized;        // If the `SSGE_Engine` has been initialized
-    bool                fullscreen;         // If the window is in fullscreen
+    struct SDL_Window   *window;        // The window
+    struct SDL_Renderer *renderer;      // The renderer
+    char                *title;         // The title of the window
+    struct SDL_Surface  *icon;          // The icon of the window
+    uint16_t            width;          // The width of the window
+    uint16_t            height;         // The height of the window
+    bool                resizable;      // If the window is resizable
+    SSGE_WindowMode     fullscreen;     // If the window is in fullscreen
+    uint16_t            fps;            // The frames per second
+    uint8_t             maxFrameskip;   // Max frameskip, default to 3
+    bool                vsync;          // If VSync is enabled
+    uint16_t            vsyncRate;      // VSync rate
+    bool                isRunning;      // The running state of the engine
+    bool                initialized;    // If the `SSGE_Engine` has been initialized
 } SSGE_Engine;
 
 // Array struct

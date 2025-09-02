@@ -33,7 +33,7 @@ extern "C" {
  * \param fps The frames per second
  * \return The engine struct
  */
-SSGEAPI SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps);
+SSGEAPI const SSGE_Engine * const SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps);
 
 /**
  * Quit the engine
@@ -84,7 +84,7 @@ SSGEAPI void SSGE_WindowResizable(bool resizable);
  * Set the window as fullscreen
  * \param fullscreen True if the window should be fullscreen, false otherwise
  */
-SSGEAPI void SSGE_WindowFullscreen(bool fullscreen);
+SSGEAPI void SSGE_WindowFullscreen(SSGE_WindowMode fullscreen);
 
 /**
  * Set the max number of frame to skip when frameskipping

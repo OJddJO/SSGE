@@ -18,6 +18,8 @@ SSGE_Color  _bgColor            = {0, 0, 0, 255};
 bool        _manualUpdateFrame  = false;
 bool        _updateFrame        = true; // set to true to draw the first frame
 
+_SSGE_WindowStateReq _windowReq = {0};
+
 void destroyTexture(SSGE_Texture *ptr) {
     atomic_store(&ptr->markedForDestroy, true);
     SSGE_Array_Destroy(&ptr->queue, free);

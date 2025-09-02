@@ -52,12 +52,22 @@ typedef struct {
 } _SSGE_BufferedRenderItem;
 
 typedef struct {
-    void (*update)(void *);
-    void (*eventHandler)(SSGE_Event, void *);
-    void *data;
-    SSGE_Array eventQueue;
+    void        (*update)(void *);
+    void        (*eventHandler)(SSGE_Event, void *);
+    void        *data;
+    SSGE_Array  eventQueue;
     _SSGE_DoubleRenderBuffer *doubleBuffer;
 } _SSGE_UpdThreadData;
+
+typedef struct {
+    char                *title;
+    struct SDL_Surface  *icon;
+    uint16_t            width;
+    uint16_t            height;
+    bool                resizable;
+    SSGE_WindowMode     fullscreen;
+    bool                changed;
+} _SSGE_WindowStateReq;
 
 typedef void (*_SSGE_Destroy)(void *);
 
@@ -74,6 +84,8 @@ extern SSGE_Color   _color;
 extern SSGE_Color   _bgColor;
 extern bool         _manualUpdateFrame;
 extern bool         _updateFrame;
+
+extern _SSGE_WindowStateReq _windowReq;
 
 #define _assert_engine_init \
 if (!_engine.initialized) {\
