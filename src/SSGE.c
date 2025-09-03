@@ -35,7 +35,7 @@ SSGEAPI const SSGE_Engine * const SSGE_Init(char *title, uint16_t width, uint16_
     if (TTF_Init() != 0)
         SSGE_ErrorEx("Failed to initialize TTF: %s", TTF_GetError())
 
-    _engine.title = (_windowReq.title = (char *)malloc(strlen(title)));
+    _engine.title = (_windowReq.title = (char *)malloc(strlen(title) + 1));
     strcpy(_engine.title, title);
     _engine.window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, (_windowReq.width = width), (_windowReq.height = height), 0);
     if (_engine.window == NULL)
@@ -91,7 +91,7 @@ SSGEAPI void SSGE_Quit() {
     SSGE_Array_Destroy(&_textureList, (_SSGE_Destroy)destroyTexture);
 
     free(_engine.title);
-    SDL_FreeSurface(_engine.icon);
+    if (_engine.icon) SDL_FreeSurface(_engine.icon);
 
     SDL_DestroyRenderer(_engine.renderer);
     SDL_DestroyWindow(_engine.window);
@@ -171,7 +171,7 @@ inline static void _copyGameStateToBuffer(_SSGE_RenderBuffer *buffer) {
     uint32_t count = _textureList.count;
     for (uint32_t i = 0; i < count; i++) {
         SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
-        if (!texture || texture->markedForDestroy || texture->queue.count == 0) continue;
+        if (!texture || atomic_load(&texture->markedForDestroy) || texture->queue.count == 0) continue;
 
         _SSGE_BufferedRenderItem *item = (_SSGE_BufferedRenderItem *)malloc(sizeof(_SSGE_BufferedRenderItem));
         _SSGE_RenderData *array = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData) * texture->queue.count);
@@ -180,8 +180,7 @@ inline static void _copyGameStateToBuffer(_SSGE_RenderBuffer *buffer) {
         item->count = texture->queue.count;
 
         textureAcquire(texture);
-
-        for (int j = 0; j < texture->queue.count; j++) {
+        for (int j = 0; j < item->count; j++) {
             _SSGE_RenderData *data = SSGE_Array_Get(&texture->queue, j);
             if (!data) continue;
 
@@ -196,24 +195,15 @@ inline static void _copyGameStateToBuffer(_SSGE_RenderBuffer *buffer) {
 
 static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
     _SSGE_DoubleRenderBuffer *doubleBuffer = data->doubleBuffer;
-    SSGE_Array *evQueue = &data->eventQueue;
     void (*update)(void *) = data->update;
     void (*eventHandler)(SSGE_Event, void *) = data->eventHandler;
     void *updData = data->data;
 
     while (_engine.isRunning) {
-        if (eventHandler && !atomic_load(&doubleBuffer->evQueueBusy)) {
+        if (eventHandler && anyEvent() && !atomic_load(&doubleBuffer->evQueueBusy)) {
             atomic_store(&doubleBuffer->evHandlerBusy, true);
-            uint32_t count = evQueue->count;
-            uint32_t i = 0, done = 0;
-            SSGE_Event *event;
-            while (done < count) {
-                event = SSGE_Array_Pop(evQueue, i++);
-                if (!event) continue;
-                eventHandler(*event, updData);
-                free(event);
-                ++done;
-            }
+            while (anyEvent())
+                eventHandler(popEvent(), updData);
             atomic_store(&doubleBuffer->evHandlerBusy, false);
         }
 
@@ -228,19 +218,21 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
         while (atomic_load(&doubleBuffer->evHandlerBusy) && _engine.isRunning) SDL_Delay(0);
         if (!_engine.isRunning) return 0;
 
-        uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
-        uintmax_t rendered = atomic_load(&doubleBuffer->framesRendered);
-        int framesBehind = (int)(rendered - generated);
-        if (framesBehind > 0) {
-            int framesToCatchUp = (framesBehind > _engine.maxFrameskip) ? _engine.maxFrameskip : framesBehind;
+        if (update) {
+            uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
+            uintmax_t rendered = atomic_load(&doubleBuffer->framesRendered);
+            int framesBehind = (int)(rendered - generated);
+            if (framesBehind > 0) {
+                int framesToCatchUp = (framesBehind > _engine.maxFrameskip) ? _engine.maxFrameskip : framesBehind;
 
-            for (int i = 0; i < framesToCatchUp; i++) {
-                update(updData);
-                atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
+                for (int i = 0; i < framesToCatchUp; i++) {
+                    update(updData);
+                    atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
+                }
             }
-        }
 
-        update(updData);
+            update(updData);
+        }
 
         _copyGameStateToBuffer(writeBuffer);
 
@@ -249,8 +241,12 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
 
         int readIdx = atomic_load(&doubleBuffer->readBuffer);
         atomic_bool *inUse = &doubleBuffer->buffers[readIdx].inUse;
-        while (atomic_load(inUse) && _engine.isRunning) SDL_Delay(0);
-        if (!_engine.isRunning) return 0;
+        if (_manualUpdateFrame) SDL_Delay(1);
+        else {
+            while (atomic_load(inUse) && _engine.isRunning)
+                SDL_Delay(1);
+            if (!_engine.isRunning) return 0;
+        }
 
         atomic_store(&doubleBuffer->writeBuffer, readIdx);
         atomic_store(&doubleBuffer->readBuffer, writeIdx);
@@ -281,63 +277,54 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
     _assert_engine_init
 
     uint64_t frameStart;
-    double targetFrameTime = 1000.0 / (double)_engine.fps;
+    double targetFrameTime = 1000.0 / (double)(_engine.fps + 1);
     
     _SSGE_DoubleRenderBuffer doubleBuffer = {0};
     _initDoubleBuffering(&doubleBuffer);
-    
-    _SSGE_UpdThreadData threadData = {0};
+
     SDL_Thread *updateThread = NULL;
-    if (update || eventHandler) {
-        threadData = (_SSGE_UpdThreadData){
-            .update = update,
-            .eventHandler = eventHandler,
-            .data = data,
-            .doubleBuffer = &doubleBuffer
-        };
-        if (eventHandler) SSGE_Array_Create(&threadData.eventQueue);
-        updateThread = SDL_CreateThread((SDL_ThreadFunction)_updateThreadFunc, "SSGE Update", &threadData);
-        if (!updateThread)
-            SSGE_ErrorEx("Failed to create update thread: %s", SDL_GetError());
-    }
+    _SSGE_UpdThreadData threadData = {
+        .update = update,
+        .eventHandler = eventHandler,
+        .data = data,
+        .doubleBuffer = &doubleBuffer,
+    };
+    updateThread = SDL_CreateThread((SDL_ThreadFunction)_updateThreadFunc, "SSGE Update", &threadData);
+    if (!updateThread)
+        SSGE_ErrorEx("Failed to create update thread: %s", SDL_GetError());
 
     _engine.isRunning = true;
-    
+    SSGE_Event event = {0};
+
     while (_engine.isRunning) {
         frameStart = SDL_GetTicks64();
 
-        // Check if the window state has changed, and if it has, apply the changes
-        if (_windowReq.changed) changeWindowState();
-
-        while (atomic_load(&doubleBuffer.evHandlerBusy)) SDL_Delay(0);
         atomic_store(&doubleBuffer.evQueueBusy, true);
-        while (SDL_PollEvent((SDL_Event *)&_event)) {
-            if (_event.type == SDL_QUIT) {
+        while (SDL_PollEvent((SDL_Event *)&event)) {
+            if (event.type == SDL_QUIT) {
                 _engine.isRunning = false;
                 SDL_WaitThread(updateThread, NULL);
-                SSGE_Array_Destroy(&threadData.eventQueue, free);
                 SSGE_Array_Destroy(&doubleBuffer.buffers[0].renderQueue, destroyBufferedRenderItem);
                 SSGE_Array_Destroy(&doubleBuffer.buffers[1].renderQueue, destroyBufferedRenderItem);
                 return;
             }
-            if (eventHandler) {
-                SSGE_Event *buffer = (SSGE_Event *)malloc(sizeof(SSGE_Event));
-                *buffer = _event;
-                SSGE_Array_Add(&threadData.eventQueue, buffer);
-            }
+            if (eventHandler) queueEvent(event);
         }
         atomic_store(&doubleBuffer.evQueueBusy, false);
-        
+
         if (_updateFrame || !_manualUpdateFrame || _engine.vsync) {
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);
             SDL_RenderClear(_engine.renderer);
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
             _renderTextures(&doubleBuffer);
             if (draw) draw(data);
-            
+
             SDL_RenderPresent(_engine.renderer);
             _updateFrame = false;
         }
+
+        // Check if the window state has changed, and if it has, apply the changes
+        if (_windowReq.changed) changeWindowState();
 
         if (!_engine.vsync) {
             uint64_t frameTime = SDL_GetTicks64() - frameStart;
@@ -349,7 +336,7 @@ SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*event
 
 SSGEAPI void SSGE_SetWindowTitle(char *title) {
     _assert_engine_init
-    _windowReq.title = (char *)malloc(strlen(title));
+    _windowReq.title = (char *)malloc(strlen(title) + 1);
     strcpy(_windowReq.title, title);
     _windowReq.changed = true;
 }
@@ -456,7 +443,7 @@ SSGEAPI uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {
     
     uint32_t i = 0, count = 0;
     while ((i < _objectList.count || i >= _objectList.size) && count < size) {
-        SSGE_Object *obj = _objectList.array[i++];
+        SSGE_Object *obj = SSGE_Array_Get(&_objectList, i++);
 
         if (obj != NULL && _is_hovered(obj, mousePos))
             objects[count++] = obj;

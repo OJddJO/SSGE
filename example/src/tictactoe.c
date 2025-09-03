@@ -120,8 +120,7 @@ static int check_winner(Game *game) {
  */
 static void update(Game *game) {
     game->winner = check_winner(game);
-    //Carefull here we use `while` and not `if` because of the threading
-    while (game->winner && !game->ended)
+    if (game->winner && !game->ended)
         SSGE_ManualUpdate();
 }
 
@@ -169,7 +168,7 @@ static void draw(Game *game) {
  */
 static void event_handler(SSGE_Event event, Game *game) {
     switch (event.type) {
-        case SSGE_MOUSEBUTTONDOWN: // handle mouse click
+        case SSGE_EVENT_MOUSEBUTTONDOWN: // handle mouse click
             if (game->winner == 0) { // if the game is not over
                 // get the mouse position
                 int x, y;
@@ -197,5 +196,6 @@ static void event_handler(SSGE_Event event, Game *game) {
                 create_hitboxes(game->hitboxes);
                 SSGE_ManualUpdate();
             }
+            break;
     }
 }

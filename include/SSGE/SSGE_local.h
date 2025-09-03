@@ -52,10 +52,16 @@ typedef struct {
 } _SSGE_BufferedRenderItem;
 
 typedef struct {
-    void        (*update)(void *);
-    void        (*eventHandler)(SSGE_Event, void *);
-    void        *data;
-    SSGE_Array  eventQueue;
+    SSGE_Event              queue[UINT8_MAX];
+    atomic_uint_fast8_t     first;
+    atomic_uint_fast8_t     last;
+    atomic_uint_fast8_t     count;
+} _SSGE_EventQueue;
+
+typedef struct {
+    void (*update)(void *);
+    void (*eventHandler)(SSGE_Event, void *);
+    void *data;
     _SSGE_DoubleRenderBuffer *doubleBuffer;
 } _SSGE_UpdThreadData;
 
@@ -71,6 +77,12 @@ typedef struct {
 
 typedef void (*_SSGE_Destroy)(void *);
 
+// Dummy type
+typedef struct _DummyType {
+    char *name;
+    uint32_t id;
+} DummyType;
+
 extern SSGE_Engine  _engine;
 extern SSGE_Array   _textureList;
 extern SSGE_Array   _objectList;
@@ -79,13 +91,13 @@ extern SSGE_Array   _fontList;
 extern SSGE_Array   _audioList;
 extern SSGE_Array   _animationList;
 extern SSGE_Array   _playingAnim;
-extern SSGE_Event   _event;
 extern SSGE_Color   _color;
 extern SSGE_Color   _bgColor;
 extern bool         _manualUpdateFrame;
 extern bool         _updateFrame;
 
 extern _SSGE_WindowStateReq _windowReq;
+extern _SSGE_EventQueue     _evQueue;
 
 #define _assert_engine_init \
 if (!_engine.initialized) {\
@@ -93,19 +105,15 @@ if (!_engine.initialized) {\
     exit(1);\
 }\
 
-// Dummy type
-typedef struct _DummyType {
-    char *name;
-    uint32_t id;
-} DummyType;
-
 inline void _addToList(SSGE_Array *list, void *element, char *name, uint32_t *id, const char *funcname) {
-    ((DummyType *)element)->name = (char *)malloc(sizeof(char) * (strlen(name) + 1));
-    if (((DummyType *)element)->name == NULL) {
-        fprintf(stderr, "[SSGE][%s] Failed to allocate memory for name\n", funcname);
-        exit(1);
-    }
-    strcpy(((DummyType *)element)->name, name);
+    if (name) {
+        ((DummyType *)element)->name = (char *)malloc(sizeof(char) * (strlen(name) + 1));
+        if (((DummyType *)element)->name == NULL) {
+            fprintf(stderr, "[SSGE][%s] Failed to allocate memory for name\n", funcname);
+            exit(1);
+        }
+        strcpy(((DummyType *)element)->name, name);
+    } else ((DummyType *)element)->name = NULL;
 
     if (id == NULL) {
         fprintf(stderr, "[SSGE][%s] ID is discarded\n", funcname);
@@ -123,6 +131,20 @@ inline void _initTextureFields(SSGE_Texture *texture) {
     atomic_init(&texture->markedForDestroy, false);
 
     SSGE_Array_Create(&texture->queue);
+}
+
+inline void queueEvent(SSGE_Event event) {
+    _evQueue.queue[atomic_fetch_add(&_evQueue.last, 1)] = event;
+    atomic_fetch_add(&_evQueue.count, 1);
+}
+
+inline SSGE_Event popEvent() {
+    atomic_fetch_sub(&_evQueue.count, 1);
+    return _evQueue.queue[atomic_fetch_add(&_evQueue.first, 1)];
+}
+
+inline bool anyEvent() {
+    return atomic_load(&_evQueue.count);
 }
 
 void destroyTexture(SSGE_Texture *ptr);

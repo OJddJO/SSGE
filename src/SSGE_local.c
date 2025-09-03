@@ -18,7 +18,8 @@ SSGE_Color  _bgColor            = {0, 0, 0, 255};
 bool        _manualUpdateFrame  = false;
 bool        _updateFrame        = true; // set to true to draw the first frame
 
-_SSGE_WindowStateReq _windowReq = {0};
+_SSGE_WindowStateReq    _windowReq  = {0};
+_SSGE_EventQueue        _evQueue    = {0};
 
 void destroyTexture(SSGE_Texture *ptr) {
     atomic_store(&ptr->markedForDestroy, true);
@@ -30,7 +31,7 @@ void destroyTexture(SSGE_Texture *ptr) {
 }
 
 void destroyObject(SSGE_Object *ptr) {
-    free(ptr->name);
+    if (ptr->name) free(ptr->name);
     if (ptr->destroyData != NULL)
         ptr->destroyData(ptr->data);
     if (ptr->spriteType == SSGE_SPRITE_STATIC)
@@ -39,19 +40,19 @@ void destroyObject(SSGE_Object *ptr) {
 }
 
 void destroyTemplate(SSGE_ObjectTemplate *ptr) {
-    free(ptr->name);
+    if (ptr->name) free(ptr->name);
     free(ptr);
 }
 
 void destroyFont(SSGE_Font *ptr) {
     TTF_CloseFont(ptr->font);
-    free(ptr->name);
+    if (ptr->name) free(ptr->name);
     free(ptr);
 }
 
 void destroyAudio(SSGE_Audio *ptr) {
     Mix_FreeChunk(ptr->audio);
-    free(ptr->name);
+    if (ptr->name) free(ptr->name);
     free(ptr);
 }
 
@@ -64,7 +65,7 @@ void destroyAnimation(SSGE_Animation *ptr) {
         }
         free(ptr->data.frames);
     }
-    free(ptr->name);
+    if (ptr->name) free(ptr->name);
     free(ptr);
 }
 
@@ -79,7 +80,7 @@ void textureRelease(SSGE_Texture *texture) {
     if (oldCount == 1 && texture->markedForDestroy) { // No more reference to the texture
         SDL_DestroyTexture(texture->texture);
         SSGE_Array_Destroy(&texture->queue, free);
-        free(texture->name);
+        if (texture->name) free(texture->name);
         free(texture);
     }
 }
