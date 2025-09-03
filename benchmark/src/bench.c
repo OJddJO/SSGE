@@ -13,7 +13,7 @@ typedef struct _BenchData {
     uint64_t frame;
     uint64_t update;
     int nbobj;
-    bool fullscreen;
+    SSGE_WindowMode fullscreen;
 } BenchData;
 
 void update(BenchData *data);
@@ -86,7 +86,7 @@ void eventHandler(SSGE_Event ev, BenchData *data) {
     switch (ev.type) {
         case SSGE_EVENT_KEYDOWN:
             if (ev.key.keysym.scancode == SSGE_SCANCODE_F11) {
-                SSGE_WindowFullscreen((data->fullscreen = !data->fullscreen));
+                SSGE_WindowFullscreen((data->fullscreen = !data->fullscreen ? SSGE_WINDOWMODE_FULLSCREEN_DESKTOP : SSGE_WINDOWMODE_WINDOWED));
             }
             break;
     }

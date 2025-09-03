@@ -115,7 +115,6 @@ inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) 
     atomic_store(&doubleBuffer->framesGenerated, 0);
     atomic_store(&doubleBuffer->framesRendered, 0);
 
-    atomic_store(&doubleBuffer->evHandlerBusy, false);
     atomic_store(&doubleBuffer->evQueueBusy, false);
 }
 
@@ -133,7 +132,6 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
     _SSGE_RenderBuffer *readBuffer = &doubleBuffer->buffers[readIdx];
 
     if (!atomic_load(&readBuffer->ready)) return;
-
 
     for (int i = 0; i < readBuffer->renderQueue.count; i++) {
         _SSGE_BufferedRenderItem *item = SSGE_Array_Get(&readBuffer->renderQueue, i);
@@ -200,11 +198,11 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
     void *updData = data->data;
 
     while (_engine.isRunning) {
-        if (eventHandler && anyEvent() && !atomic_load(&doubleBuffer->evQueueBusy)) {
-            atomic_store(&doubleBuffer->evHandlerBusy, true);
-            while (anyEvent())
+        uint8_t evCount = 0;
+        if (eventHandler && (evCount = countEvent()) && !atomic_load(&doubleBuffer->evQueueBusy)) {
+            uint8_t i = 0;
+            while (i++ < evCount)
                 eventHandler(popEvent(), updData);
-            atomic_store(&doubleBuffer->evHandlerBusy, false);
         }
 
         int writeIdx = atomic_load(&doubleBuffer->writeBuffer);
@@ -214,9 +212,6 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
 
         SSGE_Array_Destroy(&writeBuffer->renderQueue, destroyBufferedRenderItem);
         SSGE_Array_Create(&writeBuffer->renderQueue);
-
-        while (atomic_load(&doubleBuffer->evHandlerBusy) && _engine.isRunning) SDL_Delay(0);
-        if (!_engine.isRunning) return 0;
 
         if (update) {
             uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
@@ -241,10 +236,10 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
 
         int readIdx = atomic_load(&doubleBuffer->readBuffer);
         atomic_bool *inUse = &doubleBuffer->buffers[readIdx].inUse;
-        if (_manualUpdateFrame) SDL_Delay(1);
+        if (_manualUpdateFrame) SDL_Delay(0);
         else {
             while (atomic_load(inUse) && _engine.isRunning)
-                SDL_Delay(1);
+                SDL_Delay(0);
             if (!_engine.isRunning) return 0;
         }
 
@@ -273,7 +268,7 @@ inline static void changeWindowState() {
     _windowReq.changed = false;
 }
 
-SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data) {
+SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data) {
     _assert_engine_init
 
     uint64_t frameStart;

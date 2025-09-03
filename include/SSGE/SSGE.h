@@ -43,15 +43,15 @@ SSGEAPI void SSGE_Quit();
 
 /**
  * Run the engine
- * \param update The update function. Should take a `void *` as argument and return `void`
- * \param draw The draw function. Should takes a `void *` as argument and returns `void`
- * \param eventHandler The event handler function. Should takes a `SSGE_Event` and a `void *` as arguments and returns `void`
+ * \param update The update function
+ * \param draw The draw function
+ * \param eventHandler The event handler function
  * \param data The `void *` to pass to the functions (update, draw, eventHandler)
  * \warning The engine runs in an infinite loop until the window is closed
- * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
+ * \note The order of execution is as follows: Event handling (thread), Update (thread), (Clear screen), Draw
  * \note The `eventHandler` and `update` function is executed on a thread for double buffering. All `SSGE` draw functions should be called in the user `draw` function
  */
-SSGEAPI void SSGE_Run(void (*update)(void *), void (*draw)(void *), void (*eventHandler)(SSGE_Event, void *), void *data);
+SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data);
 
 // Window functions
 
