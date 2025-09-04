@@ -1,7 +1,4 @@
 // Internal array struct
-// This file should not be included
-// It is used internally by the SSGE library
-
 // Defines a dynamic array specifically made for SSGE usage
 // It is not recommanded to use this array as it may
 //  not be optimized for general usage.

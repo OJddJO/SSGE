@@ -1,8 +1,6 @@
 #include <stdio.h>
 
-#define SSGE_GET_SDL
-
-#include "SSGE/SSGE_local.h"
+#include "SSGE_local.h"
 #include "SSGE/SSGE_animation.h"
 
 SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, uint32_t frameCount, uint16_t width, uint16_t height) {

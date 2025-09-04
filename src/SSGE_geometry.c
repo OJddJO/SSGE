@@ -1,8 +1,6 @@
-#define SSGE_GET_SDL
-
 #include "SDL2/SDL2_gfxPrimitives.h"
 
-#include "SSGE/SSGE_local.h"
+#include "SSGE_local.h"
 #include "SSGE/SSGE_geometry.h"
 
 SSGEAPI void SSGE_DrawLine(int x1, int y1, int x2, int y2, SSGE_Color color) {

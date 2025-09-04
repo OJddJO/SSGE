@@ -1,11 +1,12 @@
-// This file should not be included
-// It is used internally by the SSGE library
-
 #ifndef __SSGE_LOCAL_H__
 #define __SSGE_LOCAL_H__
 
 #include <string.h>
 #include <stdatomic.h>
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 #include "SSGE/SSGE_types.h"
 #include "SSGE/SSGE_array.h"
 #include "SSGE/SSGE_error.h"
@@ -63,7 +64,7 @@ typedef struct {
 
 typedef struct {
     char                *title;
-    struct SDL_Surface  *icon;
+    SDL_Surface         *icon;
     uint16_t            width;
     uint16_t            height;
     bool                resizable;

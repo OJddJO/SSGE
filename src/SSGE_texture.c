@@ -1,6 +1,4 @@
-#define SSGE_GET_SDL
-
-#include "SSGE/SSGE_local.h"
+#include "SSGE_local.h"
 #include "SSGE/SSGE_texture.h"
 
 SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *name) {

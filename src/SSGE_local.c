@@ -1,8 +1,4 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_mixer.h>
-#include <SDL2/SDL_ttf.h>
-
-#include "SSGE/SSGE_local.h"
+#include "SSGE_local.h"
 
 SSGE_Engine _engine             = {0};
 SSGE_Array  _textureList        = {0};

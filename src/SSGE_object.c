@@ -1,6 +1,4 @@
-#define SSGE_GET_SDL
-
-#include "SSGE/SSGE_local.h"
+#include "SSGE_local.h"
 #include "SSGE/SSGE_object.h"
 #include "SSGE/SSGE_animation.h"
 

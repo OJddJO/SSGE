@@ -1,10 +1,8 @@
 #include <stdlib.h>
 #include <stdatomic.h>
 
-#define SSGE_GET_SDL
-
 #include "SSGE/SSGE.h"
-#include "SSGE/SSGE_local.h"
+#include "SSGE_local.h"
 
 static int _eventFilter(void *userdata, SDL_Event *event) {
     switch (event->type) {

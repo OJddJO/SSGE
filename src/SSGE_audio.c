@@ -1,6 +1,4 @@
-#define SSGE_GET_SDL
-
-#include "SSGE/SSGE_local.h"
+#include "SSGE_local.h"
 #include "SSGE/SSGE_audio.h"
 
 SSGEAPI SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name) {

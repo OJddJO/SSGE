@@ -1,6 +1,4 @@
-#define SSGE_GET_SDL
-
-#include "SSGE/SSGE_local.h"
+#include "SSGE_local.h"
 #include "SSGE/SSGE_objtemplate.h"
 
 SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {

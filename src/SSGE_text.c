@@ -1,6 +1,4 @@
-#define SSGE_GET_SDL
-
-#include "SSGE/SSGE_local.h"
+#include "SSGE_local.h"
 #include "SSGE/SSGE_text.h"
 
 SSGEAPI void SSGE_Font_Create(char *filename, int size, char *name) {
