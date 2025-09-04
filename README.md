@@ -5,7 +5,7 @@
 
 ## Features
 - Simple object system
-- Simple graphics / rendering system (double buffered, batch)
+- Simple graphics / rendering system
 - Event Handling
 - Tilemap support
 - Audio support
