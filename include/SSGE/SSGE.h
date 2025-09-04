@@ -33,7 +33,7 @@ extern "C" {
  * \param fps The frames per second
  * \return The engine struct
  */
-SSGEAPI const SSGE_Engine * const SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps);
+SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps);
 
 /**
  * Quit the engine

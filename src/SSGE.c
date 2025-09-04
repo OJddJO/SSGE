@@ -23,7 +23,7 @@ static int _eventFilter(void *userdata, SDL_Event *event) {
     }
 }
 
-SSGEAPI const SSGE_Engine * const SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
+SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
     if (_engine.initialized == true)
         SSGE_Error("Engine already initialized")
 
