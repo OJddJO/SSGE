@@ -101,14 +101,12 @@ SSGEAPI void SSGE_Quit() {
 }
 
 inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) {
-    SSGE_Array_Create(&doubleBuffer->buffers[0].renderQueue);
-    SSGE_Array_Create(&doubleBuffer->buffers[1].renderQueue);
+    SSGE_Array_Create(&doubleBuffer->buffers[0]);
+    SSGE_Array_Create(&doubleBuffer->buffers[1]);
 
-    doubleBuffer->buffers[0].ready = false;
-    doubleBuffer->buffers[1].ready = false;
-    doubleBuffer->buffers[0].inUse = false;
-    doubleBuffer->buffers[1].inUse = false;
-    
+    doubleBuffer->frameReady = SDL_CreateSemaphore(0);
+    doubleBuffer->frameConsummed = SDL_CreateSemaphore(1);
+
     atomic_store(&doubleBuffer->writeBuffer, 0);
     atomic_store(&doubleBuffer->readBuffer, 1);
     
@@ -129,12 +127,12 @@ inline static bool _isTextureVisible(int x, int y, int width, int height) {
 
 inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
     int readIdx = atomic_load(&doubleBuffer->readBuffer);
-    _SSGE_RenderBuffer *readBuffer = &doubleBuffer->buffers[readIdx];
+    SSGE_Array *readBuffer = &doubleBuffer->buffers[readIdx];
 
-    if (!atomic_load(&readBuffer->ready)) return;
+    if (SDL_SemTryWait(doubleBuffer->frameReady) != 0) return;
 
-    for (int i = 0; i < readBuffer->renderQueue.count; i++) {
-        _SSGE_BufferedRenderItem *item = SSGE_Array_Get(&readBuffer->renderQueue, i);
+    for (int i = 0; i < readBuffer->count; i++) {
+        _SSGE_BufferedRenderItem *item = SSGE_Array_Get(readBuffer, i);
         if (!item) continue;
 
         SSGE_Texture *texture = item->texture;
@@ -161,11 +159,11 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
         }
     }
 
-    atomic_store(&readBuffer->inUse, false);
+    SDL_SemPost(doubleBuffer->frameConsummed);
     atomic_fetch_add(&doubleBuffer->framesRendered, 1);
 }
 
-inline static void _copyGameStateToBuffer(_SSGE_RenderBuffer *buffer) {
+inline static void _copyGameStateToBuffer(SSGE_Array *buffer) {
     uint32_t count = _textureList.count;
     for (uint32_t i = 0; i < count; i++) {
         SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
@@ -187,7 +185,7 @@ inline static void _copyGameStateToBuffer(_SSGE_RenderBuffer *buffer) {
             if (data->once) free(SSGE_Array_Pop(&texture->queue, j)); // free the render data if once is set
         }
 
-        SSGE_Array_Add(&buffer->renderQueue, item);
+        SSGE_Array_Add(buffer, item);
     }
 }
 
@@ -198,20 +196,18 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
     void *updData = data->data;
 
     while (_engine.isRunning) {
-        uint8_t evCount = 0;
+        uint_fast8_t evCount = 0;
         if (eventHandler && (evCount = countEvent()) && !atomic_load(&doubleBuffer->evQueueBusy)) {
-            uint8_t i = 0;
+            uint_fast8_t i = 0;
             while (i++ < evCount)
                 eventHandler(popEvent(), updData);
         }
 
         int writeIdx = atomic_load(&doubleBuffer->writeBuffer);
-        _SSGE_RenderBuffer *writeBuffer = &doubleBuffer->buffers[writeIdx];
+        SSGE_Array *writeBuffer = &doubleBuffer->buffers[writeIdx];
 
-        atomic_store(&writeBuffer->ready, false);
-
-        SSGE_Array_Destroy(&writeBuffer->renderQueue, destroyBufferedRenderItem);
-        SSGE_Array_Create(&writeBuffer->renderQueue);
+        SSGE_Array_Destroy(writeBuffer, destroyBufferedRenderItem);
+        SSGE_Array_Create(writeBuffer);
 
         if (update) {
             uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
@@ -231,20 +227,13 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
 
         _copyGameStateToBuffer(writeBuffer);
 
-        atomic_store(&writeBuffer->ready, true);
-        atomic_store(&writeBuffer->inUse, true);
+        SDL_SemPost(doubleBuffer->frameReady);
 
-        int readIdx = atomic_load(&doubleBuffer->readBuffer);
-        atomic_bool *inUse = &doubleBuffer->buffers[readIdx].inUse;
         if (_manualUpdateFrame) SDL_Delay(0);
-        else {
-            while (atomic_load(inUse) && _engine.isRunning)
-                SDL_Delay(0);
+        else if (SDL_SemWaitTimeout(doubleBuffer->frameConsummed, 1000) != -1)
             if (!_engine.isRunning) return 0;
-        }
-
+        atomic_uint_fast8_t readIdx = atomic_exchange(&doubleBuffer->readBuffer, writeIdx);
         atomic_store(&doubleBuffer->writeBuffer, readIdx);
-        atomic_store(&doubleBuffer->readBuffer, writeIdx);
     }
     return 0;
 }
@@ -272,7 +261,7 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
     _assert_engine_init
 
     uint64_t frameStart;
-    double targetFrameTime = 1000.0 / (double)(_engine.fps + 1);
+    double targetFrameTime = 1000.0 / (double)(_engine.fps);
     
     _SSGE_DoubleRenderBuffer doubleBuffer = {0};
     _initDoubleBuffering(&doubleBuffer);
@@ -299,8 +288,10 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
             if (event.type == SDL_QUIT) {
                 _engine.isRunning = false;
                 SDL_WaitThread(updateThread, NULL);
-                SSGE_Array_Destroy(&doubleBuffer.buffers[0].renderQueue, destroyBufferedRenderItem);
-                SSGE_Array_Destroy(&doubleBuffer.buffers[1].renderQueue, destroyBufferedRenderItem);
+                SSGE_Array_Destroy(&doubleBuffer.buffers[0], destroyBufferedRenderItem);
+                SSGE_Array_Destroy(&doubleBuffer.buffers[1], destroyBufferedRenderItem);
+                SDL_DestroySemaphore(doubleBuffer.frameConsummed);
+                SDL_DestroySemaphore(doubleBuffer.frameReady);
                 return;
             }
             if (eventHandler) queueEvent(event);
