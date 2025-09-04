@@ -228,8 +228,8 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
         SDL_SemPost(doubleBuffer->frameReady);
 
         if (_manualUpdateFrame) SDL_Delay(0);
-        else if (SDL_SemWaitTimeout(doubleBuffer->frameConsummed, 1000) != -1)
-            if (!_engine.isRunning) return 0;
+        else SDL_SemWait(doubleBuffer->frameConsummed);
+        if (!_engine.isRunning) return 0;
         atomic_uint_fast8_t readIdx = atomic_exchange(&doubleBuffer->readBuffer, writeIdx);
         atomic_store(&doubleBuffer->writeBuffer, readIdx);
     }
@@ -285,6 +285,7 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
         while (SDL_PollEvent((SDL_Event *)&event)) {
             if (event.type == SDL_QUIT) {
                 _engine.isRunning = false;
+                SDL_SemPost(doubleBuffer.frameConsummed);
                 SDL_WaitThread(updateThread, NULL);
                 SSGE_Array_Destroy(&doubleBuffer.buffers[0], destroyBufferedRenderItem);
                 SSGE_Array_Destroy(&doubleBuffer.buffers[1], destroyBufferedRenderItem);
