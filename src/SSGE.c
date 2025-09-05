@@ -174,13 +174,15 @@ inline static void _copyGameStateToBuffer(SSGE_Array *buffer) {
         item->count = texture->queue.count;
 
         textureAcquire(texture);
-        for (int j = 0; j < item->count; j++) {
+        uint32_t done = 0;
+        for (int j = 0; done < item->count; j++) {
             _SSGE_RenderData *data = SSGE_Array_Get(&texture->queue, j);
             if (!data) continue;
 
             item->renderDatas[j] = *data;
 
             if (data->once) free(SSGE_Array_Pop(&texture->queue, j)); // free the render data if once is set
+            ++done;
         }
 
         SSGE_Array_Add(buffer, item);
