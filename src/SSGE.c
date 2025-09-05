@@ -127,7 +127,7 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
     int readIdx = atomic_load(&doubleBuffer->readBuffer);
     SSGE_Array *readBuffer = &doubleBuffer->buffers[readIdx];
 
-    if (SDL_SemTryWait(doubleBuffer->frameReady) != 0) return;
+    if (SDL_SemWait(doubleBuffer->frameReady) != 0) return;
 
     for (int i = 0; i < readBuffer->count; i++) {
         _SSGE_BufferedRenderItem *item = SSGE_Array_Get(readBuffer, i);
