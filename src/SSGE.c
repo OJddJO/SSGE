@@ -127,7 +127,7 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
     int readIdx = atomic_load(&doubleBuffer->readBuffer);
     SSGE_Array *readBuffer = &doubleBuffer->buffers[readIdx];
 
-    if (SDL_SemWait(doubleBuffer->frameReady) != 0) return;
+    if (SDL_SemWaitTimeout(doubleBuffer->frameReady, 1000) != 0) return;
 
     for (int i = 0; i < readBuffer->count; i++) {
         _SSGE_BufferedRenderItem *item = SSGE_Array_Get(readBuffer, i);
@@ -175,11 +175,11 @@ inline static void _copyGameStateToBuffer(SSGE_Array *buffer) {
 
         textureAcquire(texture);
         uint32_t done = 0;
-        for (int j = 0; done < item->count; j++) {
+        for (uint32_t j = 0; done < item->count; j++) {
             _SSGE_RenderData *data = SSGE_Array_Get(&texture->queue, j);
             if (!data) continue;
 
-            item->renderDatas[j] = *data;
+            item->renderDatas[done] = *data;
 
             if (data->once) free(SSGE_Array_Pop(&texture->queue, j)); // free the render data if once is set
             ++done;
@@ -229,7 +229,7 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
 
         SDL_SemPost(doubleBuffer->frameReady);
 
-        if (_manualUpdateFrame) SDL_Delay(0);
+        if (_manualUpdateFrame && !_engine.vsync) SDL_Delay(0);
         else SDL_SemWait(doubleBuffer->frameConsummed);
         if (!_engine.isRunning) return 0;
         atomic_uint_fast8_t readIdx = atomic_exchange(&doubleBuffer->readBuffer, writeIdx);
@@ -372,8 +372,11 @@ SSGEAPI void SSGE_SetVSync(bool vsync) {
         SDL_DisplayMode mode;
         int displayIndex = SDL_GetWindowDisplayIndex(_engine.window);
         if (SDL_GetCurrentDisplayMode(displayIndex, &mode) == 0) {
-            _engine.vsyncRate = (uint32_t)mode.refresh_rate;
-        } else _engine.vsyncRate = (uint32_t)_engine.fps; // fallback to fps
+            _engine.vsyncRate = (uint16_t)mode.refresh_rate;
+        } else {
+            SSGE_WarningEx("Failed to get VSync rate: %s", SDL_GetError());
+            _engine.vsyncRate = _engine.fps; // fallback to fps
+        }
     }
 }
 
