@@ -95,7 +95,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, int x1, int y1, 
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture name")
     if (color.a != 0) {
@@ -120,7 +120,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, int x1, int y1, 
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture name")
     if (color.a != 0) {
@@ -145,9 +145,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, int x, int y, 
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
-        SSGE_Error("Failed to allocate memory for texture name")
+        SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -170,9 +170,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, int x, int y,
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
-        SSGE_Error("Failed to allocate memory for texture name")
+        SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -195,9 +195,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, int x1, int
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
-        SSGE_Error("Failed to allocate memory for texture name")
+        SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -220,9 +220,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, int x1, int
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
-        SSGE_Error("Failed to allocate memory for texture name")
+        SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -247,9 +247,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, int x, in
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
-        SSGE_Error("Failed to allocate memory for texture name")
+        SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -272,9 +272,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, int x, i
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
-        SSGE_Error("Failed to allocate memory for texture name")
+        SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -298,9 +298,9 @@ SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, char *name, int x1, int 
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
-        SSGE_Error("Failed to allocate memory for texture name")
+        SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
@@ -323,7 +323,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, char *name, int x, int
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture name")
     if (color.a != 0) {
@@ -348,7 +348,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateFillEllipse(uint32_t *id, char *name, int x, in
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, _engine.width, _engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
     if (texture->texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture name")
     if (color.a != 0) {
