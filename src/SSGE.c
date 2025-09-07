@@ -65,6 +65,8 @@ SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t heigh
     SSGE_Array_Create(&_playingAnim);
 
     _engine.icon = NULL;
+    _engine.width = width;
+    _engine.height = height;
     _engine.fps = fps;
     _engine.maxFrameskip = _MAX_FRAMESKIP;
     _engine.vsync = false;
