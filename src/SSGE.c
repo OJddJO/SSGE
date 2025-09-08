@@ -78,8 +78,6 @@ SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t heigh
     _engine.fullscreen = false;
     _engine.resizable = false;
 
-    // Explicitly initialize _windowReq to ensure no garbage values
-    memset(&_windowReq, 0, sizeof(_windowReq));
     _windowReq.title = NULL;
     _windowReq.icon = NULL;
     _windowReq.width = width;
