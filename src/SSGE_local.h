@@ -49,7 +49,7 @@ typedef struct {
 } _SSGE_BufferedRenderItem;
 
 typedef struct {
-    SSGE_Event              queue[UINT8_MAX];
+    SSGE_Event              queue[UINT8_MAX + 1];  // Fix: Add 1 to accommodate index 255
     atomic_uint_fast8_t     first;
     atomic_uint_fast8_t     last;
     atomic_uint_fast8_t     count;
@@ -69,7 +69,8 @@ typedef struct {
     uint16_t            height;
     bool                resizable;
     SSGE_WindowMode     fullscreen;
-    bool                changed;
+    atomic_bool         changed;
+    SDL_mutex           *mutex;
 } _SSGE_WindowStateReq;
 
 typedef void (*_SSGE_Destroy)(void *);
@@ -131,8 +132,11 @@ inline void _initTextureFields(SSGE_Texture *texture) {
 }
 
 inline void queueEvent(SSGE_Event event) {
+    if (atomic_fetch_add(&_evQueue.count, 1) == UINT8_MAX) {
+        atomic_store(&_evQueue.count, UINT8_MAX);
+        return;
+    }
     _evQueue.queue[atomic_fetch_add(&_evQueue.last, 1)] = event;
-    atomic_fetch_add(&_evQueue.count, 1);
 }
 
 inline SSGE_Event popEvent() {

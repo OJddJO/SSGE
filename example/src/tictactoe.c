@@ -4,7 +4,7 @@
 
 static void init_game(Game *game);
 static void create_hitboxes(uint32_t hitboxes[3][3]);
-static int check_winner(Game *game);
+static uint8_t check_winner(Game *game);
 
 static void update(Game *game);
 static void draw(Game *game);
@@ -13,6 +13,13 @@ static void event_handler(SSGE_Event event, Game *game);
 int main(int argc, char *argv[]) {
     // Initialize the engine
     SSGE_Init("TicTacToe", WIN_W, WIN_H, FPS);
+
+    // Set the window properties
+    SSGE_WindowResizable(false);
+    SSGE_WindowFullscreen(false);
+    SSGE_SetManualUpdate(true);
+    SSGE_SetBackgroundColor((SSGE_Color){23, 15, 71, 255});
+
     // Load fonts with sizes 32 and 64
     SSGE_Font_Create("assets/font.ttf", 32, "font_32");
     SSGE_Font_Create("assets/font.ttf", 64, "font_64");
@@ -24,12 +31,6 @@ int main(int argc, char *argv[]) {
     SSGE_Audio_Create(&audios[A_CLICK], "audio/click.ogg", "click");
     SSGE_Audio_Create(&audios[A_TIE], "audio/tie.ogg", "tie");
     SSGE_Audio_Create(&audios[A_WIN], "audio/win.ogg", "win");
-
-    // Set the window properties
-    SSGE_WindowResizable(false);
-    SSGE_WindowFullscreen(false);
-    SSGE_SetManualUpdate(true);
-    SSGE_SetBackgroundColor((SSGE_Color){23, 15, 71, 255});
 
     // Create the game structure
     Game game;
@@ -87,7 +88,7 @@ static void init_game(Game *game) {
  * \param game The game structure
  * \return The winner, 0 if no winner, -1 if draw
  */
-static int check_winner(Game *game) {
+static uint8_t check_winner(Game *game) {
     //check rows
     for (int i = 0; i < 3; i++) {
         if (game->board[i][0] == game->board[i][1] && game->board[i][1] == game->board[i][2] && game->board[i][0] != 0) {
@@ -149,7 +150,7 @@ static void draw(Game *game) {
         }
     } else if (!game->ended) {
         char text[20];
-        if (game->winner == -1) {
+        if (game->winner == (uint8_t)-1) {
             sprintf(text, "It's a draw!");
             SSGE_Audio_Play(SSGE_Audio_Get(A_TIE), -1);
         } else {
