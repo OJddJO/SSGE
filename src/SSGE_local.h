@@ -39,7 +39,6 @@ typedef struct {
     atomic_uintmax_t    framesRendered; // Number of frames consumed by the render thread
     atomic_uint_fast8_t writeBuffer;    // Index of the write buffer
     atomic_uint_fast8_t readBuffer;     // Index of the read buffer
-    atomic_bool         evQueueBusy;    // If the event queue is busy
 } _SSGE_DoubleRenderBuffer;
 
 typedef struct {

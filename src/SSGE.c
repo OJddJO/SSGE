@@ -130,8 +130,6 @@ inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) 
     
     atomic_store(&doubleBuffer->framesGenerated, 0);
     atomic_store(&doubleBuffer->framesRendered, 0);
-
-    atomic_store(&doubleBuffer->evQueueBusy, false);
 }
 
 inline static bool _isTextureVisible(int x, int y, int width, int height) {
@@ -217,7 +215,7 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
 
     while (_engine.isRunning) {
         uint_fast8_t evCount = countEvent();
-        if (eventHandler && evCount && atomic_load(&doubleBuffer->evQueueBusy)) {
+        if (eventHandler && evCount) {
             uint_fast8_t i = 0;
             while (i++ < evCount)
                 eventHandler(popEvent(), updData);
@@ -315,7 +313,6 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
         // Check if the window state has changed, and if it has, apply the changes
         if (atomic_load(&_windowReq.changed)) changeWindowState();
 
-        atomic_store(&doubleBuffer.evQueueBusy, true);
         while (SDL_PollEvent((SDL_Event *)&event)) {
             if (event.type == SDL_QUIT) {
                 _engine.isRunning = false;
@@ -329,7 +326,6 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
             }
             if (eventHandler) queueEvent(event);
         }
-        atomic_store(&doubleBuffer.evQueueBusy, false);
 
         if (_updateFrame || !_manualUpdateFrame || _engine.vsync) {
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);
