@@ -52,6 +52,8 @@ typedef void (*SSGE_UpdateFunc)(void *);
 typedef void (*SSGE_DrawFunc)(void *);
 typedef void (*SSGE_EventHandler)(SSGE_Event, void *);
 
+typedef void (*SSGE_DestroyData)(void *);
+
 /*************************************************
  * SSGE Structures / Enums
  *************************************************/
@@ -159,10 +161,10 @@ typedef struct _SSGE_Object {
     SSGE_SpriteType spriteType; // If the sprite is animated or static
     union {
         struct {
-            SSGE_Texture        *texture;       // The texture of the object
-            uint32_t            renderDataIdx;  // The index of the render data in the texture render queue
+            SSGE_Texture    *texture;       // The texture of the object
+            uint32_t        renderDataIdx;  // The index of the render data in the texture render queue
         } texture;
-        uint32_t            animation;  // The id of the animation state
+        uint32_t    animation;  // The id of the animation state
     };
     void            *data;      // The data of the object
     void            (*destroyData)(void *); // The function to be called to destroy the data
@@ -180,7 +182,6 @@ typedef struct _SSGE_ObjectTemplate {
         SSGE_Animation  *animation; // The animation for the template
     };
     bool            hitbox;     // If objects created from this template have a hitbox
-    void            (*destroyData)(void *); // The function to be called to destroy the object data
 } SSGE_ObjectTemplate;
 
 // Tilemap struct

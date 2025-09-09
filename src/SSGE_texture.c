@@ -91,6 +91,6 @@ SSGEAPI void SSGE_Texture_DestroyName(char *name) {
 
 SSGEAPI void SSGE_Texture_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_textureList, (_SSGE_Destroy)destroyTexture);
+    SSGE_Array_Destroy(&_textureList, (SSGE_DestroyData)destroyTexture);
     SSGE_Array_Create(&_textureList);
 }

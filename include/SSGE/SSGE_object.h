@@ -17,12 +17,10 @@ extern "C" {
  * \param width The width of the object
  * \param height The height of the object
  * \param hitbox True if the object has an hitbox, false otherwise
- * \param data The data of the object
- * \param destroyData The function to destroy the data of the object
  * \return The object
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *));
+SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox);
 
 /**
  * Instantiate an object from an object template
@@ -30,11 +28,10 @@ SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, 
  * \param template The object template to instantiate
  * \param x The x coordinate of the object
  * \param y The y coordinate of the object
- * \param data The data of the object
  * \return The object
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *template, char *name, int x, int y, void *data);
+SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *template, char *name, int x, int y);
 
 /**
  * Check if an object exists
@@ -65,6 +62,20 @@ SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y);
  * \param dy The change in y coordinate
  */
 SSGEAPI void SSGE_Object_MoveRel(SSGE_Object *object, int dx, int dy);
+
+/**
+ * Bind some data to an object
+ * \param object The object to bind the data to
+ * \param data The data of the object
+ * \param destroy The function to call to destroy the data
+ */
+SSGEAPI void SSGE_Object_BindData(SSGE_Object *object, void *data, SSGE_DestroyData destroy);
+
+/**
+ * Remove the data bound to the object
+ * \param object The object to remove the data from
+ */
+SSGEAPI void SSGE_Object_RemoveData(SSGE_Object *object);
 
 /**
  * Bind a texture to an object

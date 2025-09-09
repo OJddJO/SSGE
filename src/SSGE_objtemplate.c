@@ -1,7 +1,7 @@
 #include "SSGE_local.h"
 #include "SSGE/SSGE_objtemplate.h"
 
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint16_t width, uint16_t height, bool hitbox) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
@@ -11,13 +11,12 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint
     template->width = width;
     template->height = height;
     template->hitbox = hitbox;
-    template->destroyData = destroyData;
 
     _addToList(&_objectTemplateList, template, name, id, __func__);
     return template;
 }
 
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
@@ -27,13 +26,12 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name
     template->width = width;
     template->height = height;
     template->hitbox = hitbox;
-    template->destroyData = destroyData;
 
     _addToList(&_objectTemplateList, template, name, id, __func__);
     return template;
 }
 
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox, void (*destroyData)(void *)) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox) {
     _assert_engine_init
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
@@ -43,7 +41,6 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, 
     template->width = width;
     template->height = height;
     template->hitbox = hitbox;
-    template->destroyData = destroyData;
 
     _addToList(&_objectTemplateList, template, name, id, __func__);
     return template;
@@ -89,6 +86,6 @@ SSGEAPI void SSGE_Template_DestroyName(char *name) {
 
 SSGEAPI void SSGE_Template_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_objectTemplateList, (_SSGE_Destroy)destroyTemplate);
+    SSGE_Array_Destroy(&_objectTemplateList, (SSGE_DestroyData)destroyTemplate);
     SSGE_Array_Create(&_objectTemplateList);
 }

@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < data.nbobj; i++) {
         char name[50];
         sprintf(name, "test_%u", 1);
-        SSGE_Object *obj = SSGE_Object_Create(&id, name, 0, 0, rand()%1200, rand()%1200, false, NULL, NULL);
+        SSGE_Object *obj = SSGE_Object_Create(&id, name, 0, 0, rand()%1200, rand()%1200, false);
         SSGE_Object_BindTexture(obj, texture);
     }
 

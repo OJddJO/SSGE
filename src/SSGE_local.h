@@ -72,8 +72,6 @@ typedef struct {
     SDL_mutex           *mutex;
 } _SSGE_WindowStateReq;
 
-typedef void (*_SSGE_Destroy)(void *);
-
 // Dummy type
 typedef struct _DummyType {
     char *name;

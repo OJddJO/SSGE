@@ -2,7 +2,7 @@
 #include "SSGE/SSGE_object.h"
 #include "SSGE/SSGE_animation.h"
 
-SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox, void *data, void (*destroyData)(void *)) {
+SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox) {
     _assert_engine_init
     SSGE_Object *object = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (object == NULL) 
@@ -16,16 +16,16 @@ SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, 
     object->width = width;
     object->height = height;
     object->hitbox = hitbox;
-    object->data = data;
-    object->destroyData = destroyData;
+    object->data = NULL;
+    object->destroyData = NULL;
 
     _addToList(&_objectList, object, name, id, __func__);
     return object;
 }
 
-SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *template, char *name, int x, int y, void *data) {
+SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *template, char *name, int x, int y) {
     _assert_engine_init
-    SSGE_Object *object = SSGE_Object_Create(id, name, x, y, template->width, template->height, template->hitbox, data, template->destroyData);
+    SSGE_Object *object = SSGE_Object_Create(id, name, x, y, template->width, template->height, template->hitbox);
     if (template->spriteType == SSGE_SPRITE_STATIC)
         SSGE_Object_BindTexture(object, template->texture);
     else if (template->spriteType == SSGE_SPRITE_ANIM)
@@ -83,6 +83,20 @@ SSGEAPI void SSGE_Object_MoveRel(SSGE_Object *object, int dx, int dy) {
         default:
             break;
     }
+}
+
+SSGEAPI void SSGE_Object_BindData(SSGE_Object *object, void *data, SSGE_DestroyData destroy) {
+    _assert_engine_init
+    if (object->data && object->destroyData)
+        object->destroyData(object->data);
+    object->data = data;
+    object->destroyData = destroy;
+}
+
+SSGEAPI void SSGE_Object_RemoveData(SSGE_Object *object) {
+    _assert_engine_init
+    if (object->data && object->destroyData)
+        object->destroyData(object->data);
 }
 
 SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture) {
@@ -156,7 +170,7 @@ SSGEAPI void SSGE_Object_DestroyName(char *name) {
 
 SSGEAPI void SSGE_Object_DestroyAll() {
     _assert_engine_init
-    SSGE_Array_Destroy(&_objectList, (_SSGE_Destroy)destroyObject);
+    SSGE_Array_Destroy(&_objectList, (SSGE_DestroyData)destroyObject);
     SSGE_Array_Create(&_objectList);
 }
 

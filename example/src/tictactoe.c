@@ -60,7 +60,7 @@ static void create_hitboxes(uint32_t hitboxes[3][3]) {
         for (short j = 0; j < 3; j++) {
             char name[30];
             sprintf(name, "hitbox_%d_%d", i, j);
-            SSGE_Object_Create(&hitboxes[i][j], name, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, true, NULL, NULL);
+            SSGE_Object_Create(&hitboxes[i][j], name, i * TILE_SIZE, j * TILE_SIZE, TILE_SIZE, TILE_SIZE, true);
         }
     }
 }

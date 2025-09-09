@@ -95,13 +95,13 @@ SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t heigh
 SSGEAPI void SSGE_Quit() {
     _assert_engine_init
 
-    SSGE_Array_Destroy(&_objectList, (_SSGE_Destroy)destroyObject);
-    SSGE_Array_Destroy(&_objectTemplateList, (_SSGE_Destroy)destroyTemplate);
-    SSGE_Array_Destroy(&_fontList, (_SSGE_Destroy)destroyFont);
-    SSGE_Array_Destroy(&_audioList, (_SSGE_Destroy)destroyAudio);
-    SSGE_Array_Destroy(&_animationList, (_SSGE_Destroy)destroyAnimation);
+    SSGE_Array_Destroy(&_objectList, (SSGE_DestroyData)destroyObject);
+    SSGE_Array_Destroy(&_objectTemplateList, (SSGE_DestroyData)destroyTemplate);
+    SSGE_Array_Destroy(&_fontList, (SSGE_DestroyData)destroyFont);
+    SSGE_Array_Destroy(&_audioList, (SSGE_DestroyData)destroyAudio);
+    SSGE_Array_Destroy(&_animationList, (SSGE_DestroyData)destroyAnimation);
     SSGE_Array_Destroy(&_playingAnim, free);
-    SSGE_Array_Destroy(&_textureList, (_SSGE_Destroy)destroyTexture);
+    SSGE_Array_Destroy(&_textureList, (SSGE_DestroyData)destroyTexture);
 
     if (_engine.title) free(_engine.title);
     if (_engine.icon) SDL_FreeSurface(_engine.icon);
