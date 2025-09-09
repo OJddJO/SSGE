@@ -31,6 +31,8 @@ SSGEAPI void SSGE_Array_Create(SSGE_Array *array) {
  */
 SSGEAPI uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
     if (array->size <= array->count) { // if the array is full, extend
+        if (array->size > UINT32_MAX / _GROWTH_FACTOR)
+            SSGE_Error("Array size would overflow")
         void **newArray = (void **)realloc(array->array, sizeof(void *) * array->size * _GROWTH_FACTOR);
         if (newArray == NULL) 
             SSGE_Error("Failed to realloc array")
@@ -43,12 +45,16 @@ SSGEAPI uint32_t SSGE_Array_Add(SSGE_Array *array, void *element) {
         array->size *= _GROWTH_FACTOR;
     }
 
+    uint32_t index;
     if (array->idxCount > 0) {
-        array->array[array->indexes[--array->idxCount]] = element;
+        index = array->indexes[--array->idxCount];
+        array->array[index] = element;
     } else {
-        array->array[array->count] = element;
+        index = array->count;
+        array->array[index] = element;
     }
-    return array->count++;
+    ++array->count;
+    return index;
 }
 
 /**
@@ -146,9 +152,8 @@ SSGEAPI void *SSGE_Array_Find(SSGE_Array *array, bool (*condition)(void *, void 
  * \return The pointer to the first element that matches the condition, or NULL if not found
  */
 SSGEAPI void *SSGE_Array_FindPop(SSGE_Array *array, bool (*condition)(void *, void *), void *argument) {
-    uint32_t i = 0, count = 0;
-    while (count < array->count && i < array->size) {
-        void *element = array->array[i++];
+    for (uint32_t i = 0, count = 0; count < array->count && i < array->size; i++) {
+        void *element = array->array[i];
 
         if (element == NULL) continue;
         if (condition(element, argument)) return SSGE_Array_Pop(array, i);

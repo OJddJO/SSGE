@@ -35,6 +35,8 @@ SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t heigh
     if (TTF_Init() != 0)
         SSGE_ErrorEx("Failed to initialize TTF: %s", TTF_GetError())
 
+    if (!title)
+        SSGE_Error("title can't be NULL")
     _engine.title = (char *)malloc(strlen(title) + 1);
     strcpy(_engine.title, title);
     _engine.window = SDL_CreateWindow(title, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, 0);
@@ -147,7 +149,7 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
 
     if (SDL_SemWaitTimeout(doubleBuffer->frameReady, 1000) != 0) return;
 
-    for (int i = 0; i < readBuffer->count; i++) {
+    for (int i = 0, done = 0; done < readBuffer->count && i < readBuffer->size; i++) {
         _SSGE_BufferedRenderItem *item = SSGE_Array_Get(readBuffer, i);
         if (!item) continue;
 
@@ -173,6 +175,8 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
             if (data.angle == 0 && data.flip == 0) SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &rect);
             else SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &rect, data.angle, (SDL_Point *)&data.rotationCenter, data.flip);
         }
+
+        ++done;
     }
 
     SDL_SemPost(doubleBuffer->frameConsummed);
@@ -181,9 +185,10 @@ inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
 
 inline static void _copyGameStateToBuffer(SSGE_Array *buffer) {
     uint32_t count = _textureList.count;
-    for (uint32_t i = 0; i < count; i++) {
+    for (uint32_t i = 0, textureDone = 0; textureDone < count && i < _textureList.size; i++) {
         SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
-        if (!texture || atomic_load(&texture->markedForDestroy) || texture->queue.count == 0) continue;
+        if (!texture || atomic_load(&texture->markedForDestroy) || texture->queue.count == 0)
+            continue;
 
         _SSGE_BufferedRenderItem *item = (_SSGE_BufferedRenderItem *)malloc(sizeof(_SSGE_BufferedRenderItem));
         _SSGE_RenderData *array = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData) * texture->queue.count);
@@ -192,18 +197,18 @@ inline static void _copyGameStateToBuffer(SSGE_Array *buffer) {
         item->count = texture->queue.count;
 
         textureAcquire(texture);
-        uint32_t done = 0;
-        for (uint32_t j = 0; done < item->count; j++) {
+        for (uint32_t j = 0, dataDone = 0; dataDone < item->count && j < texture->queue.size; j++) {
             _SSGE_RenderData *data = SSGE_Array_Get(&texture->queue, j);
             if (!data) continue;
 
-            item->renderDatas[done] = *data;
+            item->renderDatas[dataDone] = *data;
 
             if (data->once) free(SSGE_Array_Pop(&texture->queue, j)); // free the render data if once is set
-            ++done;
+            ++dataDone;
         }
 
         SSGE_Array_Add(buffer, item);
+        ++textureDone;
     }
 }
 
@@ -230,7 +235,13 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
         if (update) {
             uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
             uintmax_t rendered = atomic_load(&doubleBuffer->framesRendered);
-            int framesBehind = (int)(rendered - generated);
+            int framesBehind;
+            if (rendered < generated) {
+                framesBehind = 0;
+            } else {
+                uintmax_t diff = rendered - generated;
+                framesBehind = (diff > INT_MAX) ? INT_MAX : (int)diff;
+            }
             int framesToCatchUp = (framesBehind > _engine.maxFrameskip) ? _engine.maxFrameskip : framesBehind;
             for (int i = 0; i < framesToCatchUp; i++) {
                 update(updData);
@@ -250,6 +261,11 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
         atomic_uint_fast8_t readIdx = atomic_exchange(&doubleBuffer->readBuffer, writeIdx);
         atomic_store(&doubleBuffer->writeBuffer, readIdx);
     }
+
+    SSGE_Array_Destroy(&doubleBuffer->buffers[0], destroyBufferedRenderItem);
+    SSGE_Array_Destroy(&doubleBuffer->buffers[1], destroyBufferedRenderItem);
+    SDL_DestroySemaphore(doubleBuffer->frameConsummed);
+    SDL_DestroySemaphore(doubleBuffer->frameReady);
     return 0;
 }
 
@@ -318,10 +334,6 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
                 _engine.isRunning = false;
                 SDL_SemPost(doubleBuffer.frameConsummed);
                 SDL_WaitThread(updateThread, NULL);
-                SSGE_Array_Destroy(&doubleBuffer.buffers[0], destroyBufferedRenderItem);
-                SSGE_Array_Destroy(&doubleBuffer.buffers[1], destroyBufferedRenderItem);
-                SDL_DestroySemaphore(doubleBuffer.frameConsummed);
-                SDL_DestroySemaphore(doubleBuffer.frameReady);
                 return;
             }
             if (eventHandler) queueEvent(event);
@@ -470,7 +482,7 @@ SSGEAPI uint32_t SSGE_GetHoveredObjects(SSGE_Object *objects[], uint32_t size) {
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);
     
     uint32_t i = 0, count = 0;
-    while (count < _objectList.count && i < _objectList.size) {
+    while (count < _objectList.count && i < _objectList.size && count < size) {
         SSGE_Object *obj = SSGE_Array_Get(&_objectList, i++);
 
         if (obj != NULL && _is_hovered(obj, mousePos))
