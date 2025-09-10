@@ -178,3 +178,59 @@ SSGEAPI bool SSGE_Object_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2)
     if (!hitbox1->hitbox || !hitbox2->hitbox) return false;
     return hitbox1->x < hitbox2->x + hitbox2->width && hitbox1->x + hitbox1->width > hitbox2->x && hitbox1->y < hitbox2->y + hitbox2->height && hitbox1->y + hitbox1->height > hitbox2->y;
 }
+
+static bool _is_hovered(SSGE_Object *ptr, int *mousePos) {
+    int mouseX = mousePos[0],
+        mouseY = mousePos[1];
+    return mouseX >= ptr->x && mouseX <= ptr->x + ptr->width && mouseY >= ptr->y && mouseY <= ptr->y + ptr->height;
+}
+
+SSGEAPI bool SSGE_Object_IsHovered(SSGE_Object *object) {
+    _assert_engine_init
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+    return mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height;
+}
+
+SSGEAPI SSGE_Object *SSGE_Object_GetAt(int x, int y) {
+    _assert_engine_init
+    int pos[2] = {x, y};
+    return SSGE_Array_Find(&_objectList, (bool (*)(void *, void *))_is_hovered, pos);
+}
+
+SSGEAPI uint32_t SSGE_Object_GetAtList(int x, int y, SSGE_Object *objects[], uint32_t size) {
+    _assert_engine_init
+    int pos[2] = {x, y};
+
+    uint32_t i = 0, count = 0;
+    while (count < _objectList.count && i < _objectList.size && count < size) {
+        SSGE_Object *obj = SSGE_Array_Get(&_objectList, i++);
+
+        if (obj != NULL && _is_hovered(obj, pos))
+            objects[count++] = obj;
+    }
+    return count;
+}
+
+SSGEAPI SSGE_Object *SSGE_Object_GetHovered() {
+    _assert_engine_init
+    int mousePos[2];
+    SDL_GetMouseState(&mousePos[0], &mousePos[1]);
+
+    return SSGE_Array_Find(&_objectList, (bool (*)(void *, void *))_is_hovered, mousePos);
+}
+
+SSGEAPI uint32_t SSGE_Objects_GetHoveredList(SSGE_Object *objects[], uint32_t size) {
+    _assert_engine_init
+    int mousePos[2];
+    SDL_GetMouseState(&mousePos[0], &mousePos[1]);
+    
+    uint32_t i = 0, count = 0;
+    while (count < _objectList.count && i < _objectList.size && count < size) {
+        SSGE_Object *obj = SSGE_Array_Get(&_objectList, i++);
+
+        if (obj != NULL && _is_hovered(obj, mousePos))
+            objects[count++] = obj;
+    }
+    return count;
+}

@@ -144,6 +144,51 @@ SSGEAPI void SSGE_Object_DestroyAll();
  */
 SSGEAPI bool SSGE_Object_IsColliding(SSGE_Object *hitbox1, SSGE_Object *hitbox2);
 
+/**
+ * Check if an object is hovered
+ * \param object The object to check
+ * \return True if the object is hovered, false otherwise
+ */
+SSGEAPI bool SSGE_Object_IsHovered(SSGE_Object *object);
+
+/**
+ * Get the object at a coordinate
+ * \param x The x coordinate to check
+ * \param y The y coordinate to check
+ * \return The object at the coordinate, NULL if no object is at the coordinate
+ * \note An object is considered at a certain coordinate if at least one pixel is at that said coordinate.
+ * \note Meaning that it doesn't need to be exactly at that coordinate (doesn't need `object.x == x && object.y == y`).
+ * \warning If multiple objects are detected, returns the object with the smallest id
+ */
+SSGEAPI SSGE_Object *SSGE_Object_GetAt(int x, int y);
+
+/**
+ * Get the list of objects at a coordinate
+ * \param x The x coordinate to check
+ * \param y The y coordinate to check
+ * \return The object at the coordinate, NULL if no object is at the coordinate
+ * \note An object is considered at a certain coordinate if at least one pixel is at that said coordinate.
+ * \note Meaning that it doesn't need to be exactly at that coordinate (doesn't need `object.x == x && object.y == y`).
+ */
+SSGEAPI uint32_t SSGE_Object_GetAtList(int x, int y, SSGE_Object *objects[], uint32_t size);
+
+/**
+ * Get the hovered object
+ * \return The hovered object, NULL if no object is hovered
+ * \warning If multiple objects are hovered, returns the hovered object with the smallest id
+ * \warning It is not recommended to use this to get object at click position, use the event `x` and `y` with the `SSGE_Object_GetAt` function.
+ */
+SSGEAPI SSGE_Object *SSGE_Object_GetHovered();
+
+/**
+ * Get the list of the objects that are hovered
+ * \param objects The array to store the hovered objects
+ * \param size The size of the array
+ * \return The number of objects retrieved
+ * \warning It is not recommended to use this to get object at click position, use the event `x` and `y` with the `SSGE_Object_GetAtList` function.
+ */
+SSGEAPI uint32_t SSGE_Objects_GetHoveredList(SSGE_Object *objects[], uint32_t size);
+
 #ifdef __cplusplus
 }
 #endif
