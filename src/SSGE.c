@@ -125,7 +125,7 @@ inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) 
     SSGE_Array_Create(&doubleBuffer->buffers[1]);
 
     doubleBuffer->frameReady = SDL_CreateSemaphore(0);
-    doubleBuffer->frameConsummed = SDL_CreateSemaphore(1);
+    doubleBuffer->frameConsummed = SDL_CreateSemaphore(0);
 
     atomic_store(&doubleBuffer->writeBuffer, 0);
     atomic_store(&doubleBuffer->readBuffer, 1);
@@ -215,22 +215,18 @@ inline static void _copyGameStateToBuffer(SSGE_Array *buffer) {
 static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
     _SSGE_DoubleRenderBuffer *doubleBuffer = data->doubleBuffer;
     void (*update)(void *) = data->update;
-    void (*eventHandler)(SSGE_Event, void *) = data->eventHandler;
     void *updData = data->data;
+    SDL_sem *eventBusy = data->eventBusy;
 
     while (_engine.isRunning) {
-        uint_fast8_t evCount = countEvent();
-        if (eventHandler && evCount) {
-            uint_fast8_t i = 0;
-            while (i++ < evCount)
-                eventHandler(popEvent(), updData);
-        }
-
         int writeIdx = atomic_load(&doubleBuffer->writeBuffer);
         SSGE_Array *writeBuffer = &doubleBuffer->buffers[writeIdx];
-
+        
         SSGE_Array_Destroy(writeBuffer, destroyBufferedRenderItem);
         SSGE_Array_Create(writeBuffer);
+        
+        SDL_SemWait(eventBusy);
+        if (!_engine.isRunning) break;
 
         if (update) {
             uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
@@ -257,7 +253,8 @@ static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
 
         if (_manualUpdateFrame && !_engine.vsync) SDL_Delay(0);
         else SDL_SemWait(doubleBuffer->frameConsummed);
-        if (!_engine.isRunning) return 0;
+
+        if (!_engine.isRunning) break;
         atomic_uint_fast8_t readIdx = atomic_exchange(&doubleBuffer->readBuffer, writeIdx);
         atomic_store(&doubleBuffer->writeBuffer, readIdx);
     }
@@ -305,16 +302,16 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
 
     uint64_t frameStart;
     double targetFrameTime = 1000.0 / (double)(_engine.fps);
-    
+
     _SSGE_DoubleRenderBuffer doubleBuffer = {0};
     _initDoubleBuffering(&doubleBuffer);
 
     SDL_Thread *updateThread = NULL;
     _SSGE_UpdThreadData threadData = {
         .update = update,
-        .eventHandler = eventHandler,
         .data = data,
         .doubleBuffer = &doubleBuffer,
+        .eventBusy = SDL_CreateSemaphore(0),
     };
     updateThread = SDL_CreateThread((SDL_ThreadFunction)_updateThreadFunc, "SSGE Update", &threadData);
     if (!updateThread)
@@ -333,39 +330,39 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
             switch (event.type) {
                 case SDL_QUIT:
                     _engine.isRunning = false;
+                    SDL_SemPost(threadData.eventBusy);
                     SDL_SemPost(doubleBuffer.frameConsummed);
                     SDL_WaitThread(updateThread, NULL);
                     return;
                     break;
                 case SDL_WINDOWEVENT:
                     switch (event.window.event) {
-                        case SDL_WINDOWEVENT_RESIZED:
-                            SDL_LockMutex(_windowReq.mutex);
+                        case SDL_WINDOWEVENT_SIZE_CHANGED:
                             _windowReq.width = (_engine.width = event.window.data1);
                             _windowReq.height = (_engine.height = event.window.data2);
-                            SDL_UnlockMutex(_windowReq.mutex);
                             break;
                     }
                     break;
             }
-            if (eventHandler) queueEvent(event);
+            eventHandler(event, data);
         }
-
+        SDL_SemPost(threadData.eventBusy);
+        
         if (_updateFrame || !_manualUpdateFrame || _engine.vsync) {
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);
             SDL_RenderClear(_engine.renderer);
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
             _renderTextures(&doubleBuffer);
             if (draw) draw(data);
-
+            
             SDL_RenderPresent(_engine.renderer);
             _updateFrame = false;
         }
-
+        
         if (!_engine.vsync) {
             uint64_t frameTime = SDL_GetTicks64() - frameStart;
             if ((double)frameTime < targetFrameTime)
-                SDL_Delay((uint32_t)(targetFrameTime - (double)frameTime));
+            SDL_Delay((uint32_t)(targetFrameTime - (double)frameTime));
         }
     }
 }

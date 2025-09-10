@@ -15,7 +15,6 @@ bool        _manualUpdateFrame  = false;
 bool        _updateFrame        = true; // set to true to draw the first frame
 
 _SSGE_WindowStateReq    _windowReq  = {0};
-_SSGE_EventQueue        _evQueue    = {0};
 
 void destroyTexture(SSGE_Texture *ptr) {
     atomic_store(&ptr->markedForDestroy, true);

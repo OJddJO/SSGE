@@ -48,17 +48,10 @@ typedef struct {
 } _SSGE_BufferedRenderItem;
 
 typedef struct {
-    SSGE_Event              queue[UINT8_MAX + 1];  // Fix: Add 1 to accommodate index 255
-    atomic_uint_fast8_t     first;
-    atomic_uint_fast8_t     last;
-    atomic_uint_fast8_t     count;
-} _SSGE_EventQueue;
-
-typedef struct {
     void (*update)(void *);
-    void (*eventHandler)(SSGE_Event, void *);
     void *data;
     _SSGE_DoubleRenderBuffer *doubleBuffer;
+    SDL_sem *eventBusy;
 } _SSGE_UpdThreadData;
 
 typedef struct {
@@ -92,7 +85,6 @@ extern bool         _manualUpdateFrame;
 extern bool         _updateFrame;
 
 extern _SSGE_WindowStateReq _windowReq;
-extern _SSGE_EventQueue     _evQueue;
 
 #define _assert_engine_init \
 if (!_engine.initialized) {\
@@ -126,23 +118,6 @@ inline void _initTextureFields(SSGE_Texture *texture) {
     atomic_init(&texture->markedForDestroy, false);
 
     SSGE_Array_Create(&texture->queue);
-}
-
-inline void queueEvent(SSGE_Event event) {
-    if (atomic_fetch_add(&_evQueue.count, 1) == UINT8_MAX) {
-        atomic_store(&_evQueue.count, UINT8_MAX);
-        return;
-    }
-    _evQueue.queue[atomic_fetch_add(&_evQueue.last, 1)] = event;
-}
-
-inline SSGE_Event popEvent() {
-    atomic_fetch_sub(&_evQueue.count, 1);
-    return _evQueue.queue[atomic_fetch_add(&_evQueue.first, 1)];
-}
-
-inline bool countEvent() {
-    return atomic_load(&_evQueue.count);
 }
 
 void destroyTexture(SSGE_Texture *ptr);
