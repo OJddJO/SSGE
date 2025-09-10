@@ -152,6 +152,17 @@ SSGEAPI void *SSGE_Object_GetData(SSGE_Object *object) {
     return object->data;
 }
 
+SSGEAPI void SSGE_Object_Resize(SSGE_Object *object, uint16_t width, uint16_t height) {
+    _assert_engine_init
+    object->width = width;
+    object->height = height;
+    if (object->spriteType == SSGE_SPRITE_STATIC) {
+        _SSGE_RenderData *data = SSGE_Array_Get(&object->texture.texture->queue, object->texture.renderDataIdx);
+        data->width = width;
+        data->height = height;
+    }
+}
+
 SSGEAPI void SSGE_Object_Destroy(uint32_t id) {
     _assert_engine_init
     SSGE_Object *object = SSGE_Array_Pop(&_objectList, id);

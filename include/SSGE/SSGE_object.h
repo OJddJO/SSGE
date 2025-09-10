@@ -120,6 +120,14 @@ SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name);
 SSGEAPI void *SSGE_Object_GetData(SSGE_Object *object);
 
 /**
+ * Resize an object
+ * \param object The object to resize
+ * \param width The target width
+ * \param height The target height
+ */
+SSGEAPI void SSGE_Object_Resize(SSGE_Object *object, uint16_t width, uint16_t height);
+
+/**
  * Destroy an object by id
  * \param id The id of the object
  */
