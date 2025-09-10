@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     printf("nb. obj. : %d, fps: %u, vsync: %d\n", data.nbobj, fps, vsync);
     SSGE_Init("Benchmark", WWIDTH, WHEIGHT, fps);
     SSGE_SetWindowIcon("image.png");
-    SSGE_WindowResizable(false);
+    SSGE_WindowResizable(true);
     SSGE_SetVSync(vsync);
 
     uint32_t id;

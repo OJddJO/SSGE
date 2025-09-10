@@ -330,11 +330,23 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
         if (atomic_load(&_windowReq.changed)) changeWindowState();
 
         while (SDL_PollEvent((SDL_Event *)&event)) {
-            if (event.type == SDL_QUIT) {
-                _engine.isRunning = false;
-                SDL_SemPost(doubleBuffer.frameConsummed);
-                SDL_WaitThread(updateThread, NULL);
-                return;
+            switch (event.type) {
+                case SDL_QUIT:
+                    _engine.isRunning = false;
+                    SDL_SemPost(doubleBuffer.frameConsummed);
+                    SDL_WaitThread(updateThread, NULL);
+                    return;
+                    break;
+                case SDL_WINDOWEVENT:
+                    switch (event.window.event) {
+                        case SDL_WINDOWEVENT_RESIZED:
+                            SDL_LockMutex(_windowReq.mutex);
+                            _windowReq.width = (_engine.width = event.window.data1);
+                            _windowReq.height = (_engine.height = event.window.data2);
+                            SDL_UnlockMutex(_windowReq.mutex);
+                            break;
+                    }
+                    break;
             }
             if (eventHandler) queueEvent(event);
         }
