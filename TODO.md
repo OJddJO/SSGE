@@ -5,4 +5,4 @@
   - [ ] partial updates (only redraw parts that changed)
 - [x] Automate draw for object
 - [ ] Automate draw for animation
-- [ ] Remake event queue
+- [x] Remake event queue
