@@ -43,6 +43,7 @@ SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t heigh
     if (_engine.window == NULL)
         SSGE_ErrorEx("Failed to create window: %s", SDL_GetError())
 
+    SDL_SetHint(SDL_HINT_RENDER_BATCHING, "1");
     _engine.renderer = SDL_CreateRenderer(_engine.window, -1, SDL_RENDERER_ACCELERATED);
     if (_engine.renderer == NULL)
         SSGE_ErrorEx("Failed to create renderer: %s", SDL_GetError())
@@ -135,12 +136,7 @@ inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) 
 }
 
 inline static bool _isTextureVisible(int x, int y, int width, int height) {
-    if (x + width < 0) return false;
-    if (x > _engine.width) return false;
-    if (y + height < 0) return false;
-    if (y > _engine.height) return false;
-    
-    return true;
+    return !((x + width) < 0 || x >= _engine.width || (y + height) < 0 || y >= _engine.height);
 }
 
 inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {

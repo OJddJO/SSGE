@@ -119,7 +119,7 @@ SSGEAPI SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text,
             SSGE_ErrorEx("Failed to render text: %s", TTF_GetError())
 
         texture->texture = SDL_CreateTextureFromSurface(_engine.renderer, surface);
-        if (texture->texture == NULL) 
+        if (texture->texture == NULL)
             SSGE_ErrorEx("Failed to create texture from surface: %s", SDL_GetError())
 
         SDL_FreeSurface(surface);

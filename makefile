@@ -16,7 +16,15 @@ OBJ_STATIC		= $(subst src,$(OSDIR)/build_static,$(patsubst %.c, %.o, $(SRC)))
 
 INCLUDE			= -I include
 LIB				= -L $(OSDIR)/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-EXTRA			= -Werror -Wall -O3 -fPIC -DSSGE_BUILD
+EXTRA			= -Werror -Wall -O3 -flto=auto -fPIC -DSSGE_BUILD
+
+# Build mode: release, cpuSpecific
+BUILD_MODE		?= release
+ifeq ($(BUILD_MODE),cpuSpecific)
+OPTIMIZE		= -march=native -mtune=native
+else
+OPTIMIZE		= -O3 -mtune=generic
+endif
 
 all: create_dirs static dll
 	@echo Static library:    $(STATIC_BUILD)
@@ -27,11 +35,11 @@ remake: clean all
 
 $(OSDIR)/build/%.o: src/%.c
 	@echo [DYNAMIC] Compiling $*.c...
-	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build/$*.o $(EXTRA)
+	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build/$*.o $(EXTRA) $(OPTIMIZE)
 
 $(OSDIR)/build_static/%.o: src/%.c
 	@echo [STATIC] Compiling $*.c...
-	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build_static/$*.o $(EXTRA) -DSSGE_STATIC -static
+	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build_static/$*.o $(EXTRA) $(OPTIMIZE) -DSSGE_STATIC -static
 
 clean:
 	@echo Cleaning up...
