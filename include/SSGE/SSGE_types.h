@@ -49,7 +49,7 @@ typedef enum {
  *************************************************/
 
 typedef void (*SSGE_UpdateFunc)(void *);
-typedef void (*SSGE_DrawFunc)(void *);
+typedef void (*SSGE_DrawFunc)(const void *);
 typedef void (*SSGE_EventHandler)(SSGE_Event, void *);
 
 typedef void (*SSGE_DestroyData)(void *);
