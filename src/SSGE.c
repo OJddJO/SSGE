@@ -44,6 +44,7 @@ SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t heigh
         SSGE_ErrorEx("Failed to create window: %s", SDL_GetError())
 
     SDL_SetHint(SDL_HINT_RENDER_BATCHING, "1");
+    SDL_SetHint(SDL_HINT_VIDEO_DOUBLE_BUFFER, "1");
     _engine.renderer = SDL_CreateRenderer(_engine.window, -1, SDL_RENDERER_ACCELERATED);
     if (_engine.renderer == NULL)
         SSGE_ErrorEx("Failed to create renderer: %s", SDL_GetError())
@@ -81,17 +82,6 @@ SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t heigh
     _engine.fullscreen = false;
     _engine.resizable = false;
 
-    _windowReq.title = NULL;
-    _windowReq.icon = NULL;
-    _windowReq.width = width;
-    _windowReq.height = height;
-    _windowReq.fullscreen = false;
-    _windowReq.resizable = false;
-    atomic_store(&_windowReq.changed, false);
-    _windowReq.mutex = SDL_CreateMutex();
-    if (_windowReq.mutex == NULL)
-        SSGE_ErrorEx("Failed to create mutex: %s", SDL_GetError());
-
     return &_engine;
 }
 
@@ -109,11 +99,6 @@ SSGEAPI void SSGE_Quit() {
     if (_engine.title) free(_engine.title);
     if (_engine.icon) SDL_FreeSurface(_engine.icon);
 
-    if (_windowReq.title) free(_windowReq.title);
-    if (_windowReq.icon) SDL_FreeSurface(_windowReq.icon);
-
-    SDL_DestroyMutex(_windowReq.mutex);
-
     SDL_DestroyRenderer(_engine.renderer);
     SDL_DestroyWindow(_engine.window);
     Mix_CloseAudio();
@@ -121,176 +106,8 @@ SSGEAPI void SSGE_Quit() {
     SDL_Quit();
 }
 
-inline static void _initDoubleBuffering(_SSGE_DoubleRenderBuffer *doubleBuffer) {
-    SSGE_Array_Create(&doubleBuffer->buffers[0]);
-    SSGE_Array_Create(&doubleBuffer->buffers[1]);
-
-    doubleBuffer->frameReady = SDL_CreateSemaphore(0);
-    doubleBuffer->frameConsummed = SDL_CreateSemaphore(0);
-
-    atomic_store(&doubleBuffer->writeBuffer, 0);
-    atomic_store(&doubleBuffer->readBuffer, 1);
-    
-    atomic_store(&doubleBuffer->framesGenerated, 0);
-    atomic_store(&doubleBuffer->framesRendered, 0);
-}
-
 inline static bool _isTextureVisible(int x, int y, int width, int height) {
     return !((x + width) < 0 || x >= _engine.width || (y + height) < 0 || y >= _engine.height);
-}
-
-inline static void _renderTextures(_SSGE_DoubleRenderBuffer *doubleBuffer) {
-    int readIdx = atomic_load(&doubleBuffer->readBuffer);
-    SSGE_Array *readBuffer = &doubleBuffer->buffers[readIdx];
-
-    if (SDL_SemWaitTimeout(doubleBuffer->frameReady, 1000) != 0) return;
-
-    for (int i = 0, done = 0; done < readBuffer->count && i < readBuffer->size; i++) {
-        _SSGE_BufferedRenderItem *item = SSGE_Array_Get(readBuffer, i);
-        if (!item) continue;
-
-        SSGE_Texture *texture = item->texture;
-        if (atomic_load(&texture->markedForDestroy))
-            continue;
-
-        SDL_Texture *sdlTexture = texture->texture;
-        _SSGE_RenderData *array = item->renderDatas;
-
-        for (int j = 0; j < item->count; j++) {
-            _SSGE_RenderData data = array[j];
-            if (!_isTextureVisible(data.x, data.y, data.width, data.height)) 
-                continue;
-    
-            SDL_Rect rect = {
-                data.x + texture->anchorX, 
-                data.y + texture->anchorY, 
-                data.width, 
-                data.height
-            };
-    
-            if (data.angle == 0 && data.flip == 0) SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &rect);
-            else SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &rect, data.angle, (SDL_Point *)&data.rotationCenter, data.flip);
-        }
-
-        ++done;
-    }
-
-    SDL_SemPost(doubleBuffer->frameConsummed);
-    atomic_fetch_add(&doubleBuffer->framesRendered, 1);
-}
-
-inline static void _copyGameStateToBuffer(SSGE_Array *buffer) {
-    uint32_t count = _textureList.count;
-    for (uint32_t i = 0, textureDone = 0; textureDone < count && i < _textureList.size; i++) {
-        SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
-        if (!texture || atomic_load(&texture->markedForDestroy) || texture->queue.count == 0)
-            continue;
-
-        _SSGE_BufferedRenderItem *item = (_SSGE_BufferedRenderItem *)malloc(sizeof(_SSGE_BufferedRenderItem));
-        _SSGE_RenderData *array = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData) * texture->queue.count);
-        item->renderDatas = array;
-        item->texture = texture;
-        item->count = texture->queue.count;
-
-        textureAcquire(texture);
-        for (uint32_t j = 0, dataDone = 0; dataDone < item->count && j < texture->queue.size; j++) {
-            _SSGE_RenderData *data = SSGE_Array_Get(&texture->queue, j);
-            if (!data) continue;
-
-            item->renderDatas[dataDone] = *data;
-
-            if (data->once) free(SSGE_Array_Pop(&texture->queue, j)); // free the render data if once is set
-            ++dataDone;
-        }
-
-        SSGE_Array_Add(buffer, item);
-        ++textureDone;
-    }
-}
-
-static int _updateThreadFunc(_SSGE_UpdThreadData *data) {
-    _SSGE_DoubleRenderBuffer *doubleBuffer = data->doubleBuffer;
-    void (*update)(void *) = data->update;
-    void *updData = data->data;
-    SDL_sem *eventBusy = data->eventBusy;
-
-    while (_engine.isRunning) {
-        int writeIdx = atomic_load(&doubleBuffer->writeBuffer);
-        SSGE_Array *writeBuffer = &doubleBuffer->buffers[writeIdx];
-        
-        SSGE_Array_Destroy(writeBuffer, destroyBufferedRenderItem);
-        SSGE_Array_Create(writeBuffer);
-        
-        SDL_SemWait(eventBusy);
-        if (!_engine.isRunning) break;
-
-        if (update) {
-            uintmax_t generated = atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
-            uintmax_t rendered = atomic_load(&doubleBuffer->framesRendered);
-            int framesBehind;
-            if (rendered < generated) {
-                framesBehind = 0;
-            } else {
-                uintmax_t diff = rendered - generated;
-                framesBehind = (diff > INT_MAX) ? INT_MAX : (int)diff;
-            }
-            int framesToCatchUp = (framesBehind > _engine.maxFrameskip) ? _engine.maxFrameskip : framesBehind;
-            for (int i = 0; i < framesToCatchUp; i++) {
-                update(updData);
-                atomic_fetch_add(&doubleBuffer->framesGenerated, 1);
-            }
-
-            update(updData);
-        }
-
-        _copyGameStateToBuffer(writeBuffer);
-
-        SDL_SemPost(doubleBuffer->frameReady);
-
-        if (_manualUpdateFrame && !_engine.vsync) SDL_Delay(0);
-        else SDL_SemWait(doubleBuffer->frameConsummed);
-
-        if (!_engine.isRunning) break;
-        atomic_uint_fast8_t readIdx = atomic_exchange(&doubleBuffer->readBuffer, writeIdx);
-        atomic_store(&doubleBuffer->writeBuffer, readIdx);
-    }
-
-    SSGE_Array_Destroy(&doubleBuffer->buffers[0], destroyBufferedRenderItem);
-    SSGE_Array_Destroy(&doubleBuffer->buffers[1], destroyBufferedRenderItem);
-    SDL_DestroySemaphore(doubleBuffer->frameConsummed);
-    SDL_DestroySemaphore(doubleBuffer->frameReady);
-    return 0;
-}
-
-inline static void changeWindowState() {
-    SDL_LockMutex(_windowReq.mutex);
-    char *newTitle = _windowReq.title;
-    SDL_Surface *newIcon = _windowReq.icon;
-    uint16_t newWidth = _windowReq.width;
-    uint16_t newHeight = _windowReq.height;
-    SSGE_WindowMode newFullscreen = _windowReq.fullscreen;
-    bool newResizable = _windowReq.resizable;
-
-    _windowReq.title = NULL;
-    _windowReq.icon = NULL;
-    atomic_store(&_windowReq.changed, false);
-    SDL_UnlockMutex(_windowReq.mutex);
-
-    if (newWidth != _engine.width || newHeight != _engine.height)
-        SDL_SetWindowSize(_engine.window, (_engine.width = newWidth), (_engine.height = newHeight));
-    if (newFullscreen != _engine.fullscreen)
-        SDL_SetWindowFullscreen(_engine.window, (_engine.fullscreen = newFullscreen));
-    if (newResizable != _engine.resizable)
-        SDL_SetWindowResizable(_engine.window, (_engine.resizable = newResizable));
-    if (newTitle != NULL) {
-        SDL_SetWindowTitle(_engine.window, newTitle);
-        free(_engine.title);
-        _engine.title = newTitle;
-    }
-    if (newIcon != NULL) {
-        SDL_FreeSurface(_engine.icon);
-        SDL_SetWindowIcon(_engine.window, (_engine.icon = newIcon));
-    }
 }
 
 SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data) {
@@ -299,56 +116,63 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
     uint64_t frameStart;
     double targetFrameTime = 1000.0 / (double)(_engine.fps);
 
-    _SSGE_DoubleRenderBuffer doubleBuffer = {0};
-    _initDoubleBuffering(&doubleBuffer);
-
-    SDL_Thread *updateThread = NULL;
-    _SSGE_UpdThreadData threadData = {
-        .update = update,
-        .data = data,
-        .doubleBuffer = &doubleBuffer,
-        .eventBusy = SDL_CreateSemaphore(0),
-    };
-    updateThread = SDL_CreateThread((SDL_ThreadFunction)_updateThreadFunc, "SSGE Update", &threadData);
-    if (!updateThread)
-        SSGE_ErrorEx("Failed to create update thread: %s", SDL_GetError());
-
     _engine.isRunning = true;
     SSGE_Event event = {0};
 
     while (_engine.isRunning) {
         frameStart = SDL_GetTicks64();
 
-        // Check if the window state has changed, and if it has, apply the changes
-        if (atomic_load(&_windowReq.changed)) changeWindowState();
-
         while (SDL_PollEvent((SDL_Event *)&event)) {
             switch (event.type) {
                 case SDL_QUIT:
                     _engine.isRunning = false;
-                    SDL_SemPost(threadData.eventBusy);
-                    SDL_SemPost(doubleBuffer.frameConsummed);
-                    SDL_WaitThread(updateThread, NULL);
-                    return;
                     break;
                 case SDL_WINDOWEVENT:
                     switch (event.window.event) {
                         case SDL_WINDOWEVENT_SIZE_CHANGED:
-                            _windowReq.width = (_engine.width = event.window.data1);
-                            _windowReq.height = (_engine.height = event.window.data2);
+                            _engine.width = event.window.data1;
+                            _engine.height = event.window.data2;
                             break;
                     }
                     break;
             }
             eventHandler(event, data);
         }
-        SDL_SemPost(threadData.eventBusy);
+
+        if (update) update(data);
         
         if (_updateFrame || !_manualUpdateFrame || _engine.vsync) {
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);
             SDL_RenderClear(_engine.renderer);
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
-            _renderTextures(&doubleBuffer);
+            for (uint32_t i = 0, textureDone = 0; textureDone < _textureList.count && i < _textureList.size; i++) {
+                SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
+                if (!texture) continue;
+
+                ++textureDone;
+                SDL_Texture *sdlTexture = texture->texture;
+                uint32_t count = texture->queue.count;
+                uint32_t size = texture->queue.size;
+
+                for (uint32_t j = 0, dataDone = 0; dataDone < count && j < size; j++) {
+                    _SSGE_RenderData *data = SSGE_Array_Get(&texture->queue, j);
+                    if (!data) continue;
+                    
+                    ++dataDone;
+                    if (!_isTextureVisible(data->x, data->y, data->width, data->height)) continue;
+                    SDL_Rect rect = {
+                        data->x + texture->anchorX,
+                        data->y + texture->anchorY,
+                        data->width,
+                        data->height,
+                    };
+
+                    if (data->angle == 0 && data->flip == 0) SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &rect);
+                    else SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &rect, data->angle, (SDL_Point *)&data->rotationCenter, data->flip);
+
+                    if (data->once) free(SSGE_Array_Pop(&texture->queue, j));
+                }
+            }
             if (draw) draw(data);
             
             SDL_RenderPresent(_engine.renderer);
@@ -366,12 +190,9 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
 SSGEAPI void SSGE_SetWindowTitle(char *title) {
     _assert_engine_init
     if (!title) return;
-    SDL_LockMutex(_windowReq.mutex);
-    if (_windowReq.title) free(_windowReq.title);
-    _windowReq.title = (char *)malloc(strlen(title) + 1);
-    strcpy(_windowReq.title, title);
-    atomic_store(&_windowReq.changed, true);
-    SDL_UnlockMutex(_windowReq.mutex);
+    if (_engine.title) free(_engine.title);
+    _engine.title = (char *)malloc(strlen(title) + 1);
+    strcpy(_engine.title, title);
 }
 
 SSGEAPI void SSGE_SetWindowIcon(char *filename) {
@@ -380,36 +201,27 @@ SSGEAPI void SSGE_SetWindowIcon(char *filename) {
     if (icon == NULL)
         SSGE_ErrorEx("Failed to load icon: %s", IMG_GetError())
 
-    SDL_LockMutex(_windowReq.mutex);
-    if (_windowReq.icon) SDL_FreeSurface(_windowReq.icon);
-    _windowReq.icon = icon;
-    atomic_store(&_windowReq.changed, true);
-    SDL_UnlockMutex(_windowReq.mutex);
+    if (_engine.icon) SDL_FreeSurface(_engine.icon);
+    _engine.icon = icon;
 }
 
 SSGEAPI void SSGE_WindowResize(uint16_t width, uint16_t height) {
     _assert_engine_init
-    SDL_LockMutex(_windowReq.mutex);
-    _windowReq.width = width;
-    _windowReq.height = height;
-    atomic_store(&_windowReq.changed, true);
-    SDL_UnlockMutex(_windowReq.mutex);
+    _engine.width = width;
+    _engine.height = height;
+    SDL_SetWindowSize(_engine.window, width, height);
 }
 
 SSGEAPI void SSGE_WindowResizable(bool resizable) {
     _assert_engine_init
-    SDL_LockMutex(_windowReq.mutex);
-    _windowReq.resizable = resizable;
-    atomic_store(&_windowReq.changed, true);
-    SDL_UnlockMutex(_windowReq.mutex);
+    _engine.resizable = resizable;
+    SDL_SetWindowResizable(_engine.window, resizable);
 }
 
 SSGEAPI void SSGE_WindowFullscreen(SSGE_WindowMode fullscreen) {
     _assert_engine_init
-    SDL_LockMutex(_windowReq.mutex);
-    _windowReq.fullscreen = fullscreen;
-    atomic_store(&_windowReq.changed, true);
-    SDL_UnlockMutex(_windowReq.mutex);
+    _engine.fullscreen = fullscreen;
+    SDL_SetWindowFullscreen(_engine.window, fullscreen);
 }
 
 SSGEAPI void SSGE_SetFrameskipMax(uint8_t max) {
@@ -441,6 +253,7 @@ SSGEAPI void SSGE_SetManualUpdate(bool manualUpdate) {
 }
 
 SSGEAPI void SSGE_ManualUpdate() {
+    _assert_engine_init
     _updateFrame = true;
 }
 

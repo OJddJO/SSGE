@@ -14,15 +14,11 @@ SSGE_Color  _bgColor            = {0, 0, 0, 255};
 bool        _manualUpdateFrame  = false;
 bool        _updateFrame        = true; // set to true to draw the first frame
 
-_SSGE_WindowStateReq    _windowReq  = {0};
-
 void destroyTexture(SSGE_Texture *ptr) {
-    atomic_store(&ptr->markedForDestroy, true);
+    SDL_DestroyTexture(ptr->texture);
     SSGE_Array_Destroy(&ptr->queue, free);
-    SSGE_Array_Create(&ptr->queue);
-
-    // Release ref from _textureList
-    textureRelease(ptr);
+    if (ptr->name) free(ptr->name);
+    free(ptr);
 }
 
 void destroyObject(SSGE_Object *ptr) {
@@ -61,28 +57,5 @@ void destroyAnimation(SSGE_Animation *ptr) {
         free(ptr->data.frames);
     }
     if (ptr->name) free(ptr->name);
-    free(ptr);
-}
-
-void textureAcquire(SSGE_Texture *texture) {
-    if (texture)
-        atomic_fetch_add(&texture->refCount, 1);
-}
-
-void textureRelease(SSGE_Texture *texture) {
-    if (!texture) return;
-    int oldCount = atomic_fetch_sub(&texture->refCount, 1);
-    if (oldCount == 1 && texture->markedForDestroy) { // No more reference to the texture
-        SDL_DestroyTexture(texture->texture);
-        SSGE_Array_Destroy(&texture->queue, free);
-        if (texture->name) free(texture->name);
-        free(texture);
-    }
-}
-
-void destroyBufferedRenderItem(void *ptr) {
-    textureRelease(((_SSGE_BufferedRenderItem *)ptr)->texture);
-
-    free(((_SSGE_BufferedRenderItem *)ptr)->renderDatas);
     free(ptr);
 }

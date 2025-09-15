@@ -94,8 +94,6 @@ typedef struct _SSGE_Texture {
     int                 anchorX;    // Anchor x coordinate (relative to the texture)
     int                 anchorY;    // Anchor y coordinate (relative to the texture)
     SSGE_Array          queue;      // Queue of every render call for this texture
-    atomic_uintmax_t    refCount;   // Number of reference to this texture
-    atomic_bool         markedForDestroy; // Destruction flag
 } SSGE_Texture;
 
 typedef enum _SSGE_AnimationType {
