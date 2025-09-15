@@ -115,31 +115,37 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
 
     uint64_t frameStart;
     double targetFrameTime = 1000.0 / (double)(_engine.fps);
+    uint64_t nextUpdate = 0;
 
     _engine.isRunning = true;
     SSGE_Event event = {0};
 
     while (_engine.isRunning) {
         frameStart = SDL_GetTicks64();
-
+        
         while (SDL_PollEvent((SDL_Event *)&event)) {
             switch (event.type) {
                 case SDL_QUIT:
-                    _engine.isRunning = false;
-                    break;
+                _engine.isRunning = false;
+                break;
                 case SDL_WINDOWEVENT:
-                    switch (event.window.event) {
-                        case SDL_WINDOWEVENT_SIZE_CHANGED:
-                            _engine.width = event.window.data1;
-                            _engine.height = event.window.data2;
-                            break;
-                    }
-                    break;
+                switch (event.window.event) {
+                    case SDL_WINDOWEVENT_SIZE_CHANGED:
+                        _engine.width = event.window.data1;
+                        _engine.height = event.window.data2;
+                        break;
+                }
+                break;
             }
             eventHandler(event, data);
         }
-
-        if (update) update(data);
+        
+        int updateLoops = 0;
+        uint64_t currentTime = SDL_GetTicks64();
+        if (update) while (currentTime > nextUpdate && updateLoops++ < _engine.maxFrameskip) {
+            update(data);
+            nextUpdate += (uint64_t)targetFrameTime;
+        }
         
         if (_updateFrame || !_manualUpdateFrame || _engine.vsync) {
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);

@@ -171,14 +171,12 @@ static void event_handler(SSGE_Event event, Game *game) {
     switch (event.type) {
         case SSGE_EVENT_MOUSEBUTTONDOWN: // handle mouse click
             if (game->winner == 0) { // if the game is not over
-                // get the mouse position
-                int x, y;
-                SSGE_GetMousePosition(&x, &y);
-                int i = x / TILE_SIZE;
-                int j = y / TILE_SIZE;
+                // get tile position
+                int i = event.button.x / TILE_SIZE;
+                int j = event.button.y / TILE_SIZE;
 
                 // check if a hitbox is clicked
-                SSGE_Object *hitbox = SSGE_GetHoveredObject();
+                SSGE_Object *hitbox = SSGE_Object_GetHovered();
                 if (hitbox != NULL) {
                     // play the click sound
                     SSGE_Audio_Play(SSGE_Audio_Get(A_CLICK), -1);
