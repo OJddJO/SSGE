@@ -12,9 +12,13 @@ SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, ui
 
     anim->type = SSGE_ANIM_FRAMES;
     anim->data.frames = (SDL_Texture **)calloc(frameCount, sizeof(SDL_Texture *));
+    anim->data.frametimes = (uint8_t *)calloc(frameCount, sizeof(uint8_t));
     anim->data.frameCount = frameCount;
+    anim->data.currentCount = 0;
     anim->data.width = width;
     anim->data.height = height;
+    anim->data.anchorX = 0;
+    anim->data.anchorY = 0;
 
     _addToList(&_animationList, anim, name, id, __func__);
     return anim;
@@ -114,9 +118,9 @@ SSGEAPI uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, ui
     state->animation = animation;
     state->x = x;
     state->y = y;
+    state->loop = loop;
     state->currentFrame = 0;
     state->currentFrameTime = 0;
-    state->loop = loop;
     state->reversed = reversed;
     state->pingpong = pingpong;
     state->isPlaying = true;
@@ -163,68 +167,4 @@ SSGEAPI void SSGE_Animation_Move(uint32_t id, int x, int y) {
     
     state->x = x;
     state->y = y;
-}
-
-SSGEAPI void SSGE_Animation_Update(uint32_t id) {
-    _assert_engine_init
-
-    SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
-    if (state == NULL)
-        SSGE_ErrorEx("Animation state not found: %u", id);
-
-    SSGE_Animation *anim = state->animation;
-    switch (anim->type) {
-        case SSGE_ANIM_FRAMES:
-            SDL_Rect dest = {
-                state->x - anim->data.anchorX,
-                state->y - anim->data.anchorY,
-                anim->data.width,
-                anim->data.height,
-            };
-            SDL_RenderCopy(_engine.renderer, anim->data.frames[state->currentFrame], NULL, &dest);
-
-            if (state->currentFrameTime >= anim->data.frametimes[state->currentFrame]) {
-                state->currentFrame += 1 - 2*state->reversed;
-                state->currentFrameTime = 0;
-            }
-
-            if (state->currentFrame < anim->data.currentCount)
-                break;
-
-            if (!(state->loop || state->pingpong)) // If there is no play count modifier
-                SSGE_Array_Remove(&_playingAnim, id, free);
-
-            if (state->pingpong) { // If pingpong then we need to decrement the frame (according to the reversed state)
-                state->currentFrame -= 2 * (1 - 2*state->reversed);
-                state->reversed = !state->reversed;
-            } else { // else just set the frame to 0
-                state->currentFrame = 0;
-            }
-
-            // If not loop then we can set pingpong to false (whatever the state of pingpong)
-            if (!state->loop)
-                state->pingpong = false;
-
-            if (state->loop && state->loop != -1) --state->loop; // Decrement loop count
-            break;
-
-        case SSGE_ANIM_FUNCTION:
-            anim->draw(state);
-            break;
-    }
-}
-
-SSGEAPI void SSGE_Animation_UpdateAll() {
-    _assert_engine_init
-
-    uint32_t i = 0, count = _playingAnim.count;
-    while (i < count) {
-        SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, i);
-        if (state == NULL) continue;
-        if (!state->isPlaying) continue;
-
-        SSGE_Animation_Update(i);
-
-        ++i;
-    }
 }

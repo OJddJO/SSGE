@@ -101,9 +101,8 @@ typedef enum _SSGE_AnimationType {
     SSGE_ANIM_FUNCTION
 } SSGE_AnimationType;
 
-typedef struct _SSGE_AnimationState SSGE_AnimationState;
-
 // Animation struct
+typedef struct _SSGE_AnimationState SSGE_AnimationState;
 typedef struct _SSGE_Animation {
     char                *name;  // The name of the animation
     uint32_t            id;     // The id of the animation

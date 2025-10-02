@@ -110,6 +110,92 @@ inline static bool _isTextureVisible(int x, int y, int width, int height) {
     return !((x + width) < 0 || x >= _engine.width || (y + height) < 0 || y >= _engine.height);
 }
 
+inline static void _updateTextures() {
+    for (uint32_t i = 0, textureDone = 0; textureDone < _textureList.count && i < _textureList.size; i++) {
+        SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
+        if (!texture) continue;
+
+        ++textureDone;
+        SDL_Texture *sdlTexture = texture->texture;
+        uint32_t count = texture->queue.count;
+        uint32_t size = texture->queue.size;
+
+        for (uint32_t j = 0, dataDone = 0; dataDone < count && j < size; j++) {
+            _SSGE_RenderData *data = SSGE_Array_Get(&texture->queue, j);
+            if (!data) continue;
+            
+            ++dataDone;
+            SDL_Rect rect = {
+                data->x + texture->anchorX,
+                data->y + texture->anchorY,
+                data->width,
+                data->height,
+            };
+            if (!_isTextureVisible(rect.x, rect.y, rect.w, rect.h)) continue;
+
+            if (data->angle == 0 && data->flip == 0) SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &rect);
+            else SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &rect, data->angle, (SDL_Point *)&data->rotationCenter, data->flip);
+
+            if (data->once) free(SSGE_Array_Pop(&texture->queue, j));
+        }
+    }
+}
+
+inline static void _updateAnimations() {
+    for (uint32_t i = 0, stateDone = 0; stateDone < _playingAnim.count && i < _playingAnim.size; i++) {
+        SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, i);
+        if (state == NULL || !state->isPlaying) continue;
+
+        SSGE_Animation *anim = state->animation;
+        switch (anim->type) {
+            case SSGE_ANIM_FRAMES:
+                SDL_Rect dest = {
+                    state->x - anim->data.anchorX,
+                    state->y - anim->data.anchorY,
+                    anim->data.width,
+                    anim->data.height,
+                };
+                if (!_isTextureVisible(dest.x, dest.y, dest.w, dest.h)) {
+                    if (!(state->loop || state->pingpong)) // If there is no play count modifier
+                        SSGE_Array_Remove(&_playingAnim, i, free);
+                    break;
+                }
+
+                SDL_RenderCopy(_engine.renderer, anim->data.frames[state->currentFrame], NULL, &dest);
+
+                if (state->currentFrameTime++ >= anim->data.frametimes[state->currentFrame]) {
+                    state->currentFrame += 1 - 2*state->reversed;
+                    state->currentFrameTime = 0;
+                }
+
+                if (state->currentFrame < anim->data.currentCount)
+                    break;
+
+                if (!(state->loop || state->pingpong)) // If there is no play count modifier
+                    SSGE_Array_Remove(&_playingAnim, i, free);
+
+                if (state->pingpong) { // If pingpong then we need to decrement the frame (according to the reversed state)
+                    state->currentFrame -= 2 * (1 - 2*state->reversed);
+                    state->reversed = !state->reversed;
+                } else { // else just set the frame to 0
+                    state->currentFrame = 0;
+                }
+
+                // If not loop then we can set pingpong to false (whatever the state of pingpong)
+                if (!state->loop)
+                    state->pingpong = false;
+
+                if (state->loop && state->loop != -1) --state->loop; // Decrement loop count
+                break;
+
+            case SSGE_ANIM_FUNCTION:
+                anim->draw(state);
+                break;
+        }
+        ++stateDone;
+    }
+}
+
 SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data) {
     _assert_engine_init
 
@@ -137,7 +223,7 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
                 }
                 break;
             }
-            eventHandler(event, data);
+            if (eventHandler) eventHandler(event, data);
         }
         
         int updateLoops = 0;
@@ -151,40 +237,16 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);
             SDL_RenderClear(_engine.renderer);
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
-            for (uint32_t i = 0, textureDone = 0; textureDone < _textureList.count && i < _textureList.size; i++) {
-                SSGE_Texture *texture = SSGE_Array_Get(&_textureList, i);
-                if (!texture) continue;
-
-                ++textureDone;
-                SDL_Texture *sdlTexture = texture->texture;
-                uint32_t count = texture->queue.count;
-                uint32_t size = texture->queue.size;
-
-                for (uint32_t j = 0, dataDone = 0; dataDone < count && j < size; j++) {
-                    _SSGE_RenderData *data = SSGE_Array_Get(&texture->queue, j);
-                    if (!data) continue;
-                    
-                    ++dataDone;
-                    if (!_isTextureVisible(data->x, data->y, data->width, data->height)) continue;
-                    SDL_Rect rect = {
-                        data->x + texture->anchorX,
-                        data->y + texture->anchorY,
-                        data->width,
-                        data->height,
-                    };
-
-                    if (data->angle == 0 && data->flip == 0) SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &rect);
-                    else SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &rect, data->angle, (SDL_Point *)&data->rotationCenter, data->flip);
-
-                    if (data->once) free(SSGE_Array_Pop(&texture->queue, j));
-                }
-            }
-            if (draw) draw(data);
             
+            _updateTextures();
+            _updateAnimations();
+
+            if (draw) draw(data);
+
             SDL_RenderPresent(_engine.renderer);
             _updateFrame = false;
         }
-        
+
         if (!_engine.vsync) {
             uint64_t frameTime = SDL_GetTicks64() - frameStart;
             if ((double)frameTime < targetFrameTime)

@@ -48,8 +48,7 @@ SSGEAPI void SSGE_Quit();
  * \param eventHandler The event handler function
  * \param data The `void *` to pass to the functions (update, draw, eventHandler)
  * \warning The engine runs in an infinite loop until the window is closed
- * \note The order of execution is as follows: Event handling (thread), Update (thread), (Clear screen), Draw
- * \note The `eventHandler` and `update` function is executed on a thread for double buffering. All `SSGE` draw functions should be called in the user `draw` function
+ * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
  */
 SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data);
 
@@ -68,20 +67,20 @@ SSGEAPI void SSGE_SetWindowTitle(char *title);
 SSGEAPI void SSGE_SetWindowIcon(char *filename);
 
 /**
- * Set the window size
+ * Resize the window
  * \param width The target width
  * \param height The target height
  */
 SSGEAPI void SSGE_WindowResize(uint16_t width, uint16_t height);
 
 /**
- * Set the window as resizable
+ * Set if the window is resizable
  * \param resizable True if the window should be resizable, false otherwise
  */
 SSGEAPI void SSGE_WindowResizable(bool resizable);
 
 /**
- * Set the window as fullscreen
+ * Set the window screen mode
  * \param fullscreen True if the window should be fullscreen, false otherwise
  */
 SSGEAPI void SSGE_WindowFullscreen(SSGE_WindowMode fullscreen);
@@ -93,16 +92,14 @@ SSGEAPI void SSGE_WindowFullscreen(SSGE_WindowMode fullscreen);
 SSGEAPI void SSGE_SetFrameskipMax(uint8_t max);
 
 /**
- * Set VSync state
+ * Enable or disable VSync
  * \param vsync If VSync should be enabled or disabled
  */
 SSGEAPI void SSGE_SetVSync(bool vsync);
 
 /**
- * Set the manual update mode
+ * Enable or disable the manual update mode
  * \param manualUpdate True if the manual update mode should be enabled, false otherwise
- * \warning Use manual update mode ONLY if you know what you are doing.
- * \warning As the engine is threaded and double buffered, you should be carefull of timing and race conditions
  * \note This function should be called before the `SSGE_Run` function
  * \note When the manual update mode is enabled, the screen will only be cleared and updated when the `SSGE_ManualUpdate` function is called.
  * \note Setting the manual update mode may be more efficient when the screen does not need to be updated every frame
@@ -120,7 +117,7 @@ SSGEAPI void SSGE_ManualUpdate();
 // Utility functions
 
 /**
- * Set the color of the renderer
+ * Change the drawing color
  * \param color The color to set
  */
 SSGEAPI void SSGE_SetColor(SSGE_Color color);
@@ -135,6 +132,7 @@ SSGEAPI void SSGE_SetBackgroundColor(SSGE_Color color);
  * Get the mouse position
  * \param x The variable to store the x coordinate of the mouse
  * \param y The variable to store the y coordinate of the mouse
+ * \note To get the mouse position in the event handler, please use the coordinates in the `SSGE_Event` struct
  */
 SSGEAPI void SSGE_GetMousePosition(int *x, int *y);
 

@@ -38,7 +38,7 @@ clean:
 
 create_dirs:
 	@echo "Creating necessary directories..."
-	@mkdir -p $(OSDIR) $(OSDIR)/build
+	@mkdir -p $(OSDIR) $(OSDIR)/bin $(OSDIR)/build
 
 $(OSDIR)/build/%.o: src/%.c
 	@echo Compiling $*.c...

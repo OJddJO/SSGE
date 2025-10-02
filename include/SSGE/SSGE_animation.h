@@ -110,17 +110,6 @@ SSGEAPI void SSGE_Animation_Stop(uint32_t id);
  */
 SSGEAPI void SSGE_Animation_Move(uint32_t id, int x, int y);
 
-/**
- * Update an animation
- * \param id The id of the animation state bound to the animation to update
- */
-SSGEAPI void SSGE_Animation_Update(uint32_t id);
-
-/**
- * Update all currently playing animations
- */
-SSGEAPI void SSGE_Animation_UpdateAll();
-
 #ifdef __cplusplus
 }
 #endif
