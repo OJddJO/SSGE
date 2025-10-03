@@ -11,7 +11,7 @@ extern "C" {
 /**
  * Create an animation with frames
  * \param id Where to store the id of the animation
- * \param name The name of the animation
+ * \param name The name of the animation, can be NULL
  * \param frameCount The number of frames for the animation
  * \param width The width of the frames
  * \param height The height of the frames

@@ -2,6 +2,8 @@
 
 void update(void *);
 
+SSGE_Object *obj = NULL;
+
 int main() {
     SSGE_Init("Test", 800, 500, 75);
     // SSGE_SetVSync(true);
@@ -15,9 +17,15 @@ int main() {
     SSGE_Animation_AddFrame(anim, 2, "3.png");
     SSGE_Animation_AddFrame(anim, 2, "4.png");
 
-    SSGE_Animation_Play(anim, 0, 0, -1, false, false);
-    SSGE_Run(NULL, NULL, NULL, NULL);
-    
+    obj = SSGE_Object_Create(&id, NULL, 50, 50, 200, 200, false);
+    SSGE_Object_BindAnimation(obj, anim);
+
+    SSGE_Run((SSGE_UpdateFunc)update, NULL, NULL, NULL);
+
     SSGE_Quit();
     return 0;
+}
+
+void update(void *) {
+    SSGE_Object_Move(obj, (obj->x + 1)%800, (obj->y + 1)%500);
 }

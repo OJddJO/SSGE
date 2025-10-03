@@ -11,7 +11,7 @@ extern "C" {
 /**
  * Create an object
  * \param id Where to store the id of the object
- * \param name The name of the object
+ * \param name The name of the object, can be NULL
  * \param x The x coordinate of the object
  * \param y The y coordinate of the object
  * \param width The width of the object
@@ -88,8 +88,10 @@ SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture)
  * Bind an animation to an object
  * \param object The object to bind the animation to
  * \param animation The new animation of the texture
+ * \param reversed If the animation should be reversed
+ * \param pingpong If the animation should pingpong (normal -> reversed)
  */
-SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation);
+SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation, bool reversed, bool pingpong);
 
 /**
  * Remove the texure of an object

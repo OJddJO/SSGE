@@ -29,7 +29,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *
     if (template->spriteType == SSGE_SPRITE_STATIC)
         SSGE_Object_BindTexture(object, template->texture);
     else if (template->spriteType == SSGE_SPRITE_ANIM)
-        SSGE_Object_BindAnimation(object, template->animation);
+        SSGE_Object_BindAnimation(object, template->animation, false, false);
     return object;
 }
 
@@ -116,12 +116,12 @@ SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture)
     object->texture.texture = texture;
 }
 
-SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation) {
+SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation, bool reversed, bool pingpong) {
     _assert_engine_init
     if (object->spriteType == SSGE_SPRITE_STATIC)
         free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.renderDataIdx));
     object->spriteType = SSGE_SPRITE_ANIM;
-    object->animation = SSGE_Animation_Play(animation, object->x, object->y, -1, false, false);
+    object->animation = SSGE_Animation_Play(animation, object->x, object->y, -1, reversed, pingpong);
 }
 
 SSGEAPI void SSGE_Object_RemoveSprite(SSGE_Object *object) {
@@ -129,6 +129,12 @@ SSGEAPI void SSGE_Object_RemoveSprite(SSGE_Object *object) {
     if (object->spriteType == SSGE_SPRITE_STATIC)
         free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.renderDataIdx));
     object->spriteType = SSGE_SPRITE_NONE;
+}
+
+SSGEAPI void SSGE_Object_Hide(SSGE_Object *object, bool hidden) {
+    _assert_engine_init
+    if (object->hidden) return;
+    object->hidden = hidden;
 }
 
 SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id) {

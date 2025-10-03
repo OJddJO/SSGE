@@ -36,7 +36,7 @@ SSGEAPI SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, uint16_t row, uin
  * \param row The row of the tile
  * \param col The column of the tile
  * \param id Where to store the id of the texture
- * \param name The name of the texture
+ * \param name The name of the texture, can be NULL
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name or its id
  */

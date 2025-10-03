@@ -155,6 +155,7 @@ typedef struct _SSGE_Object {
     uint16_t        width;      // The width of the object
     uint16_t        height;     // The height of the object
     bool            hitbox;     // If the object has a hitbox
+    bool            hidden;     // If the object is hidden
     SSGE_SpriteType spriteType; // If the sprite is animated or static
     union {
         struct {

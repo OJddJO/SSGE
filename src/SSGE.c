@@ -201,14 +201,14 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
 
     uint64_t frameStart;
     double targetFrameTime = 1000.0 / (double)(_engine.fps);
-    uint64_t nextUpdate = 0;
+    uint64_t nextUpdate = SDL_GetTicks64() + (uint64_t)targetFrameTime;
 
     _engine.isRunning = true;
     SSGE_Event event = {0};
 
     while (_engine.isRunning) {
         frameStart = SDL_GetTicks64();
-        
+
         while (SDL_PollEvent((SDL_Event *)&event)) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -250,7 +250,7 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
         if (!_engine.vsync) {
             uint64_t frameTime = SDL_GetTicks64() - frameStart;
             if ((double)frameTime < targetFrameTime)
-            SDL_Delay((uint32_t)(targetFrameTime - (double)frameTime));
+                SDL_Delay((uint32_t)(targetFrameTime - (double)frameTime));
         }
     }
 }

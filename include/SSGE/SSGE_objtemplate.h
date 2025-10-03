@@ -11,7 +11,7 @@ extern "C" {
 /**
  * Create an object template
  * \param id Where to store the id of the object template
- * \param name The name of the object template
+ * \param name The name of the object template, can be NULL
  * \param width The width of the object template
  * \param height The height of the object template
  * \param hitbox True if objects created from this template have a hitbox, false otherwise
@@ -23,7 +23,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint
 /**
  * Create an object template with a texture
  * \param id Where to store the id of the object template
- * \param name The name of the object template
+ * \param name The name of the object template, can be NULL
  * \param texture The texture of the object template
  * \param width The width of the object template
  * \param height The height of the object template
@@ -36,7 +36,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name
 /**
  * Create an object template with an animation
  * \param id Where to store the id of the object template
- * \param name The name of the object template
+ * \param name The name of the object template, can be NULL
  * \param animation The animation of the object template
  * \param width The width of the object template
  * \param height The height of the object template

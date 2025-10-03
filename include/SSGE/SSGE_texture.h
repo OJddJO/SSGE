@@ -12,7 +12,7 @@ extern "C" {
  * Create a texture
  * \param id Where to store the id of the texture
  * \param filename The path to the texture
- * \param name The name of the texture
+ * \param name The name of the texture, can be NULL
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name or its id
  */
