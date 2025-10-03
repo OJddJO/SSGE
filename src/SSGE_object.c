@@ -3,7 +3,6 @@
 #include "SSGE/SSGE_animation.h"
 
 SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox) {
-    _assert_engine_init
     SSGE_Object *object = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (object == NULL) 
         SSGE_Error("Failed to allocate memory for object")
@@ -16,6 +15,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, 
     object->width = width;
     object->height = height;
     object->hitbox = hitbox;
+    object->hidden = false;
     object->data = NULL;
     object->destroyData = NULL;
 
@@ -24,7 +24,6 @@ SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, 
 }
 
 SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *template, char *name, int x, int y) {
-    _assert_engine_init
     SSGE_Object *object = SSGE_Object_Create(id, name, x, y, template->width, template->height, template->hitbox);
     if (template->spriteType == SSGE_SPRITE_STATIC)
         SSGE_Object_BindTexture(object, template->texture);
@@ -34,7 +33,6 @@ SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *
 }
 
 SSGEAPI bool SSGE_Object_Exists(uint32_t id) {
-    _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Get(&_objectList, id);
     return ptr == NULL ? false : true;
 }
@@ -44,13 +42,11 @@ inline static bool _find_object_name(void *ptr, void *name) {
 }
 
 SSGEAPI bool SSGE_Object_ExistsName(char *name) {
-    _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Find(&_objectList, _find_object_name, name);
     return ptr == NULL ? false : true;
 }
 
 SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
-    _assert_engine_init
     object->x = x;
     object->y = y;
     switch (object->spriteType) {
@@ -68,7 +64,6 @@ SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
 }
 
 SSGEAPI void SSGE_Object_MoveRel(SSGE_Object *object, int dx, int dy) {
-    _assert_engine_init
     object->x += dx;
     object->y += dy;
     switch (object->spriteType) {
@@ -86,7 +81,6 @@ SSGEAPI void SSGE_Object_MoveRel(SSGE_Object *object, int dx, int dy) {
 }
 
 SSGEAPI void SSGE_Object_BindData(SSGE_Object *object, void *data, SSGE_DestroyData destroy) {
-    _assert_engine_init
     if (object->data && object->destroyData)
         object->destroyData(object->data);
     object->data = data;
@@ -94,13 +88,11 @@ SSGEAPI void SSGE_Object_BindData(SSGE_Object *object, void *data, SSGE_DestroyD
 }
 
 SSGEAPI void SSGE_Object_RemoveData(SSGE_Object *object) {
-    _assert_engine_init
     if (object->data && object->destroyData)
         object->destroyData(object->data);
 }
 
 SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture) {
-    _assert_engine_init
     if (object->spriteType == SSGE_SPRITE_STATIC)
         free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.renderDataIdx));
     object->spriteType = SSGE_SPRITE_STATIC;
@@ -117,7 +109,6 @@ SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture)
 }
 
 SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *animation, bool reversed, bool pingpong) {
-    _assert_engine_init
     if (object->spriteType == SSGE_SPRITE_STATIC)
         free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.renderDataIdx));
     object->spriteType = SSGE_SPRITE_ANIM;
@@ -125,20 +116,50 @@ SSGEAPI void SSGE_Object_BindAnimation(SSGE_Object *object, SSGE_Animation *anim
 }
 
 SSGEAPI void SSGE_Object_RemoveSprite(SSGE_Object *object) {
-    _assert_engine_init
     if (object->spriteType == SSGE_SPRITE_STATIC)
         free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.renderDataIdx));
     object->spriteType = SSGE_SPRITE_NONE;
 }
 
-SSGEAPI void SSGE_Object_Hide(SSGE_Object *object, bool hidden) {
-    _assert_engine_init
+SSGEAPI void SSGE_Object_Hide(SSGE_Object *object) {
     if (object->hidden) return;
-    object->hidden = hidden;
+    object->hidden = true;
+    switch (object->spriteType) {
+        case SSGE_SPRITE_ANIM:
+            SSGE_Animation_Pause(object->animation);
+            break;
+        case SSGE_SPRITE_STATIC:
+            free(SSGE_Array_Pop(&object->texture.texture->queue, object->texture.renderDataIdx));
+        default:
+            break;
+    }
+}
+
+SSGEAPI void SSGE_Object_Show(SSGE_Object *object) {
+    if (object->hidden) {
+        object->hidden = false;
+        switch (object->spriteType) {
+            case SSGE_SPRITE_ANIM:
+                SSGE_Animation_Resume(object->animation);
+                break;
+            case SSGE_SPRITE_STATIC:
+                _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
+                *renderData = (_SSGE_RenderData){
+                    .x = object->x,
+                    .y = object->y,
+                    .width = object->width,
+                    .height = object->height,
+                    .once = false
+                };
+                object->texture.renderDataIdx = SSGE_Array_Add(&object->texture.texture->queue, renderData);
+                break;
+            default:
+                break;
+        }
+    }
 }
 
 SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id) {
-    _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Get(&_objectList, id);
     if (ptr == NULL) 
         SSGE_ErrorEx("Object not found: %u", id)
@@ -146,7 +167,6 @@ SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id) {
 }
 
 SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name) {
-    _assert_engine_init
     SSGE_Object *ptr = SSGE_Array_Find(&_objectList, _find_object_name, name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Object not found: %s", name)
@@ -154,12 +174,10 @@ SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name) {
 }
 
 SSGEAPI void *SSGE_Object_GetData(SSGE_Object *object) {
-    _assert_engine_init
     return object->data;
 }
 
 SSGEAPI void SSGE_Object_Resize(SSGE_Object *object, uint16_t width, uint16_t height) {
-    _assert_engine_init
     object->width = width;
     object->height = height;
     if (object->spriteType == SSGE_SPRITE_STATIC) {
@@ -170,7 +188,6 @@ SSGEAPI void SSGE_Object_Resize(SSGE_Object *object, uint16_t width, uint16_t he
 }
 
 SSGEAPI void SSGE_Object_Destroy(uint32_t id) {
-    _assert_engine_init
     SSGE_Object *object = SSGE_Array_Pop(&_objectList, id);
     if (object == NULL)
         SSGE_ErrorEx("Object not found: %u", id)
@@ -178,7 +195,6 @@ SSGEAPI void SSGE_Object_Destroy(uint32_t id) {
 }
 
 SSGEAPI void SSGE_Object_DestroyName(char *name) {
-    _assert_engine_init
     SSGE_Object *object = SSGE_Array_FindPop(&_objectList, _find_object_name, name);
     if (object == NULL) 
         SSGE_ErrorEx("Object not found: %s", name)
@@ -186,7 +202,6 @@ SSGEAPI void SSGE_Object_DestroyName(char *name) {
 }
 
 SSGEAPI void SSGE_Object_DestroyAll() {
-    _assert_engine_init
     SSGE_Array_Destroy(&_objectList, (SSGE_DestroyData)destroyObject);
     SSGE_Array_Create(&_objectList);
 }
@@ -203,20 +218,17 @@ static bool _is_hovered(SSGE_Object *ptr, int *mousePos) {
 }
 
 SSGEAPI bool SSGE_Object_IsHovered(SSGE_Object *object) {
-    _assert_engine_init
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
     return mouseX >= object->x && mouseX <= object->x + object->width && mouseY >= object->y && mouseY <= object->y + object->height;
 }
 
 SSGEAPI SSGE_Object *SSGE_Object_GetAt(int x, int y) {
-    _assert_engine_init
     int pos[2] = {x, y};
     return SSGE_Array_Find(&_objectList, (bool (*)(void *, void *))_is_hovered, pos);
 }
 
 SSGEAPI uint32_t SSGE_Object_GetAtList(int x, int y, SSGE_Object *objects[], uint32_t size) {
-    _assert_engine_init
     int pos[2] = {x, y};
 
     uint32_t i = 0, count = 0;
@@ -230,7 +242,6 @@ SSGEAPI uint32_t SSGE_Object_GetAtList(int x, int y, SSGE_Object *objects[], uin
 }
 
 SSGEAPI SSGE_Object *SSGE_Object_GetHovered() {
-    _assert_engine_init
     int mousePos[2];
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);
 
@@ -238,7 +249,6 @@ SSGEAPI SSGE_Object *SSGE_Object_GetHovered() {
 }
 
 SSGEAPI uint32_t SSGE_Objects_GetHoveredList(SSGE_Object *objects[], uint32_t size) {
-    _assert_engine_init
     int mousePos[2];
     SDL_GetMouseState(&mousePos[0], &mousePos[1]);
     

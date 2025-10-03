@@ -2,7 +2,6 @@
 #include "SSGE/SSGE_text.h"
 
 SSGEAPI void SSGE_Font_Create(char *filename, int size, char *name) {
-    _assert_engine_init
     SSGE_Font *font = (SSGE_Font *)malloc(sizeof(SSGE_Font));
     if (font == NULL) 
         SSGE_Error("Failed to allocate memory for font")
@@ -33,7 +32,6 @@ static SSGE_Font *_get_font(char *name, char *funcname) {
 }
 
 SSGEAPI void SSGE_Font_Close(char *name) {
-    _assert_engine_init
     SSGE_Font *font = SSGE_Array_FindPop(&_fontList, _find_font_name, name);
     if (font == NULL) 
         SSGE_ErrorEx("Font not found: %s", name)
@@ -41,13 +39,11 @@ SSGEAPI void SSGE_Font_Close(char *name) {
 }
 
 SSGEAPI void SSGE_Font_CloseAll() {
-    _assert_engine_init
     SSGE_Array_Destroy(&_fontList, (SSGE_DestroyData)destroyFont);
     SSGE_Array_Create(&_fontList);
 }
 
 SSGEAPI void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color color, SSGE_Anchor anchor) {
-    _assert_engine_init
 
     if (color.a == 0) return;
 
@@ -104,7 +100,6 @@ SSGEAPI void SSGE_Text_Draw(char *fontName, char *text, int x, int y, SSGE_Color
 }
 
 SSGEAPI SSGE_Texture *SSGE_Text_Create(uint32_t *id, char *fontName, char *text, SSGE_Color color, char *textureName) {
-    _assert_engine_init
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")

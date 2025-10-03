@@ -2,8 +2,6 @@
 #include "SSGE/SSGE_texture.h"
 
 SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *name) {
-    _assert_engine_init
-
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -19,7 +17,6 @@ SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *na
 }
 
 SSGEAPI SSGE_Texture *SSGE_Texture_Get(uint32_t id) {
-    _assert_engine_init
     SSGE_Texture *ptr = SSGE_Array_Get(&_textureList, id);
     if (ptr == NULL) 
         SSGE_ErrorEx("Texture not found: %u", id)
@@ -31,7 +28,6 @@ static bool _find_texture_name(void *ptr, void *name) {
 }
 
 SSGEAPI SSGE_Texture *SSGE_Texture_GetName(char *name) {
-    _assert_engine_init
     SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(&_textureList, _find_texture_name, name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Texture not found: %s", name)
@@ -39,13 +35,11 @@ SSGEAPI SSGE_Texture *SSGE_Texture_GetName(char *name) {
 }
 
 SSGEAPI void SSGE_Texture_Anchor(SSGE_Texture *texture, int x, int y) {
-    _assert_engine_init
     texture->anchorX = x;
     texture->anchorY = y;
 }
 
 SSGEAPI void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, int height) {
-    _assert_engine_init
     _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
     *renderData = (_SSGE_RenderData){
         .x = x,
@@ -58,7 +52,6 @@ SSGEAPI void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, i
 }
 
 SSGEAPI void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point center, SSGE_Flip flip) {
-    _assert_engine_init
     _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
     *renderData = (_SSGE_RenderData){
         .x = x,
@@ -74,7 +67,6 @@ SSGEAPI void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width,
 }
 
 SSGEAPI void SSGE_Texture_Destroy(uint32_t id) {
-    _assert_engine_init
     SSGE_Texture *texture = SSGE_Array_Pop(&_textureList, id);
     if (texture == NULL) 
         SSGE_ErrorEx("Texture not found: %u", id)
@@ -82,7 +74,6 @@ SSGEAPI void SSGE_Texture_Destroy(uint32_t id) {
 }
 
 SSGEAPI void SSGE_Texture_DestroyName(char *name) {
-    _assert_engine_init
     SSGE_Texture *texture = SSGE_Array_FindPop(&_textureList, _find_texture_name, name);
     if (texture == NULL) 
         SSGE_ErrorEx("Texture not found: %s", name)
@@ -90,7 +81,6 @@ SSGEAPI void SSGE_Texture_DestroyName(char *name) {
 }
 
 SSGEAPI void SSGE_Texture_DestroyAll() {
-    _assert_engine_init
     SSGE_Array_Destroy(&_textureList, (SSGE_DestroyData)destroyTexture);
     SSGE_Array_Create(&_textureList);
 }

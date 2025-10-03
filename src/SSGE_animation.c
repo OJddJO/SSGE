@@ -4,8 +4,6 @@
 #include "SSGE/SSGE_animation.h"
 
 SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, uint32_t frameCount, uint16_t width, uint16_t height) {
-    _assert_engine_init
-
     SSGE_Animation *anim = (SSGE_Animation *)malloc(sizeof(SSGE_Animation));
     if (anim == NULL)
         SSGE_Error("Failed to allocate memory for animation")
@@ -25,8 +23,6 @@ SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, ui
 }
 
 SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void (*draw)(SSGE_AnimationState *)) {
-    _assert_engine_init
-
     SSGE_Animation *anim = (SSGE_Animation *)malloc(sizeof(SSGE_Animation));
     if (anim == NULL) 
         SSGE_Error("Failed to allocate memory for animation")
@@ -39,8 +35,6 @@ SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void
 }
 
 SSGEAPI void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
-    _assert_engine_init
-
     if (animation->type != SSGE_ANIM_FRAMES)
         SSGE_Error("Wrong animation type")
 
@@ -49,8 +43,6 @@ SSGEAPI void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
 }
 
 SSGEAPI void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, char *file) {
-    _assert_engine_init
-
     if (animation->type != SSGE_ANIM_FRAMES)
         SSGE_Error("Wrong animation type")
 
@@ -66,8 +58,6 @@ SSGEAPI void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametim
 }
 
 SSGEAPI void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t frametime, SSGE_Tilemap *tilemap, int row, int col) {
-    _assert_engine_init
-
     if (animation->type != SSGE_ANIM_FRAMES)
         SSGE_Error("Wrong animation type")
 
@@ -89,7 +79,6 @@ SSGEAPI void SSGE_Animation_AddFrameTilemap(SSGE_Animation *animation, uint8_t f
 }
 
 SSGEAPI SSGE_Animation *SSGE_Animation_Get(uint32_t id) {
-    _assert_engine_init
     SSGE_Animation *ptr = SSGE_Array_Get(&_animationList, id);
     if (ptr == NULL)
         SSGE_ErrorEx("Animation not found: %u", id)
@@ -101,7 +90,6 @@ inline static bool _find_animation_name(void *ptr, void *name) {
 }
 
 SSGEAPI SSGE_Animation *SSGE_Animation_GetName(char *name) {
-    _assert_engine_init
     SSGE_Animation *ptr = SSGE_Array_Find(&_animationList, _find_animation_name, name);
     if (ptr == NULL)
         SSGE_ErrorEx("Animation not found: %s", name)
@@ -109,8 +97,6 @@ SSGEAPI SSGE_Animation *SSGE_Animation_GetName(char *name) {
 }
 
 SSGEAPI uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, uint32_t loop, bool reversed, bool pingpong) {
-    _assert_engine_init
-
     SSGE_AnimationState *state = (SSGE_AnimationState*)malloc(sizeof(SSGE_AnimationState));
     if (state == NULL)
         SSGE_Error("Failed to allocate memory for animation state")
@@ -129,8 +115,6 @@ SSGEAPI uint32_t SSGE_Animation_Play(SSGE_Animation *animation, int x, int y, ui
 }
 
 SSGEAPI void SSGE_Animation_Pause(uint32_t id) {
-    _assert_engine_init
-
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
     if (state == NULL)
         SSGE_ErrorEx("Animation state not found: %u", id)
@@ -139,8 +123,6 @@ SSGEAPI void SSGE_Animation_Pause(uint32_t id) {
 }
 
 SSGEAPI void SSGE_Animation_Resume(uint32_t id) {
-    _assert_engine_init
-
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
     if (state == NULL)
         SSGE_ErrorEx("Animation state not found: %u", id)
@@ -149,8 +131,6 @@ SSGEAPI void SSGE_Animation_Resume(uint32_t id) {
 }
 
 SSGEAPI void SSGE_Animation_Stop(uint32_t id) {
-    _assert_engine_init
-
     SSGE_AnimationState *state = SSGE_Array_Pop(&_playingAnim, id);
     if (state == NULL)
         SSGE_ErrorEx("Animation state not found: %u", id)
@@ -159,8 +139,6 @@ SSGEAPI void SSGE_Animation_Stop(uint32_t id) {
 }
 
 SSGEAPI void SSGE_Animation_Move(uint32_t id, int x, int y) {
-    _assert_engine_init
-
     SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, id);
     if (state == NULL)
         SSGE_ErrorEx("Animation state not found: %u", id);

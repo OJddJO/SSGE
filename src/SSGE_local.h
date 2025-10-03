@@ -49,12 +49,6 @@ extern SSGE_Color   _bgColor;
 extern bool         _manualUpdateFrame;
 extern bool         _updateFrame;
 
-#define _assert_engine_init \
-if (!_engine.initialized) {\
-    fprintf(stderr, "[SSGE][%s] Engine not initialized\n", __func__);\
-    exit(1);\
-}\
-
 inline void _addToList(SSGE_Array *list, void *element, char *name, uint32_t *id, const char *funcname) {
     if (name) {
         ((DummyType *)element)->name = (char *)malloc(sizeof(char) * (strlen(name) + 1));

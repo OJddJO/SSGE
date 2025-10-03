@@ -174,7 +174,7 @@ typedef struct _SSGE_ObjectTemplate {
     uint32_t        id;         // The id of the template
     uint16_t        width;      // The width of the object
     uint16_t        height;     // The height of the object
-    SSGE_SpriteType spriteType; // If the sprite is animatied or static
+    SSGE_SpriteType spriteType; // If the sprite is animated or static
     union {
         SSGE_Texture    *texture;   // The texture for the template
         SSGE_Animation  *animation; // The animation for the template

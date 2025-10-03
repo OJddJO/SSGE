@@ -102,6 +102,18 @@ SSGEAPI void SSGE_Object_RemoveSprite(SSGE_Object *object);
 #define SSGE_Object_RemoveAnim SSGE_Object_RemoveSprite
 
 /**
+ * Hide an object
+ * \param object The object to hide
+ */
+SSGEAPI void SSGE_Object_Hide(SSGE_Object *object);
+
+/**
+ * Show an object
+ * \param object The object to show
+ */
+SSGEAPI void SSGE_Object_Show(SSGE_Object *object);
+
+/**
  * Get an object by id
  * \param id The id of the object
  * \return The object
