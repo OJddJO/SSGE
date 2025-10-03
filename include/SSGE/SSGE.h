@@ -1,7 +1,7 @@
 #ifndef __SSGE_H__
 #define __SSGE_H__
 
-#define SSGE_VERSION_MAJOR 2
+#define SSGE_VERSION_MAJOR 3
 #define SSGE_VERSION_MINOR 0
 #define SSGE_VERSION_PATCH 0
 
