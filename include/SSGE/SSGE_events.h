@@ -53,15 +53,15 @@ enum _SSGE_WindowEventID { // See SDL_video.h
  * \param data2 Second data, usage depends on the window event
  */
 typedef struct _SSGE_WindowEvent {
-    uint32_t type;
+    uint32_t type;      // `SSGE_EVENT_WINDOWEVENT`
     uint32_t timestamp;
     uint32_t windowID;
-    uint8_t event;
+    uint8_t event;      // Window event type, see `enum _SSGE_WindowEventID`
     uint8_t padding1;
     uint8_t padding2;
     uint8_t padding3;
-    int32_t data1;
-    int32_t data2;
+    int32_t data1;      // First data, usage depends on the window event
+    int32_t data2;      // Second data, usage depends on the window event
 } SSGE_WindowEvent;
 
 enum _SSGE_Keymod {
@@ -91,9 +91,9 @@ enum _SSGE_Keymod {
  * \param mod Current modifiers, see `SSGE_Keymod`
  */
 typedef struct _SSGE_Keysym {
-    uint32_t scancode;
-    int32_t sym;
-    uint16_t mod;
+    uint32_t scancode;  // Scancode of the key
+    int32_t sym;        // Keysym, depends on the keyboard layout
+    uint16_t mod;       // Current modifiers , see `enum _SSGE_Keymod`
     uint32_t unused;
 } SSGE_Keysym;
 
@@ -103,14 +103,14 @@ typedef struct _SSGE_Keysym {
  * \param keysym The key pressed, see `SSGE_Keysym`
  */
 typedef struct _SSGE_KeyboardEvent {
-    uint32_t type;
+    uint32_t type;          // `SSGE_EVENT_KEYDOWN` or `SSGE_EVENT_KEYUP`
     uint32_t timestamp;
     uint32_t windowID;
-    uint8_t state;
-    uint8_t repeat;
+    uint8_t state;          // 0 if key is released, 1 if pressed
+    uint8_t repeat;         // Non-zero if key repeat (long press)
     uint8_t padding2;
     uint8_t padding3;
-    SSGE_Keysym keysym;
+    SSGE_Keysym keysym;     // The key that was pressed or released, see `SSGE_Keysym`
 } SSGE_KeyboardEvent;
 
 enum _SSGE_Mouse {
@@ -127,15 +127,15 @@ enum _SSGE_Mouse {
  * \param yrel The difference between the previous Y pos and current Y pos
  */
 typedef struct _SSGE_MouseMotionEvent {
-    uint32_t type;
+    uint32_t type;          // `SSGE_EVENT_MOUSEMOTION`
     uint32_t timestamp;
     uint32_t windowID;
     uint32_t which;
-    uint32_t state;
-    int32_t x;
-    int32_t y;
-    int32_t xrel;
-    int32_t yrel;
+    uint32_t state;         // 0b001 if left button, 0b010 if middle button, 0b100 if right button
+    int32_t x;              // X coordinate, relative to the window
+    int32_t y;              // Y coordinate, relative to the window
+    int32_t xrel;           // The difference between the previous X pos and current X pos
+    int32_t yrel;           // The difference between the previous Y pos and current Y pos
 } SSGE_MouseMotionEvent;
 
 /**
@@ -150,12 +150,12 @@ typedef struct _SSGE_MouseButtonEvent {
     uint32_t timestamp;
     uint32_t windowID;
     uint32_t which;
-    int8_t button;
-    int8_t state;
-    int8_t clicks;
+    int8_t button;      // 1 = left, 2 = middle, 3 = right
+    int8_t state;       // 0 = released, 1 = pressed
+    int8_t clicks;      // 1 for single-click, 2 for double-click, etc
     int8_t padding1;
-    int32_t x;
-    int32_t y;
+    int32_t x;          // X coordinate, relative to the window
+    int32_t y;          // Y coordinate, relative to the window
 } SSGE_MouseButtonEvent;
 
 /**
@@ -172,13 +172,13 @@ typedef struct _SSGE_MouseWheelEvent {
     uint32_t timestamp;
     uint32_t windowID;
     uint32_t which;
-    int32_t x;
-    int32_t y;
+    int32_t x;          // The amount scrolled horizontally
+    int32_t y;          // The amount scrolled vertically
     uint32_t direction; // 0 if normal, 1 if flipped/natural
-    float preciseX;
-    float preciseY;
-    int32_t mouseX;
-    int32_t mouseY;
+    float preciseX;     // The amount scrolled horizontally in float
+    float preciseY;     //  The amount scrolled vertically in float
+    int32_t mouseX;     // The X coordinate of the mouse, relative to the window
+    int32_t mouseY;     // The Y coordinate of the mouse, relative to the window
 } SSGE_MouseWheelEvent;
 
 typedef struct _SSGE_QuitEvent {
@@ -190,10 +190,10 @@ typedef union _SSGE_Event {
     uint32_t type;
     SSGE_CommonEvent common;
     SSGE_WindowEvent window;
-    SSGE_KeyboardEvent key;
-    SSGE_MouseMotionEvent motion;
-    SSGE_MouseButtonEvent button;
-    SSGE_MouseWheelEvent wheel;
+    SSGE_KeyboardEvent keyboard;
+    SSGE_MouseMotionEvent mouseMotion;
+    SSGE_MouseButtonEvent mouseClick;
+    SSGE_MouseWheelEvent mouseWheel;
     SSGE_QuitEvent quit;
     uint8_t padding[sizeof(void *) <= 8 ? 56 : sizeof(void *) == 16 ? 64 : 3 * sizeof(void *)];
 } SSGE_Event;

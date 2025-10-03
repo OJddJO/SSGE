@@ -2,7 +2,6 @@
 #define __GAME_H__
 
 #include "SSGE/SSGE.h"
-#include <stdatomic.h>
 
 #define FPS 60
 #define TILE_SIZE 128

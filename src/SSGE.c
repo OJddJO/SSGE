@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include <stdatomic.h>
 #include <string.h>
 #include <stdint.h>
 
@@ -86,6 +85,9 @@ SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t heigh
 }
 
 SSGEAPI void SSGE_Quit() {
+    if (!_engine.initialized)
+        SSGE_Error("Engine not initialized");
+
     SSGE_Array_Destroy(&_objectList, (SSGE_DestroyData)destroyObject);
     SSGE_Array_Destroy(&_objectTemplateList, (SSGE_DestroyData)destroyTemplate);
     SSGE_Array_Destroy(&_fontList, (SSGE_DestroyData)destroyFont);
@@ -196,6 +198,9 @@ inline static void _updateAnimations() {
 }
 
 SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data) {
+    if (!_engine.initialized)
+        SSGE_Error("Engine not initialized");
+
     uint64_t frameStart;
     double targetFrameTime = 1000.0 / (double)(_engine.fps);
     uint64_t nextUpdate = SDL_GetTicks64() + (uint64_t)targetFrameTime;
