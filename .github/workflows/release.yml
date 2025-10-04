@@ -40,19 +40,19 @@ jobs:
 
           # build a URL to the full changelog on GitHub
           if [ -n "$LATEST_TAG" ]; then
-            FULL_CHANGELOG_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${LATEST_TAG}...${GITHUB_SHA}"
+            FULL_CHANGELOG_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${LATEST_TAG}...${VERSION}"
           else
-            FULL_CHANGELOG_URL="https://github.com/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}"
+            FULL_CHANGELOG_URL="https://github.com/${GITHUB_REPOSITORY}/commits/${VERSION}"
           fi
 
-          # get commit subjects, preserve order
-          raw=$(git --no-pager log --pretty=format:'%s' ${RANGE} || true)
+          # get commit subjects, preserve order and group duplicates
+          raw=$(git --no-pager log --pretty=format:'%s' "${RANGE}" || true)
           if [ -z "$raw" ]; then
             BODY="No changes"
           else
-            BODY=$(printf '%s\n' "$raw" | awk -F'|' '
+            BODY=$(printf '%s\n' "$raw" | awk '
               {
-                subj=$1
+                subj=$0
                 if (!(subj in seen)) { seen[subj]=1; order[++n]=subj }
                 count[subj]++
               }
@@ -60,13 +60,14 @@ jobs:
                 for (i=1;i<=n;i++) {
                   s=order[i]
                   printf "- %s", s
-                  if (count[s] > 1) printf " x%d", count[s]
+                  if (count[s] > 1) printf " (x%d)", count[s]
                   printf "\n"
                 }
               }')
           fi
 
-          CHANGELOG="${HEADER}\n\n${BODY}\n\nFull changelog: ${FULL_CHANGELOG_URL}"
+          # build CHANGELOG with real newlines
+          CHANGELOG="$(printf '%s\n\n%s\n\nFull changelog: %s' "$HEADER" "$BODY" "$FULL_CHANGELOG_URL")"
 
           # output multiline changelog safely
           echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
@@ -162,8 +163,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./release/SSGE-${VERSION}-windows.zip
-          asset_name: SSGE-${VERSION}-windows.zip
+          asset_path: ./release/SSGE-${{ env.VERSION }}-windows.zip
+          asset_name: SSGE-${{ env.VERSION }}-windows.zip
           asset_content_type: application/zip
 
       - name: Upload release assets (Ubuntu)
@@ -173,6 +174,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./release/SSGE-${VERSION}-linux.tar.gz
-          asset_name: SSGE-${VERSION}-linux.tar.gz
+          asset_path: ./release/SSGE-${{ env.VERSION }}-linux.tar.gz
+          asset_name: SSGE-${{ env.VERSION }}-linux.tar.gz
           asset_content_type: application/gzip
