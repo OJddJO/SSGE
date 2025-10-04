@@ -53,10 +53,12 @@ jobs:
         id: create_release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ env.VERSION }}
+          CHANGELOG: ${{ steps.make_changelog.outputs.changelog }}
         run: |
           set -euo pipefail
           API="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases"
-          JSON=$(jq -n --arg tag "${VERSION}" --arg name "${VERSION}" --arg body "${CHANGELOG}" \
+          JSON=$(jq -n --arg tag "${VERSION}" --arg name "${VERSION}" --arg body "${{steps.make_changelog.outputs.changelog}}" \
             '{ tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false }')
           resp=$(curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
             -d "$JSON" "$API")
