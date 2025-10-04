@@ -1,4 +1,4 @@
-- [ ] Hiding objects
+- [x] Hiding objects
 - [x] Optimize object drawing:
   - [x] group same texture objects (batching)
   - [x] culling
