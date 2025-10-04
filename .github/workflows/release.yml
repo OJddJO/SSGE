@@ -5,6 +5,8 @@ on:
         description: 'Version to release'
         required: true
 
+name: Release new version
+
 jobs:
   build:
     name: Build and Package
