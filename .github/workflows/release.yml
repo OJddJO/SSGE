@@ -58,10 +58,13 @@ jobs:
       - name: Package artifacts (Ubuntu)
         if: runner.os == 'Linux'
         run: |
-          mkdir -p release
-          rm -rf _linux/build/ _linux/build_static/
-          tar -czf "release/${VERSION}-linux.tar.gz" -C _linux .
-          tar --concatenate --file="release/${VERSION}-linux.tar.gz" -C "$(pwd)" include README.md LICENSE
+          set -e
+          mkdir -p release tmp_release
+          rm -rf tmp_release/* _linux/build/ _linux/build_static/
+          cp -a _linux/. tmp_release/
+          cp -a include/ README.md LICENSE tmp_release/
+          tar -czf "release/${VERSION}-linux.tar.gz" -C tmp_release .
+          rm -rf tmp_release
         shell: bash
 
       - name: Upload package artifact (Windows)
