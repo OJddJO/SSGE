@@ -108,19 +108,15 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -euo pipefail
-          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases"
-          JSON=$(jq -n --arg tag "${VERSION}" --arg name "${VERSION}" --arg body "Release ${VERSION}" \
-            '{ tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false }')
-          resp=$(curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
-            -d "$JSON" "$API")
-          echo "$resp" | jq . >/tmp/release_resp.json
-          upload_url=$(jq -r .upload_url /tmp/release_resp.json | sed -e 's/{.*}//')
-          echo "upload_url=$upload_url" >> "$GITHUB_OUTPUT"
-        shell: bash
+        with:
+          tag_name: ${{ env.VERSION }}
+          release_name: ${{ env.VERSION }}
+          body: Release ${{ env.VERSION }}
+          draft: false
+          prerelease: false
 
       - name: Upload Linux asset
         uses: actions/upload-release-asset@v1
