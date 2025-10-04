@@ -111,25 +111,30 @@ jobs:
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ env.VERSION }}
-          release_name: ${{ env.VERSION }}
-          body: Release ${{ env.VERSION }}
-          draft: false
-          prerelease: false
+        run: |
+          set -euo pipefail
+          API="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases"
+          JSON=$(jq -n --arg tag "${VERSION}" --arg name "${VERSION}" --arg body "Release ${VERSION}" \
+            '{ tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false }')
+          resp=$(curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+            -d "$JSON" "$API")
+          echo "$resp" | jq . >/tmp/release_resp.json
+          upload_url=$(jq -r .upload_url /tmp/release_resp.json | sed -e 's/{.*}//')
+          echo "upload_url=$upload_url" >> "$GITHUB_OUTPUT"
+        shell: bash
 
       - name: Upload Linux asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: downloaded/${{ env.VERSION }}-linux.tar.gz
-          asset_name: ${{ env.VERSION }}-linux.tar.gz
+          asset_path: downloaded/SSGE-${{ env.VERSION }}-linux.tar.gz
+          asset_name: SSGE-${{ env.VERSION }}-linux.tar.gz
           asset_content_type: application/gzip
 
       - name: Upload Windows asset
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: downloaded/${{ env.VERSION }}-windows.zip
-          asset_name: ${{ env.VERSION }}-windows.zip
+          asset_path: downloaded/SSGE-${{ env.VERSION }}-windows.zip
+          asset_name: SSGE-${{ env.VERSION }}-windows.zip
           asset_content_type: application/zip
