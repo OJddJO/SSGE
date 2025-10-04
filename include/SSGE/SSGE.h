@@ -3,7 +3,7 @@
 
 #define SSGE_VERSION_MAJOR 3
 #define SSGE_VERSION_MINOR 0
-#define SSGE_VERSION_PATCH 2
+#define SSGE_VERSION_PATCH 3
 
 #include <stdbool.h>
 #include <stdint.h>
