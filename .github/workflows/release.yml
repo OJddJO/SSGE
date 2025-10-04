@@ -40,7 +40,7 @@ jobs:
       - name: Build (Windows)
         if: runner.os == 'Windows'
         run: make
-        shell: msys2
+        shell: bash
 
       - name: Build (Ubuntu)
         if: runner.os == 'Linux'
@@ -52,7 +52,7 @@ jobs:
           mkdir -p release
           rm -rf _windows/build/ _windows/build_static/
           zip -r "release/${VERSION}-windows.zip" _windows/* include/ README.md LICENSE
-        shell: msys2
+        shell: bash
 
       - name: Package artifacts (Ubuntu)
         if: runner.os == 'Linux'
@@ -60,7 +60,6 @@ jobs:
           mkdir -p release
           rm -rf _linux/build/ _linux/build_static/
           tar -czvf "release/${VERSION}-linux.tar.gz" _linux/* include/ README.md LICENSE
-        shell: msys2
 
       - name: Upload package artifact (Windows)
         if: runner.os == 'Windows'
