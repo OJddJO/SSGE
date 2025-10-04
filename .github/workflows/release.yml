@@ -25,11 +25,44 @@ jobs:
       - name: Create changelog from commits since latest tag
         id: make_changelog
         run: |
-          set -e
+          set -euo pipefail
+          # find latest tag (if any)
           LATEST_TAG=$(git describe --tags --abbrev=0)
-          echo "Latest tag: $LATEST_TAG"
-          CHANGELOG=$(git log "${LATEST_TAG}..HEAD" --pretty=format:"- %s (%an)" || echo "No changes")
-          echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
+          if [ -n "$LATEST_TAG" ]; then
+            RANGE="${LATEST_TAG}..HEAD"
+            HEADER="Changes since ${LATEST_TAG}:"
+          else
+            RANGE="HEAD"
+            HEADER="All commits:"
+          fi
+
+          # get commit subject and author separated by |, preserve order, group by subject
+          raw=$(git --no-pager log --pretty=format:'%s|%an' $RANGE || true)
+          if [ -z "$raw" ]; then
+            CHANGELOG="No changes"
+          else
+            CHANGELOG=$(printf '%s\n' "$raw" | awk -F'|' '
+              {
+                subj=$1
+                auth=$2
+                if (!(subj in seen)) { seen[subj]=1; order[++n]=subj; author[subj]=auth }
+                count[subj]++
+              }
+              END {
+                for (i=1;i<=n;i++) {
+                  s=order[i]
+                  printf "- %s (%s)", s, author[s]
+                  if (count[s] > 1) printf " x%d", count[s]
+                  printf "\n"
+                }
+              }')
+          fi
+
+          # output multiline changelog safely
+          echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
+          printf '%s\n\n' "${HEADER}" >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$CHANGELOG" >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Create GitHub Release (API)
