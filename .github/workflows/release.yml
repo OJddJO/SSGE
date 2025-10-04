@@ -110,7 +110,7 @@ jobs:
         shell: bash
 
       - name: Check release upload URL
-        run: echo "Upload URL: ${{ needs.create_release.outputs.upload_url }}"
+        run: echo "Upload URL = ${{ needs.create_release.outputs.upload_url }}"
 
       - name: Upload release assets (Windows)
         if: runner.os == 'Windows'
