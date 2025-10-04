@@ -38,27 +38,35 @@ jobs:
             HEADER="All commits:"
           fi
 
-          # get commit subject and author separated by |, preserve order, group by subject
-          raw=$(git --no-pager log --pretty=format:'%s|%an' $RANGE || true)
-          if [ -z "$raw" ]; then
-            CHANGELOG="No changes"
+          # build a URL to the full changelog on GitHub
+          if [ -n "$LATEST_TAG" ]; then
+            FULL_CHANGELOG_URL="https://github.com/${GITHUB_REPOSITORY}/compare/${LATEST_TAG}...${GITHUB_SHA}"
           else
-            CHANGELOG=$(printf '%s\n' "$raw" | awk -F'|' '
+            FULL_CHANGELOG_URL="https://github.com/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}"
+          fi
+
+          # get commit subjects, preserve order
+          raw=$(git --no-pager log --pretty=format:'%s' ${RANGE} || true)
+          if [ -z "$raw" ]; then
+            BODY="No changes"
+          else
+            BODY=$(printf '%s\n' "$raw" | awk -F'|' '
               {
                 subj=$1
-                auth=$2
-                if (!(subj in seen)) { seen[subj]=1; order[++n]=subj; author[subj]=auth }
+                if (!(subj in seen)) { seen[subj]=1; order[++n]=subj }
                 count[subj]++
               }
               END {
                 for (i=1;i<=n;i++) {
                   s=order[i]
-                  printf "- %s (%s)", s, author[s]
+                  printf "- %s", s
                   if (count[s] > 1) printf " x%d", count[s]
                   printf "\n"
                 }
               }')
           fi
+
+          CHANGELOG="${HEADER}\n\n${BODY}\n\nFull changelog: ${FULL_CHANGELOG_URL}"
 
           # output multiline changelog safely
           echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
