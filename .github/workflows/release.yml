@@ -121,6 +121,8 @@ jobs:
           upload_url=$(jq -r .upload_url /tmp/release_resp.json | sed -e 's/{.*}//')
           echo "upload_url=$upload_url" >> "$GITHUB_OUTPUT"
         shell: bash
+        outputs:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
 
       - name: Upload Linux asset
         uses: actions/upload-release-asset@v1
