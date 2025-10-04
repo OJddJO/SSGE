@@ -30,12 +30,11 @@ jobs:
           install: >
             mingw-w64-x86_64-toolchain
             make
-            zip
-            unzip
+            mingw-w64-x86_64-zip
 
       - name: Set up build tools (Ubuntu)
         if : runner.os == 'Linux'
-        run: sudo apt-get install build-essential libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -y
+        run: sudo apt-get install build-essential libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
 
       - name: Build (Windows)
         if: runner.os == 'Windows'
