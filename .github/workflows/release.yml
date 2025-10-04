@@ -4,6 +4,9 @@ on:
       version:
         description: 'Version to release'
         required: true
+  push:
+    tags:
+      - '*.*.*'
 
 name: Release new version
 
@@ -16,7 +19,7 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     env:
-      VERSION: ${{ github.event.inputs.version }}
+      VERSION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
 
     steps:
       - uses: actions/checkout@v3
