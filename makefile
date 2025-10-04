@@ -62,7 +62,7 @@ else
 	@cp $(DLL_BUILD) $(IMPLIB_BUILD)
 endif
 
-ubuntu-installsdl:
+ubuntu-installsdl2:
 	@echo Installing SDL2 (Ubuntu)...
 	@sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
 	@echo Done
