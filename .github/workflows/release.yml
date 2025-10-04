@@ -153,9 +153,6 @@ jobs:
           rm -rf tmp_release
         shell: bash
 
-      - name: Check release upload URL
-        run: echo "Upload URL = ${{ needs.create_release.outputs.upload_url }}"
-
       - name: Upload release assets (Windows)
         if: runner.os == 'Windows'
         uses: actions/upload-release-asset@v1
