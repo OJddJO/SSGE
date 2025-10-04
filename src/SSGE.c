@@ -271,6 +271,7 @@ SSGEAPI void SSGE_SetWindowIcon(char *filename) {
 
     if (_engine.icon) SDL_FreeSurface(_engine.icon);
     _engine.icon = icon;
+    SDL_SetWindowIcon(_engine.window, icon);
 }
 
 SSGEAPI void SSGE_WindowResize(uint16_t width, uint16_t height) {
