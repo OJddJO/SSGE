@@ -1,36 +1,31 @@
 #include "SSGE/SSGE.h"
 
-void update(void *);
-
-SSGE_Object *obj = NULL;
-
 int main() {
     SSGE_Init("Test", 800, 500, 75);
     SSGE_SetVSync(true);
 
     uint32_t id;
+    SSGE_Texture *text;
+    SSGE_Object *obj;
 
-    SSGE_Animation *anim = SSGE_Animation_CreateFrames(&id, NULL, 4, 100, 100);
-    
-    SSGE_Animation_AddFrame(anim, 5, "1.png");
-    SSGE_Animation_AddFrame(anim, 5, "2.png");
-    SSGE_Animation_AddFrame(anim, 5, "3.png");
-    SSGE_Animation_AddFrame(anim, 5, "4.png");
+    // text = SSGE_CreateRectThick(&id, NULL, 100, 70, (SSGE_Color){255, 0, 0, 255}, 6);
+    // obj = SSGE_Object_Create(&id, NULL, 10, 100, 100, 100, false);
+    // SSGE_Object_BindTexture(obj, text);
 
-    obj = SSGE_Object_Create(&id, NULL, 50, 50, 200, 200, false);
-    SSGE_Object_BindAnimation(obj, anim, false, false);
+    // text = SSGE_CreateCircleThick(&id, NULL, 20, (SSGE_Color){255, 0, 0, 255}, 7);
+    // obj = SSGE_Object_Create(&id, NULL, 0, 0, 100, 100, false);
+    // SSGE_Object_BindTexture(obj, text);
 
-    SSGE_Object_Hide(obj);
+    // text = SSGE_CreateEllipseThick(&id, NULL, 50, 10, (SSGE_Color){255, 0, 0, 255}, 6);
+    // obj = SSGE_Object_Create(&id, NULL, 0, 0, 100, 20, false);
+    // SSGE_Object_BindTexture(obj, text);
 
-    // id = SSGE_Animation_Play(anim, 0, 0, -1, false, false);
-    // SSGE_Animation_Pause(id);
+    text = SSGE_CreateLineThick(&id, NULL, 50, (SSGE_Color){255, 0, 0, 255}, 6);
+    obj = SSGE_Object_Create(&id, NULL, 10, 10, 50, 6, false);
+    SSGE_Object_BindTexture(obj, text);
 
-    SSGE_Run((SSGE_UpdateFunc)update, NULL, NULL, NULL);
+    SSGE_Run(NULL, NULL, NULL, NULL);
 
     SSGE_Quit();
     return 0;
-}
-
-void update(void *) {
-    SSGE_Object_Move(obj, (obj->x + 1)%800, (obj->y + 1)%500);
 }

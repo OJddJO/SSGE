@@ -77,19 +77,19 @@ SSGEAPI void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y) {
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, uint16_t length, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)length, 1);
     if (texture->texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture name")
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
 
-        lineRGBA(_engine.renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
+        lineRGBA(_engine.renderer, 0, 0, length, 0, color.r, color.g, color.b, color.a);
 
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -101,19 +101,19 @@ SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, int x1, int y1, 
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, uint16_t width, uint16_t height, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)width, (int)height);
     if (texture->texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture name")
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
 
-        rectangleRGBA(_engine.renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
+        rectangleRGBA(_engine.renderer, 0, 0, width, height, color.r, color.g, color.b, color.a);
 
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -125,19 +125,19 @@ SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, int x1, int y1, 
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, int x, int y, int radius, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, uint16_t radius, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)(radius*2 + 1), (int)(radius*2 + 1));
     if (texture->texture == NULL) 
         SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
 
-        circleRGBA(_engine.renderer, x, y, radius, color.r, color.g, color.b, color.a);
+        circleRGBA(_engine.renderer, radius, radius, radius, color.r, color.g, color.b, color.a);
 
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -149,19 +149,19 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, int x, int y, 
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, int x, int y, int rx, int ry, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, uint16_t rx, uint16_t ry, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)(rx*2 + 1), (int)(ry*2 + 1));
     if (texture->texture == NULL) 
         SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
     
-        ellipseRGBA(_engine.renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
+        ellipseRGBA(_engine.renderer, rx, ry, rx, ry, color.r, color.g, color.b, color.a);
     
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -173,19 +173,19 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, int x, int y,
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
+SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, uint16_t length, SSGE_Color color, int thickness) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)length, (int)thickness);
     if (texture->texture == NULL) 
         SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
     
-        thickLineRGBA(_engine.renderer, x1, y1, x2, y2, thickness, color.r, color.g, color.b, color.a);
+        thickLineRGBA(_engine.renderer, 0, thickness/2, length, thickness/2, thickness, color.r, color.g, color.b, color.a);
     
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -197,12 +197,12 @@ SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, int x1, int
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color, int thickness) {
+SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, uint16_t width, uint16_t height, SSGE_Color color, int thickness) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)width, (int)height);
     if (texture->texture == NULL) 
         SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
@@ -210,7 +210,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, int x1, int
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
     
         for (int i = 0; i < thickness; i++) {
-            rectangleRGBA(_engine.renderer, x1 + i, y1 + i, x2 - i, y2 - i, color.r, color.g, color.b, color.a);
+            rectangleRGBA(_engine.renderer, i, i, width - i, height - i, color.r, color.g, color.b, color.a);
         }
     
         SDL_SetRenderTarget(_engine.renderer, NULL);
@@ -223,19 +223,19 @@ SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, int x1, int
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, int x, int y, int radius, SSGE_Color color, int thickness) {
+SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, uint16_t radius, SSGE_Color color, int thickness) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)(radius*2+thickness +1), (int)(radius*2+thickness +1));
     if (texture->texture == NULL) 
         SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
     
-        thickCircleRGBA(_engine.renderer, x, y, radius, color.r, color.g, color.b, color.a, thickness);
+        thickCircleRGBA(_engine.renderer, radius + thickness/2, radius + thickness/2, radius, color.r, color.g, color.b, color.a, thickness);
     
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -247,19 +247,19 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, int x, in
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, int x, int y, int rx, int ry, SSGE_Color color, int thickness) {
+SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, uint16_t rx, uint16_t ry, SSGE_Color color, int thickness) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
-    if (texture->texture == NULL) 
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)(rx*2 + thickness +1), (int)(ry*2 + thickness +1));
+    if (texture->texture == NULL)
         SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
 
-        thickEllipseRGBA(_engine.renderer, x, y, rx, ry, color.r, color.g, color.b, color.a, thickness);
+        thickEllipseRGBA(_engine.renderer, rx + thickness/2, ry + thickness/2, rx, ry, color.r, color.g, color.b, color.a, thickness);
 
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -272,19 +272,19 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, int x, i
 }
 
 
-SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, char *name, int x1, int y1, int x2, int y2, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, char *name, uint16_t width, uint16_t height, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)width, (int)height);
     if (texture->texture == NULL) 
         SSGE_ErrorEx("Failed to allocate memory for texture: %s", SDL_GetError());
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
 
-        boxRGBA(_engine.renderer, x1, y1, x2, y2, color.r, color.g, color.b, color.a);
+        boxRGBA(_engine.renderer, 0, 0, width, height, color.r, color.g, color.b, color.a);
 
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -296,19 +296,19 @@ SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, char *name, int x1, int 
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, char *name, int x, int y, int radius, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, char *name, uint16_t radius, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)(radius*2 + 1), (int)(radius*2 + 1));
     if (texture->texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture name")
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
 
-        filledCircleRGBA(_engine.renderer, x, y, radius, color.r, color.g, color.b, color.a);
+        filledCircleRGBA(_engine.renderer, radius, radius, radius, color.r, color.g, color.b, color.a);
 
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
@@ -320,19 +320,19 @@ SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, char *name, int x, int
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateFillEllipse(uint32_t *id, char *name, int x, int y, int rx, int ry, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateFillEllipse(uint32_t *id, char *name, uint16_t rx, uint16_t ry, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
 
-    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)_engine.width, (int)_engine.height);
+    texture->texture = SDL_CreateTexture(_engine.renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, (int)(rx*2), (int)(ry*2));
     if (texture->texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture name")
     if (color.a != 0) {
         SDL_SetTextureBlendMode(texture->texture, SDL_BLENDMODE_BLEND);
         SDL_SetRenderTarget(_engine.renderer, texture->texture);
     
-        filledEllipseRGBA(_engine.renderer, x, y, rx, ry, color.r, color.g, color.b, color.a);
+        filledEllipseRGBA(_engine.renderer, rx, ry, rx, ry, color.r, color.g, color.b, color.a);
     
         SDL_SetRenderTarget(_engine.renderer, NULL);
         SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);

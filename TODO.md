@@ -5,4 +5,4 @@
   - [ ] partial updates (only redraw parts that changed)
 - [x] Automate draw for object
 - [x] Automate draw for animation
-- [ ] Change geometry texture creation to have relative coordinates and not screen coordinates
+- [x] Change geometry texture creation to have relative coordinates and not screen coordinates

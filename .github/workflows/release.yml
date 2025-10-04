@@ -13,8 +13,6 @@ jobs:
   create_release:
     name: Create Release and upload assets
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
     env:
       VERSION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
 
@@ -32,7 +30,7 @@ jobs:
           LATEST_TAG=$(git describe --tags --abbrev=0)
           if [ -n "$LATEST_TAG" ]; then
             RANGE="${LATEST_TAG}..HEAD"
-            HEADER="Changes since ${LATEST_TAG}:"
+            HEADER="Commits since ${LATEST_TAG}:"
           else
             RANGE="HEAD"
             HEADER="All commits:"
@@ -45,22 +43,25 @@ jobs:
             FULL_CHANGELOG_URL="https://github.com/${GITHUB_REPOSITORY}/commits/${VERSION}"
           fi
 
-          # get commit subjects, preserve order and group duplicates
-          raw=$(git --no-pager log --pretty=format:'%s' "${RANGE}" || true)
+          # get commit subject and short sha, preserve order, group by subject and keep first sha
+          raw=$(git --no-pager log --pretty=format:'%s|%h' "${RANGE}" || true)
           if [ -z "$raw" ]; then
             BODY="No changes"
           else
-            BODY=$(printf '%s\n' "$raw" | awk '
+            BODY=$(printf '%s\n' "$raw" | awk -F'|' '
               {
-                subj=$0
-                if (!(subj in seen)) { seen[subj]=1; order[++n]=subj }
+                subj=$1
+                sha=$2
+                if (!(subj in seen)) { seen[subj]=1; order[++n]=subj; firstsha[subj]=sha }
                 count[subj]++
               }
               END {
                 for (i=1;i<=n;i++) {
                   s=order[i]
-                  printf "- %s", s
-                  if (count[s] > 1) printf " (x%d)", count[s]
+                  # use ENVIRON to access GITHUB_REPOSITORY from shell
+                  repo=ENVIRON["GITHUB_REPOSITORY"]
+                  printf "- %s — https://github.com/%s/commit/%s", s, repo, firstsha[s]
+                  if (count[s] > 1) printf " x%d", count[s]
                   printf "\n"
                 }
               }')
@@ -71,7 +72,6 @@ jobs:
 
           # output multiline changelog safely
           echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
-          printf '%s\n\n' "${HEADER}" >> "$GITHUB_OUTPUT"
           printf '%s\n' "$CHANGELOG" >> "$GITHUB_OUTPUT"
           echo "EOF" >> "$GITHUB_OUTPUT"
         shell: bash
@@ -87,11 +87,8 @@ jobs:
           API="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases"
           JSON=$(jq -n --arg tag "${VERSION}" --arg name "${VERSION}" --arg body "${{steps.make_changelog.outputs.changelog}}" \
             '{ tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false }')
-          resp=$(curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+          $(curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
             -d "$JSON" "$API")
-          echo "$resp" | jq . >/tmp/release_resp.json
-          upload_url=$(jq -r .upload_url /tmp/release_resp.json | sed -e 's/{.*}//')
-          echo "upload_url=$upload_url" >> "$GITHUB_OUTPUT"
         shell: bash
 
   build:
