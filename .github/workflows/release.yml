@@ -35,7 +35,7 @@ jobs:
 
       - name: Set up build tools (Ubuntu)
         if : runner.os == 'Linux'
-        run: sudo apt-get install build-essential -y
+        run: sudo apt-get install build-essential libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -y
 
       - name: Build (Windows)
         if: runner.os == 'Windows'
@@ -44,9 +44,7 @@ jobs:
 
       - name: Build (Ubuntu)
         if: runner.os == 'Linux'
-        run: |
-          make ubuntu-installsdl2
-          make
+        run: make
 
       - name: Package artifacts (Windows)
         if: runner.os == 'Windows'
