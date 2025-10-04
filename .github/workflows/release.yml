@@ -8,6 +8,9 @@ on:
     tags:
       - '*.*.*'
 
+permissions:
+  contents: write
+
 name: Release new version
 
 jobs:
@@ -55,7 +58,7 @@ jobs:
           mkdir -p release
           rm -rf _windows/build/ _windows/build_static/
           (cd _windows && 7z a -tzip "../release/${VERSION}-windows.zip" ./*)
-          7z a -tzip "release/${VERSION}-windows.zip" include README.md LICENSE
+          7z a -tzip "release/SSGE-${VERSION}-windows.zip" include README.md LICENSE
         shell: bash
 
       - name: Package artifacts (Ubuntu)
@@ -66,7 +69,7 @@ jobs:
           rm -rf tmp_release/* _linux/build/ _linux/build_static/
           cp -a _linux/. tmp_release/
           cp -a include/ README.md LICENSE tmp_release/
-          tar -czf "release/${VERSION}-linux.tar.gz" -C tmp_release .
+          tar -czf "release/SSGE-${VERSION}-linux.tar.gz" -C tmp_release .
           rm -rf tmp_release
         shell: bash
 
