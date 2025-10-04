@@ -5,11 +5,9 @@ on:
         description: 'Version to release'
         required: true
 
-name: Release
-
 jobs:
-  release:
-    name: Release
+  build:
+    name: Build and Package
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -49,35 +47,37 @@ jobs:
       - name: Package artifacts (Windows)
         if: runner.os == 'Windows'
         run: |
+          mkdir -p release
           rm -rf _windows/build/ _windows/build_static/
-          zip -r "${VERSION}-windows.zip" _windows/* include/ README.md LICENSE
+          zip -r "release/${VERSION}-windows.zip" _windows/* include/ README.md LICENSE
         shell: msys2
 
       - name: Package artifacts (Ubuntu)
         if: runner.os == 'Linux'
         run: |
+          mkdir -p release
           rm -rf _linux/build/ _linux/build_static/
-          tar -czvf "${VERSION}-linux.tar.gz" _linux/* include/ README.md LICENSE
+          tar -czvf "release/${VERSION}-linux.tar.gz" _linux/* include/ README.md LICENSE
         shell: msys2
 
       - name: Upload package artifact (Windows)
         if: runner.os == 'Windows'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-package
-          path: ${{ env.VERSION }}-windows.zip
+          path: release/${{ env.VERSION }}-windows.zip
 
       - name: Upload package artifact (Linux)
         if: runner.os == 'Linux'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-package
-          path: ${{ env.VERSION }}-linux.tar.gz
+          path: release/${{ env.VERSION }}-linux.tar.gz
 
   publish:
     name: Create Release and upload assets
     runs-on: ubuntu-latest
-    needs: release
+    needs: build
     env:
       VERSION: ${{ github.event.inputs.version }}
     steps:
@@ -99,8 +99,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ env.VERSION }}
-          release_name: Release v${{ env.VERSION }}
+          tag_name: ${{ env.VERSION }}
+          release_name: Release ${{ env.VERSION }}
           body: Release ${{ env.VERSION }}
           draft: false
           prerelease: false
