@@ -1,9 +1,9 @@
 on:
   workflow_dispatch:
-  inputs: 
-    version:
-      description: 'Version to release'
-      required: true
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
 
 name: Release
 
