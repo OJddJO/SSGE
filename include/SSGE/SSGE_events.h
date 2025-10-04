@@ -150,7 +150,7 @@ typedef struct _SSGE_MouseButtonEvent {
     uint32_t timestamp;
     uint32_t windowID;
     uint32_t which;
-    int8_t which;       // 1 = left, 2 = middle, 3 = right
+    int8_t button;       // 1 = left, 2 = middle, 3 = right
     int8_t state;       // 0 = released, 1 = pressed
     int8_t clicks;      // 1 for single-click, 2 for double-click, etc
     int8_t padding1;
