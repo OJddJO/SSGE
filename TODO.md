@@ -4,4 +4,5 @@
   - [x] culling
   - [ ] partial updates (only redraw parts that changed)
 - [x] Automate draw for object
-- [ ] Automate draw for animation
+- [x] Automate draw for animation
+- [ ] Change geometry texture creation to have relative coordinates and not screen coordinates
