@@ -17,3 +17,8 @@ Thumbs.db
 
 # Ignore coverage reports
 coverage/
+
+
+
+_windows/
+_linux/
