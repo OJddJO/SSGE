@@ -25,28 +25,11 @@ jobs:
       - name: Create changelog from commits since latest tag
         id: make_changelog
         run: |
-          set -euo pipefail
-          # find latest tag (if any)
-          latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || true)
-          if [ -n "$latest_tag" ]; then
-            range="${latest_tag}..HEAD"
-          else
-            range="HEAD"
-          fi
-          commits=$(git --no-pager log --pretty=format:'- %s' $range || true)
-          if [ -z "$commits" ]; then
-            commits="- no changes"
-          fi
-          if [ -n "$latest_tag" ]; then
-            header="Changes since ${latest_tag}:"
-          else
-            header="Changes (full history):"
-          fi
-          changelog="${header}\n${commits}"
-          # expose as step output
-          echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
-          echo "$changelog" >> "$GITHUB_OUTPUT"
-          echo "EOF" >> "$GITHUB_OUTPUT"
+          set -e
+          LATEST_TAG=$(git describe --tags --abbrev=0)
+          echo "Latest tag: $LATEST_TAG"
+          CHANGELOG=$(git log "${LATEST_TAG}..HEAD" --pretty=format:"- %s (%an)" || echo "No changes")
+          echo "changelog=$CHANGELOG" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Create GitHub Release (API)
@@ -125,6 +108,9 @@ jobs:
           tar -czf "release/SSGE-${VERSION}-linux.tar.gz" -C tmp_release .
           rm -rf tmp_release
         shell: bash
+
+      - name: Check release upload URL
+        run: echo "Upload URL: ${{ needs.create_release.outputs.upload_url }}"
 
       - name: Upload release assets (Windows)
         if: runner.os == 'Windows'
