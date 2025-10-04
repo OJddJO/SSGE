@@ -13,6 +13,9 @@ jobs:
   create_release:
     name: Create Release and upload assets
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
+
     steps:
       - name: Checkout repository (full history)
         uses: actions/checkout@v3
@@ -69,7 +72,6 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-
     env:
       VERSION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
 
