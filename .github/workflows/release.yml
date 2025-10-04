@@ -42,7 +42,9 @@ jobs:
 
       - name: Build (Ubuntu)
         if: runner.os == 'Linux'
-        run: make
+        run: |
+          make ubuntu-installsdl2
+          make
 
       - name: Package artifacts (Windows)
         if: runner.os == 'Windows'
