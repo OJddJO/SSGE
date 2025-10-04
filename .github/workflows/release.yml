@@ -30,7 +30,7 @@ jobs:
           install: >
             mingw-w64-x86_64-toolchain
             make
-            zip
+            mingw-w64-x86_64-7zip
 
       - name: Set up build tools (Ubuntu)
         if : runner.os == 'Linux'
@@ -51,7 +51,8 @@ jobs:
         run: |
           mkdir -p release
           rm -rf _windows/build/ _windows/build_static/
-          zip -r "release/${VERSION}-windows.zip" _windows/* include/ README.md LICENSE
+          (cd _windows && 7z a -tzip "../release/${VERSION}-windows.zip" ./*)
+          7z a -tzip "release/${VERSION}-windows.zip" include README.md LICENSE
         shell: bash
 
       - name: Package artifacts (Ubuntu)
@@ -59,7 +60,8 @@ jobs:
         run: |
           mkdir -p release
           rm -rf _linux/build/ _linux/build_static/
-          tar -czvf "release/${VERSION}-linux.tar.gz" _linux/* include/ README.md LICENSE
+          tar -czf "release/${VERSION}-linux.tar.gz" -C _linux .
+          tar --concatenate --file="release/${VERSION}-linux.tar.gz" -C "$(pwd)" include README.md LICENSE
         shell: bash
 
       - name: Upload package artifact (Windows)
