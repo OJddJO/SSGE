@@ -85,10 +85,10 @@ jobs:
         run: |
           set -euo pipefail
           API="https://api.github.com/repos/${GITHUB_REPOSITORY}/releases"
-          JSON=$(jq -n --arg tag "${VERSION}" --arg name "${VERSION}" --arg body "${{steps.make_changelog.outputs.changelog}}" \
+          JSON=$(jq -n --arg tag "${VERSION}" --arg name "${VERSION}" --arg body "${CHANGELOG}" \
             '{ tag_name: $tag, name: $name, body: $body, draft: false, prerelease: false }')
-          $(curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
-            -d "$JSON" "$API")
+          curl -sSL -H "Authorization: token ${GITHUB_TOKEN}" -H "Accept: application/vnd.github+json" \
+            -d "$JSON" "$API"
         shell: bash
 
   build:
