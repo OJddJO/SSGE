@@ -91,55 +91,24 @@ jobs:
             -d "$JSON" "$API"
         shell: bash
 
-  build:
-    name: Build and Package
+  build-ubuntu:
+    name: Build and Package for Windows
     needs: create_release
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: ubuntu-latest
     env:
       VERSION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
 
     steps:
       - uses: actions/checkout@v3
 
-      - name: Set up build tools (Windows)
-        if: runner.os == 'Windows'
-        uses: msys2/setup-msys2@v2
-        with:
-          msystem: MINGW64
-          update: true
-          install: >
-            mingw-w64-x86_64-toolchain
-            make
-            mingw-w64-x86_64-7zip
-
-      - name: Set up build tools (Ubuntu)
-        if: runner.os == 'Linux'
+      - name: Set up build tools
         run: sudo apt-get install build-essential libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
 
-      - name: Build (Windows)
-        if: runner.os == 'Windows'
+      - name: Build
         run: make
         shell: bash
 
-      - name: Build (Ubuntu)
-        if: runner.os == 'Linux'
-        run: make
-        shell: bash
-
-      - name: Package assets (Windows)
-        if: runner.os == 'Windows'
-        run: |
-          mkdir -p release
-          rm -rf _windows/build/ _windows/build_static/
-          (cd _windows && 7z a -tzip "../release/SSGE-${VERSION}-windows.zip" ./*)
-          7z a -tzip "release/SSGE-${VERSION}-windows.zip" include README.md LICENSE
-        shell: bash
-
-      - name: Package assets (Ubuntu)
-        if: runner.os == 'Linux'
+      - name: Package assets
         run: |
           set -e
           mkdir -p release tmp_release
@@ -150,16 +119,46 @@ jobs:
           rm -rf tmp_release
         shell: bash
 
-      - name: Upload release assets Windows
-        if: runner.os == 'Windows'
-        uses: softprops/action-gh-release@v2
-        with:
-          files: ./release/SSGE-${{ env.VERSION }}-windows.zip
-          tag_name: ${{ env.VERSION }}
-
-      - name: Upload release assets Ubuntu
-        if: runner.os == 'Linux'
+      - name: Upload release assets
         uses: softprops/action-gh-release@v2
         with:
           files: ./release/SSGE-${{ env.VERSION }}-linux.tar.gz
+          tag_name: ${{ env.VERSION }}
+
+  build-windows:
+    name: Build and Package for Windows
+    needs: create_release
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version || github.ref_name }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up build tools
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >
+            mingw-w64-x86_64-toolchain
+            make
+            mingw-w64-x86_64-7zip
+
+      - name: Build
+        run: make
+        shell: bash
+
+      - name: Package assets
+        run: |
+          mkdir -p release
+          rm -rf _windows/build/ _windows/build_static/
+          (cd _windows && 7z a -tzip "../release/SSGE-${VERSION}-windows.zip" ./*)
+          7z a -tzip "release/SSGE-${VERSION}-windows.zip" include README.md LICENSE
+        shell: bash
+
+      - name: Upload release assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./release/SSGE-${{ env.VERSION }}-windows.zip
           tag_name: ${{ env.VERSION }}
