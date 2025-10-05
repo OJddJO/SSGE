@@ -172,8 +172,8 @@ static void event_handler(SSGE_Event event, Game *game) {
         case SSGE_EVENT_MOUSEBUTTONDOWN: // handle mouse click
             if (game->winner == 0) { // if the game is not over
                 // get tile position
-                int i = event.button.x / TILE_SIZE;
-                int j = event.button.y / TILE_SIZE;
+                int i = event.mouseClick.x / TILE_SIZE;
+                int j = event.mouseClick.y / TILE_SIZE;
 
                 // check if a hitbox is clicked
                 SSGE_Object *hitbox = SSGE_Object_GetHovered();
