@@ -27,7 +27,7 @@ static bool _find_texture_name(void *ptr, void *name) {
     return strcmp(((SSGE_Texture *)ptr)->name, (char *)name) == 0;
 }
 
-SSGEAPI SSGE_Texture *SSGE_Texture_GetByName(const char *name) {
+SSGEAPI SSGE_Texture *SSGE_Texture_GetName(const char *name) {
     SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(&_textureList, _find_texture_name, (void *)name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Texture not found: %s", name)

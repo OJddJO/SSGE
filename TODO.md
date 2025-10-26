@@ -6,3 +6,4 @@
 - [x] Automate draw for object
 - [x] Automate draw for animation
 - [x] Change geometry texture creation to have relative coordinates and not screen coordinates
+- [ ] Improve audio system

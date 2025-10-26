@@ -1,7 +1,7 @@
 #include "SSGE_local.h"
 #include "SSGE/SSGE_objtemplate.h"
 
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint16_t width, uint16_t height, bool hitbox) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, const char *name, uint16_t width, uint16_t height, bool hitbox) {
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
         SSGE_Error("Failed to allocate memory for object template")
@@ -15,7 +15,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint
     return template;
 }
 
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, const char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox) {
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
         SSGE_Error("Failed to allocate memory for object template")
@@ -29,7 +29,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name
     return template;
 }
 
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox) {
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, const char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox) {
     SSGE_ObjectTemplate *template = (SSGE_ObjectTemplate *)malloc(sizeof(SSGE_ObjectTemplate));
     if (template == NULL) 
         SSGE_Error("Failed to allocate memory for object template")
@@ -54,8 +54,8 @@ inline static bool _find_template_name(void *ptr, void *name) {
     return strcmp(((SSGE_ObjectTemplate *)ptr)->name, name) == 0;
 }
 
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_GetName(char *name) {
-    SSGE_ObjectTemplate *ptr = SSGE_Array_Find(&_objectTemplateList, _find_template_name, name);
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_GetName(const char *name) {
+    SSGE_ObjectTemplate *ptr = SSGE_Array_Find(&_objectTemplateList, _find_template_name, (void *)name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Object template not found: %s", name)
     return ptr;
@@ -69,8 +69,8 @@ SSGEAPI void SSGE_Template_Destroy(uint32_t id) {
     free(template);
 }
 
-SSGEAPI void SSGE_Template_DestroyName(char *name) {
-    SSGE_ObjectTemplate *template = SSGE_Array_FindPop(&_objectTemplateList, _find_template_name, name);
+SSGEAPI void SSGE_Template_DestroyName(const char *name) {
+    SSGE_ObjectTemplate *template = SSGE_Array_FindPop(&_objectTemplateList, _find_template_name, (void *)name);
     if (template == NULL) 
         SSGE_ErrorEx("Object template not found: %s", name)
     free(template->name);

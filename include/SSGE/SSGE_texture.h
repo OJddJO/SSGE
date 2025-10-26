@@ -30,7 +30,7 @@ SSGEAPI SSGE_Texture *SSGE_Texture_Get(uint32_t id);
  * \param name The name of the texture
  * \return The texture
  */
-SSGEAPI SSGE_Texture *SSGE_Texture_GetByName(const char *name);
+SSGEAPI SSGE_Texture *SSGE_Texture_GetName(const char *name);
 
 /**
  * Set the anchor of a texture

@@ -21,16 +21,16 @@ int main(int argc, char *argv[]) {
     SSGE_SetBackgroundColor((SSGE_Color){23, 15, 71, 255});
 
     // Load fonts with sizes 32 and 64
-    SSGE_Font_Create("assets/font.ttf", 32, "font_32");
-    SSGE_Font_Create("assets/font.ttf", 64, "font_64");
+    SSGE_Font_Create("font_32", "assets/font.ttf", 32);
+    SSGE_Font_Create("font_64", "assets/font.ttf", 64);
 
     // Load audio files
     uint32_t audios[4] = {0};
     // Get the pointer of start for later use (line 42)
-    SSGE_Audio *start = SSGE_Audio_Create(&audios[A_START], "audio/start.ogg", "start");
-    SSGE_Audio_Create(&audios[A_CLICK], "audio/click.ogg", "click");
-    SSGE_Audio_Create(&audios[A_TIE], "audio/tie.ogg", "tie");
-    SSGE_Audio_Create(&audios[A_WIN], "audio/win.ogg", "win");
+    SSGE_Audio *start = SSGE_Audio_Create(&audios[A_START], "start", "audio/start.ogg");
+    SSGE_Audio_Create(&audios[A_CLICK], "click", "audio/click.ogg");
+    SSGE_Audio_Create(&audios[A_TIE], "tie", "audio/tie.ogg");
+    SSGE_Audio_Create(&audios[A_WIN], "win", "audio/win.ogg");
 
     // Create the game structure
     Game game;

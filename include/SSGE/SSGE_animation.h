@@ -17,7 +17,7 @@ extern "C" {
  * \param height The height of the frames
  * \return The animation
  */
-SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, uint32_t frameCount, uint16_t width, uint16_t height);
+SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, const char *name, uint32_t frameCount, uint16_t width, uint16_t height);
 
 /**
  * Create an animation with a draw function
@@ -26,7 +26,7 @@ SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, ui
  * \param draw The draw function to call when playing the animation
  * \return The animation
  */
-SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void (*draw)(SSGE_AnimationState *));
+SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, const char *name, void (*draw)(SSGE_AnimationState *));
 
 /**
  * Set the anchor the frames
@@ -46,7 +46,7 @@ SSGEAPI void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y);
  * \note This only works for animation with frames
  * \note Using this function on an animation with a function will throw an error
  */
-SSGEAPI void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, char *file);
+SSGEAPI void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, const char *filename);
 
 /**
  * Add a frame from a tilemap to an animation
@@ -72,7 +72,7 @@ SSGEAPI SSGE_Animation *SSGE_Animation_Get(uint32_t id);
  * \param name The name of the animation
  * \return The animation
  */
-SSGEAPI SSGE_Animation *SSGE_Animation_GetName(char *name);
+SSGEAPI SSGE_Animation *SSGE_Animation_GetName(const char *name);
 
 /**
  * Play an animation

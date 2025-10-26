@@ -3,7 +3,7 @@
 #include "SSGE_local.h"
 #include "SSGE/SSGE_animation.h"
 
-SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, uint32_t frameCount, uint16_t width, uint16_t height) {
+SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, const char *name, uint32_t frameCount, uint16_t width, uint16_t height) {
     SSGE_Animation *anim = (SSGE_Animation *)malloc(sizeof(SSGE_Animation));
     if (anim == NULL)
         SSGE_Error("Failed to allocate memory for animation")
@@ -22,7 +22,7 @@ SSGEAPI SSGE_Animation *SSGE_Animation_CreateFrames(uint32_t *id, char *name, ui
     return anim;
 }
 
-SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, char *name, void (*draw)(SSGE_AnimationState *)) {
+SSGEAPI SSGE_Animation *SSGE_Animation_CreateFunc(uint32_t *id, const char *name, void (*draw)(SSGE_AnimationState *)) {
     SSGE_Animation *anim = (SSGE_Animation *)malloc(sizeof(SSGE_Animation));
     if (anim == NULL) 
         SSGE_Error("Failed to allocate memory for animation")
@@ -42,11 +42,11 @@ SSGEAPI void SSGE_Animation_Anchor(SSGE_Animation *animation, int x, int y) {
     animation->data.anchorY = y;
 }
 
-SSGEAPI void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, char *file) {
+SSGEAPI void SSGE_Animation_AddFrame(SSGE_Animation *animation, uint8_t frametime, const char *filename) {
     if (animation->type != SSGE_ANIM_FRAMES)
         SSGE_Error("Wrong animation type")
 
-    SDL_Texture *frame = IMG_LoadTexture(_engine.renderer, file);
+    SDL_Texture *frame = IMG_LoadTexture(_engine.renderer, filename);
     if (frame == NULL)
         SSGE_ErrorEx("Failed to load image: %s", IMG_GetError())
 
@@ -89,8 +89,8 @@ inline static bool _find_animation_name(void *ptr, void *name) {
     return strcmp(((SSGE_Animation *)ptr)->name, (char *)name) == 0;
 }
 
-SSGEAPI SSGE_Animation *SSGE_Animation_GetName(char *name) {
-    SSGE_Animation *ptr = SSGE_Array_Find(&_animationList, _find_animation_name, name);
+SSGEAPI SSGE_Animation *SSGE_Animation_GetName(const char *name) {
+    SSGE_Animation *ptr = SSGE_Array_Find(&_animationList, _find_animation_name, (void *)name);
     if (ptr == NULL)
         SSGE_ErrorEx("Animation not found: %s", name)
     return ptr;

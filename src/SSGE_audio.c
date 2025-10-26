@@ -1,7 +1,7 @@
 #include "SSGE_local.h"
 #include "SSGE/SSGE_audio.h"
 
-SSGEAPI SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name) {
+SSGEAPI SSGE_Audio *SSGE_Audio_Create(uint32_t *id, const char *name, const char *filename) {
     SSGE_Audio *audio = (SSGE_Audio *)malloc(sizeof(SSGE_Audio));
     if (audio == NULL) 
         SSGE_Error("Failed to allocate memory for audio")
@@ -25,8 +25,8 @@ inline static bool _find_audio_name(void *ptr, void *name) {
     return strcmp(((SSGE_Audio *)ptr)->name, (char *)name) == 0;
 }
 
-SSGEAPI SSGE_Audio *SSGE_Audio_GetName(char *name) {
-    SSGE_Audio *ptr = (SSGE_Audio *)SSGE_Array_Find(&_audioList, _find_audio_name, name);
+SSGEAPI SSGE_Audio *SSGE_Audio_GetName(const char *name) {
+    SSGE_Audio *ptr = (SSGE_Audio *)SSGE_Array_Find(&_audioList, _find_audio_name, (void *)name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Audio not found: %s", name)
     return ptr;
@@ -59,8 +59,8 @@ SSGEAPI void SSGE_Audio_Close(uint32_t id) {
     destroyAudio(audio);
 }
 
-SSGEAPI void SSGE_Audio_CloseName(char *name) {
-    SSGE_Audio *audio = SSGE_Array_FindPop(&_audioList, _find_audio_name, name);
+SSGEAPI void SSGE_Audio_CloseName(const char *name) {
+    SSGE_Audio *audio = SSGE_Array_FindPop(&_audioList, _find_audio_name, (void *)name);
     if (audio == NULL) 
         SSGE_ErrorEx("Audio not found: %s", name)
     destroyAudio(audio);

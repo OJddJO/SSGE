@@ -77,7 +77,7 @@ SSGEAPI void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y) {
     SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, uint16_t length, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, const char *name, uint16_t length, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -101,7 +101,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, uint16_t length,
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, uint16_t width, uint16_t height, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, const char *name, uint16_t width, uint16_t height, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -125,7 +125,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, uint16_t width, 
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, uint16_t radius, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, const char *name, uint16_t radius, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -149,7 +149,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, uint16_t radiu
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, uint16_t rx, uint16_t ry, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, const char *name, uint16_t rx, uint16_t ry, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -173,7 +173,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, uint16_t rx, 
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, uint16_t length, SSGE_Color color, int thickness) {
+SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, const char *name, uint16_t length, SSGE_Color color, int thickness) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -197,7 +197,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, uint16_t le
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, uint16_t width, uint16_t height, SSGE_Color color, int thickness) {
+SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, const char *name, uint16_t width, uint16_t height, SSGE_Color color, int thickness) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -223,7 +223,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, uint16_t wi
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, uint16_t radius, SSGE_Color color, int thickness) {
+SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, const char *name, uint16_t radius, SSGE_Color color, int thickness) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -247,7 +247,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, uint16_t 
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, uint16_t rx, uint16_t ry, SSGE_Color color, int thickness) {
+SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, const char *name, uint16_t rx, uint16_t ry, SSGE_Color color, int thickness) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -272,7 +272,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, uint16_t
 }
 
 
-SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, char *name, uint16_t width, uint16_t height, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, const char *name, uint16_t width, uint16_t height, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -296,7 +296,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, char *name, uint16_t wid
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, char *name, uint16_t radius, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, const char *name, uint16_t radius, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -320,7 +320,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, char *name, uint16_t r
     return texture;
 }
 
-SSGEAPI SSGE_Texture *SSGE_CreateFillEllipse(uint32_t *id, char *name, uint16_t rx, uint16_t ry, SSGE_Color color) {
+SSGEAPI SSGE_Texture *SSGE_CreateFillEllipse(uint32_t *id, const char *name, uint16_t rx, uint16_t ry, SSGE_Color color) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")

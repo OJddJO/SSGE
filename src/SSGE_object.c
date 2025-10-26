@@ -172,7 +172,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id) {
 }
 
 SSGEAPI SSGE_Object *SSGE_Object_GetName(const char *name) {
-    SSGE_Object *ptr = SSGE_Array_Find(&_objectList, _find_object_name, name);
+    SSGE_Object *ptr = SSGE_Array_Find(&_objectList, _find_object_name, (void *)name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Object not found: %s", name)
     return ptr;

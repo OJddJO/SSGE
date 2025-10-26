@@ -11,11 +11,11 @@ extern "C" {
 /**
  * Load an audio
  * \param id Where to store the id of the audio
- * \param filename The path to the audio
  * \param name The name of the audio
+ * \param filename The path to the audio
  * \return The audio
  */
-SSGEAPI SSGE_Audio *SSGE_Audio_Create(uint32_t *id, char *filename, char *name);
+SSGEAPI SSGE_Audio *SSGE_Audio_Create(uint32_t *id, const char *name, const char *filename);
 
 /**
  * Get an audio
@@ -29,7 +29,7 @@ SSGEAPI SSGE_Audio *SSGE_Audio_Get(uint32_t id);
  * \param name The name of the audio
  * \return The audio
  */
-SSGEAPI SSGE_Audio *SSGE_Audio_GetName(char *name);
+SSGEAPI SSGE_Audio *SSGE_Audio_GetName(const char *name);
 
 /**
  * Play an audio by id
@@ -67,7 +67,7 @@ SSGEAPI void SSGE_Audio_Close(uint32_t id);
  * Close an audio by name
  * \param name The name of the audio
  */
-SSGEAPI void SSGE_Audio_CloseName(char *name);
+SSGEAPI void SSGE_Audio_CloseName(const char *name);
 
 /**
  * Close all audios

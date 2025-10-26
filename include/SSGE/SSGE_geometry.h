@@ -135,7 +135,7 @@ SSGEAPI void SSGE_DrawGeometry(SSGE_Texture *texture, int x, int y);
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, uint16_t length, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, const char *name, uint16_t length, SSGE_Color color);
 
 /**
  * Create a rectangle as a texture
@@ -147,7 +147,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateLine(uint32_t *id, char *name, uint16_t length,
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, uint16_t width, uint16_t height, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, const char *name, uint16_t width, uint16_t height, SSGE_Color color);
 
 /**
  * Create a circle as a texture
@@ -158,7 +158,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateRect(uint32_t *id, char *name, uint16_t width, 
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, uint16_t radius, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, const char *name, uint16_t radius, SSGE_Color color);
 
 /**
  * Create an ellipse as a texture
@@ -170,7 +170,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircle(uint32_t *id, char *name, uint16_t radiu
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, uint16_t rx, uint16_t ry, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, const char *name, uint16_t rx, uint16_t ry, SSGE_Color color);
 
 /**
  * Create a line with a specified thickness as a texture
@@ -182,7 +182,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipse(uint32_t *id, char *name, uint16_t rx, 
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, uint16_t length, SSGE_Color color, int thickness);
+SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, const char *name, uint16_t length, SSGE_Color color, int thickness);
 
 /**
  * Create a rectangle with a specified thickness as a texture
@@ -195,7 +195,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateLineThick(uint32_t *id, char *name, uint16_t le
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, uint16_t width, uint16_t height, SSGE_Color color, int thickness);
+SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, const char *name, uint16_t width, uint16_t height, SSGE_Color color, int thickness);
 
 /**
  * Create a circle with a specified thickness as a texture
@@ -207,7 +207,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateRectThick(uint32_t *id, char *name, uint16_t wi
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, uint16_t radius, SSGE_Color color, int thickness);
+SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, const char *name, uint16_t radius, SSGE_Color color, int thickness);
 
 /**
  * Create an ellipse with a specified thickness as a texture
@@ -220,7 +220,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateCircleThick(uint32_t *id, char *name, uint16_t 
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, uint16_t rx, uint16_t ry, SSGE_Color color, int thickness);
+SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, const char *name, uint16_t rx, uint16_t ry, SSGE_Color color, int thickness);
 
 /**
  * Create a filled rectangle as a texture
@@ -232,7 +232,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateEllipseThick(uint32_t *id, char *name, uint16_t
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, char *name, uint16_t width, uint16_t height, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, const char *name, uint16_t width, uint16_t height, SSGE_Color color);
 
 /**
  * Create a filled circle as a texture
@@ -243,7 +243,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateFillRect(uint32_t *id, char *name, uint16_t wid
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, char *name, uint16_t radius, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, const char *name, uint16_t radius, SSGE_Color color);
 
 /**
  * Create a filled ellipse as a texture
@@ -255,7 +255,7 @@ SSGEAPI SSGE_Texture *SSGE_CreateFillCircle(uint32_t *id, char *name, uint16_t r
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name
  */
-SSGEAPI SSGE_Texture *SSGE_CreateFillEllipse(uint32_t *id, char *name, uint16_t rx, uint16_t ry, SSGE_Color color);
+SSGEAPI SSGE_Texture *SSGE_CreateFillEllipse(uint32_t *id, const char *name, uint16_t rx, uint16_t ry, SSGE_Color color);
 
 #ifdef __cplusplus
 }

@@ -18,7 +18,7 @@ extern "C" {
  * \return The object template
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint16_t width, uint16_t height, bool hitbox);
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, const char *name, uint16_t width, uint16_t height, bool hitbox);
 
 /**
  * Create an object template with a texture
@@ -31,7 +31,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Create(uint32_t *id, char *name, uint
  * \return The object template
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox);
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, const char *name, SSGE_Texture *texture, uint16_t width, uint16_t height, bool hitbox);
 
 /**
  * Create an object template with an animation
@@ -44,7 +44,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateStatic(uint32_t *id, char *name
  * \return The object template
  * \note The object template is stored internally and can be accessed by its name or its id
  */
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox);
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_CreateAnim(uint32_t *id, const char *name, SSGE_Animation *animation, uint16_t width, uint16_t height, bool hitbox);
 
 /**
  * Get an object template by id
@@ -58,7 +58,7 @@ SSGEAPI SSGE_ObjectTemplate *SSGE_Template_Get(uint32_t id);
  * \param name The name of the object template
  * \return The object template
  */
-SSGEAPI SSGE_ObjectTemplate *SSGE_Template_GetName(char *name);
+SSGEAPI SSGE_ObjectTemplate *SSGE_Template_GetName(const char *name);
 
 /**
  * Destroy an object template by id
@@ -70,7 +70,7 @@ SSGEAPI void SSGE_Template_Destroy(uint32_t id);
  * Destroy an object template by name
  * \param name The name of the object template
  */
-SSGEAPI void SSGE_Template_DestroyName(char *name);
+SSGEAPI void SSGE_Template_DestroyName(const char *name);
 
 /**
  * Destroy all object templates
