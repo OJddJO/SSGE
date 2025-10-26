@@ -90,6 +90,8 @@ SSGEAPI void SSGE_Object_BindData(SSGE_Object *object, void *data, SSGE_DestroyD
 SSGEAPI void SSGE_Object_RemoveData(SSGE_Object *object) {
     if (object->data && object->destroyData)
         object->destroyData(object->data);
+    object->data = NULL;
+    object->destroyData = NULL;
 }
 
 SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture) {
