@@ -92,7 +92,7 @@ jobs:
         shell: bash
 
   build-ubuntu:
-    name: Build and Package for Windows
+    name: Build and Package for Ubuntu
     needs: create_release
     runs-on: ubuntu-latest
     env:
@@ -102,7 +102,8 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Set up build tools
-        run: sudo apt-get install build-essential libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
+        run: |
+          sudo apt-get install --fix-missing build-essential libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
 
       - name: Build
         run: make
