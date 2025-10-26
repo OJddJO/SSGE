@@ -6,6 +6,7 @@
 
 #include "SSGE/SSGE_config.h"
 #include "SSGE/SSGE_events.h"
+#include "SSGE/SSGE_keyboard.h"
 
 #ifdef __cplusplus
 extern "C" {
