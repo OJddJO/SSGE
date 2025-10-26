@@ -4,6 +4,7 @@
 #include "SSGE/SSGE_config.h"
 #include "SSGE/SSGE_types.h"
 
+
 #ifdef __cplusplus
 extern "C" {
 #endif

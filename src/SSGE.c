@@ -125,16 +125,10 @@ inline static void _updateTextures() {
             if (!data) continue;
             
             ++dataDone;
-            SDL_Rect rect = {
-                data->x + texture->anchorX,
-                data->y + texture->anchorY,
-                data->width,
-                data->height,
-            };
-            if (!_isTextureVisible(rect.x, rect.y, rect.w, rect.h)) continue;
+            if (!_isTextureVisible(data->dest.x, data->dest.y, data->dest.w, data->dest.h)) continue;
 
-            if (data->angle == 0 && data->flip == 0) SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &rect);
-            else SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &rect, data->angle, (SDL_Point *)&data->rotationCenter, data->flip);
+            if (data->angle == 0 && data->flip == 0) SDL_RenderCopy(_engine.renderer, sdlTexture, NULL, &data->dest);
+            else SDL_RenderCopyEx(_engine.renderer, sdlTexture, NULL, &data->dest, data->angle, (SDL_Point *)&data->rotationCenter, data->flip);
 
             if (data->once) free(SSGE_Array_Pop(&texture->queue, j));
         }
@@ -197,7 +191,7 @@ inline static void _updateAnimations() {
     }
 }
 
-SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data) {
+SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc background, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data) {
     if (!_engine.initialized)
         SSGE_Error("Engine not initialized");
 
@@ -227,7 +221,7 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
             }
             if (eventHandler) eventHandler(event, data);
         }
-        
+
         int updateLoops = 0;
         uint64_t currentTime = SDL_GetTicks64();
         if (update) while (currentTime > nextUpdate && updateLoops++ < _engine.maxFrameskip) {
@@ -239,7 +233,9 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
             SDL_SetRenderDrawColor(_engine.renderer, _bgColor.r, _bgColor.g, _bgColor.b, _bgColor.a);
             SDL_RenderClear(_engine.renderer);
             SDL_SetRenderDrawColor(_engine.renderer, _color.r, _color.g, _color.b, _color.a);
-            
+
+            if (background) background(data);
+
             _updateTextures();
             _updateAnimations();
 
@@ -250,6 +246,7 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
         }
 
         if (!_engine.vsync) {
+            double targetFrameTime = 1000.0 / (double)(_engine.fps);
             uint64_t frameTime = SDL_GetTicks64() - frameStart;
             if ((double)frameTime < targetFrameTime)
                 SDL_Delay((uint32_t)(targetFrameTime - (double)frameTime));

@@ -43,14 +43,15 @@ SSGEAPI void SSGE_Quit();
 
 /**
  * Run the engine
- * \param update The update function
- * \param draw The draw function
- * \param eventHandler The event handler function
- * \param data The `void *` to pass to the functions (update, draw, eventHandler)
+ * \param update The update function, can be `NULL`
+ * \param background The function to draw the background, can be `NULL`
+ * \param draw The draw function, can be `NULL`
+ * \param eventHandler The event handler function, can be `NULL`
+ * \param data The `void *` to pass to the functions (update, background, draw, eventHandler), can be `NULL`
  * \warning The engine runs in an infinite loop until the window is closed
- * \note The order of execution is as follows: Event handling, Update, (Clear screen), Draw
+ * \note The order of execution is as follows: Event handling, Update, (Clear screen), (Object Rendering), Draw
  */
-SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data);
+SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc background, SSGE_DrawFunc draw, SSGE_EventHandler eventHandler, void *data);
 
 // Window functions
 

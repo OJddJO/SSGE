@@ -58,8 +58,8 @@ SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
             break;
         case SSGE_SPRITE_STATIC:
             _SSGE_RenderData *renderData = SSGE_Array_Get(&object->texture.texture->queue, object->texture.renderDataIdx);
-            renderData->x = x;
-            renderData->y = y;
+            renderData->dest.x = x;
+            renderData->dest.y = y;
             break;
         default:
             break;
@@ -75,8 +75,8 @@ SSGEAPI void SSGE_Object_MoveRel(SSGE_Object *object, int dx, int dy) {
             break;
         case SSGE_SPRITE_STATIC:
             _SSGE_RenderData *renderData = SSGE_Array_Get(&object->texture.texture->queue, object->texture.renderDataIdx);
-            renderData->x = object->x;
-            renderData->y = object->y;
+            renderData->dest.x = object->x;
+            renderData->dest.y = object->y;
             break;
         default:
             break;
@@ -103,10 +103,12 @@ SSGEAPI void SSGE_Object_BindTexture(SSGE_Object *object, SSGE_Texture *texture)
     object->spriteType = SSGE_SPRITE_STATIC;
     _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
     *renderData = (_SSGE_RenderData){
-        .x = object->x,
-        .y = object->y,
-        .width = object->width,
-        .height = object->height,
+        .dest = {
+            .x = object->x,
+            .y = object->y,
+            .w = object->width,
+            .h = object->height
+        },
         .once = false
     };
     object->texture.renderDataIdx = SSGE_Array_Add(&texture->queue, renderData);
@@ -150,10 +152,12 @@ SSGEAPI void SSGE_Object_Show(SSGE_Object *object) {
             case SSGE_SPRITE_STATIC:
                 _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
                 *renderData = (_SSGE_RenderData){
-                    .x = object->x,
-                    .y = object->y,
-                    .width = object->width,
-                    .height = object->height,
+                    .dest = {
+                        .x = object->x,
+                        .y = object->y,
+                        .w = object->width,
+                        .h = object->height
+                    },
                     .once = false
                 };
                 object->texture.renderDataIdx = SSGE_Array_Add(&object->texture.texture->queue, renderData);
@@ -187,8 +191,8 @@ SSGEAPI void SSGE_Object_Resize(SSGE_Object *object, uint16_t width, uint16_t he
     object->height = height;
     if (object->spriteType == SSGE_SPRITE_STATIC) {
         _SSGE_RenderData *data = SSGE_Array_Get(&object->texture.texture->queue, object->texture.renderDataIdx);
-        data->width = width;
-        data->height = height;
+        data->dest.w = width;
+        data->dest.h = height;
     }
 }
 

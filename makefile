@@ -16,17 +16,19 @@ OBJ_STATIC		= $(subst src,$(OSDIR)/build_static,$(patsubst %.c, %.o, $(SRC)))
 
 INCLUDE			= -I include
 LIB				= -L $(OSDIR)/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-EXTRA			= -Werror -Wall -O3 -flto=auto -fPIC -DSSGE_BUILD
+EXTRA			= -Werror -Wall -flto=auto -DSSGE_BUILD
+OFLAG			?= -O3
 
 # Build mode: release, cpuSpecific
 BUILD_MODE		?= release
 ifeq ($(BUILD_MODE),cpuSpecific)
-OPTIMIZE		= -march=native -mtune=native
+CPU_OPTIMIZE	= -march=native -mtune=native
 else
-OPTIMIZE		= -O3 -mtune=generic
+CPU_OPTIMIZE 	= -mtune=generic
 endif
 
 all: create_dirs static dll
+	@echo "Build mode: $(BUILD_MODE) (= $(CPU_OPTIMIZE)), O-flag: $(OFLAG)"
 	@echo Static library:    $(STATIC_BUILD)
 	@echo Dynamic library:   $(DLL_BUILD)
 	@echo Imp. library:      $(IMPLIB_BUILD)
@@ -34,12 +36,12 @@ all: create_dirs static dll
 remake: clean all
 
 $(OSDIR)/build/%.o: src/%.c
-	@echo [DYNAMIC] Compiling $*.c...
-	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build/$*.o $(EXTRA) $(OPTIMIZE)
+	@echo "[DYNAMIC] Compiling $*.c..."
+	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build/$*.o $(EXTRA) $(OFLAG) $(CPU_OPTIMIZE) -fPIC
 
 $(OSDIR)/build_static/%.o: src/%.c
-	@echo [STATIC] Compiling $*.c...
-	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build_static/$*.o $(EXTRA) $(OPTIMIZE) -DSSGE_STATIC -static
+	@echo "[STATIC] Compiling $*.c..."
+	@gcc $(INCLUDE) -c src/$*.c -o $(OSDIR)/build_static/$*.o $(EXTRA) $(OFLAG) $(CPU_OPTIMIZE) -DSSGE_STATIC -static
 
 clean:
 	@echo Cleaning up...

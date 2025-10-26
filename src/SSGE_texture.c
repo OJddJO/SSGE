@@ -42,10 +42,12 @@ SSGEAPI void SSGE_Texture_Anchor(SSGE_Texture *texture, int x, int y) {
 SSGEAPI void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, int height) {
     _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
     *renderData = (_SSGE_RenderData){
-        .x = x,
-        .y = y,
-        .width = width,
-        .height = height,
+        .dest = {
+            .x = x,
+            .y = y,
+            .w = width,
+            .h = height
+        },
         .once = true
     };
     SSGE_Array_Add(&texture->queue, renderData);
@@ -54,10 +56,12 @@ SSGEAPI void SSGE_Texture_Draw(SSGE_Texture *texture, int x, int y, int width, i
 SSGEAPI void SSGE_Texture_DrawEx(SSGE_Texture *texture, int x, int y, int width, int height, double angle, SSGE_Point center, SSGE_Flip flip) {
     _SSGE_RenderData *renderData = (_SSGE_RenderData *)malloc(sizeof(_SSGE_RenderData));
     *renderData = (_SSGE_RenderData){
-        .x = x,
-        .y = y,
-        .width = width,
-        .height = height,
+        .dest = {
+            .x = x,
+            .y = y,
+            .w = width,
+            .h = height
+        },
         .once = true,
         .angle = angle,
         .rotationCenter = center,

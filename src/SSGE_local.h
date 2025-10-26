@@ -6,7 +6,7 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
-#include "SSGE/SSGE_types.h"
+#include "SSGE_typedef.h"
 #include "SSGE/SSGE_array.h"
 #include "SSGE/SSGE_error.h"
 
@@ -19,10 +19,7 @@ extern "C" {
 #define _MAX_FRAMESKIP              3
 
 typedef struct {
-    int         x;
-    int         y;
-    uint16_t    width;
-    uint16_t    height;
+    SDL_Rect    dest;
     SSGE_Flip   flip;
     SSGE_Point  rotationCenter;
     double      angle;
@@ -79,11 +76,6 @@ void destroyTemplate(SSGE_ObjectTemplate *ptr);
 void destroyFont(SSGE_Font *ptr);
 void destroyAudio(SSGE_Audio *ptr);
 void destroyAnimation(SSGE_Animation *ptr);
-
-void textureAcquire(SSGE_Texture *texture);
-void textureRelease(SSGE_Texture *texture);
-
-void destroyBufferedRenderItem(void *ptr);
 
 #ifdef __cplusplus
 }
