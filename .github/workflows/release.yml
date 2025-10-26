@@ -68,7 +68,7 @@ jobs:
           fi
 
           # build CHANGELOG with real newlines
-          CHANGELOG="$(printf '%s\n\n%s\n\nFull changelog: %s' "$HEADER" "$BODY"\n</details>"$FULL_CHANGELOG_URL")"
+          CHANGELOG="$(printf '%s\n\n%s\n</details>\n\nFull changelog: %s' "$HEADER" "$BODY" "$FULL_CHANGELOG_URL")"
 
           # output multiline changelog safely
           echo "changelog<<EOF" >> "$GITHUB_OUTPUT"
