@@ -1,7 +1,7 @@
 #include "SSGE_local.h"
 #include "SSGE/SSGE_tilemap.h"
 
-SSGEAPI SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint16_t tileWidth, uint16_t tileHeight, uint16_t spacing, uint16_t nbRows, uint16_t nbCols) {
+SSGEAPI SSGE_Tilemap *SSGE_Tilemap_Create(const char *filename, uint16_t tileWidth, uint16_t tileHeight, uint16_t spacing, uint16_t nbRows, uint16_t nbCols) {
     SSGE_Tilemap *tilemap = (SSGE_Tilemap *)malloc(sizeof(SSGE_Tilemap));
     if (tilemap == NULL)
         SSGE_Error("Failed to allocate memory for tilemap")

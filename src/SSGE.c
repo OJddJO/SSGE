@@ -24,7 +24,7 @@ static int _eventFilter(void *userdata, SDL_Event *event) {
     }
 }
 
-SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps) {
+SSGEAPI const SSGE_Engine *SSGE_Init(const char *title, uint16_t width, uint16_t height, uint16_t fps) {
     if (_engine.initialized == true)
         SSGE_Error("Engine already initialized")
 
@@ -257,14 +257,14 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
     }
 }
 
-SSGEAPI void SSGE_SetWindowTitle(char *title) {
+SSGEAPI void SSGE_SetWindowTitle(const char *title) {
     if (!title) return;
     if (_engine.title) free(_engine.title);
     _engine.title = (char *)malloc(strlen(title) + 1);
     strcpy(_engine.title, title);
 }
 
-SSGEAPI void SSGE_SetWindowIcon(char *filename) {
+SSGEAPI void SSGE_SetWindowIcon(const char *filename) {
     SDL_Surface *icon = IMG_Load(filename);
     if (icon == NULL)
         SSGE_ErrorEx("Failed to load icon: %s", IMG_GetError())

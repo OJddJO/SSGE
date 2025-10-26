@@ -11,12 +11,12 @@ extern "C" {
 /**
  * Create a texture
  * \param id Where to store the id of the texture
- * \param filename The path to the texture
  * \param name The name of the texture, can be NULL
+ * \param filename The path to the texture
  * \return The texture
  * \note The texture is stored internally and can be accessed by its name or its id
  */
-SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *name);
+SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, const char *name, const char *filename);
 
 /**
  * Get a texture by id
@@ -30,7 +30,7 @@ SSGEAPI SSGE_Texture *SSGE_Texture_Get(uint32_t id);
  * \param name The name of the texture
  * \return The texture
  */
-SSGEAPI SSGE_Texture *SSGE_Texture_GetName(char *name);
+SSGEAPI SSGE_Texture *SSGE_Texture_GetByName(const char *name);
 
 /**
  * Set the anchor of a texture
@@ -73,7 +73,7 @@ SSGEAPI void SSGE_Texture_Destroy(uint32_t id);
  * Destroy a texture
  * \param name The name of the texture
  */
-SSGEAPI void SSGE_Texture_DestroyName(char *name);
+SSGEAPI void SSGE_Texture_DestroyName(const char *name);
 
 /**
  * Destroy all texture

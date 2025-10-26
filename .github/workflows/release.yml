@@ -30,7 +30,7 @@ jobs:
           LATEST_TAG=$(git describe --tags --abbrev=0)
           if [ -n "$LATEST_TAG" ]; then
             RANGE="${LATEST_TAG}..HEAD"
-            HEADER="<details>\n<summary>Commits since ${LATEST_TAG}:</summary>"
+            HEADER="<details><summary>Commits since ${LATEST_TAG}:</summary>"
           else
             RANGE="HEAD"
             HEADER="All commits:"
@@ -53,16 +53,20 @@ jobs:
                 subj=$1
                 sha=$2
                 if (!(subj in seen)) { seen[subj]=1; order[++n]=subj; firstsha[subj]=sha }
+                lastsha[subj]=sha
                 count[subj]++
               }
               END {
                 for (i=1;i<=n;i++) {
                   s=order[i]
-                  # use ENVIRON to access GITHUB_REPOSITORY from shell
                   repo=ENVIRON["GITHUB_REPOSITORY"]
-                  printf "- %s — https://github.com/%s/commit/%s", s, repo, firstsha[s]
-                  if (count[s] > 1) printf " x%d", count[s]
-                  printf "\n"
+                  if (count[s] > 1) {
+                    # link to compare range first..last
+                    printf "- %s — https://github.com/%s/compare/%s...%s (x%d)\n", s, repo, lastsha[s], firstsha[s], count[s]
+                  } else {
+                    # single commit link
+                    printf "- %s — https://github.com/%s/commit/%s\n", s, repo, firstsha[s]
+                  }
                 }
               }')
           fi

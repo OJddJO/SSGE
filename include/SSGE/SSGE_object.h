@@ -20,7 +20,7 @@ extern "C" {
  * \return The object
  * \note The object is stored internally and can be accessed by its name or its id
  */
-SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox);
+SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, const char *name, int x, int y, int width, int height, bool hitbox);
 
 /**
  * Instantiate an object from an object template
@@ -45,7 +45,7 @@ SSGEAPI bool SSGE_Object_Exists(uint32_t id);
  * \param name The name of the object
  * \return True if the object exists, false otherwise
  */
-SSGEAPI bool SSGE_Object_ExistsName(char *name);
+SSGEAPI bool SSGE_Object_ExistsName(const char *name);
 
 /**
  * Move an object
@@ -125,7 +125,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id);
  * \param name The name of the object
  * \return The object with the given name
  */
-SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name);
+SSGEAPI SSGE_Object *SSGE_Object_GetName(const char *name);
 
 /**
  * Get the data of the object
@@ -151,7 +151,7 @@ SSGEAPI void SSGE_Object_Destroy(uint32_t id);
  * Destroy all objects with a given name
  * \param name The name of the object
  */
-SSGEAPI void SSGE_Object_DestroyName(char *name);
+SSGEAPI void SSGE_Object_DestroyName(const char *name);
 
 /**
  * Destroy all objects

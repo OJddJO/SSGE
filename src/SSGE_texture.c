@@ -1,7 +1,7 @@
 #include "SSGE_local.h"
 #include "SSGE/SSGE_texture.h"
 
-SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, char *filename, char *name) {
+SSGEAPI SSGE_Texture *SSGE_Texture_Create(uint32_t *id, const char *name, const char *filename) {
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
@@ -27,8 +27,8 @@ static bool _find_texture_name(void *ptr, void *name) {
     return strcmp(((SSGE_Texture *)ptr)->name, (char *)name) == 0;
 }
 
-SSGEAPI SSGE_Texture *SSGE_Texture_GetName(char *name) {
-    SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(&_textureList, _find_texture_name, name);
+SSGEAPI SSGE_Texture *SSGE_Texture_GetByName(const char *name) {
+    SSGE_Texture *ptr = (SSGE_Texture *)SSGE_Array_Find(&_textureList, _find_texture_name, (void *)name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Texture not found: %s", name)
     return ptr;
@@ -73,8 +73,8 @@ SSGEAPI void SSGE_Texture_Destroy(uint32_t id) {
     destroyTexture(texture);
 }
 
-SSGEAPI void SSGE_Texture_DestroyName(char *name) {
-    SSGE_Texture *texture = SSGE_Array_FindPop(&_textureList, _find_texture_name, name);
+SSGEAPI void SSGE_Texture_DestroyName(const char *name) {
+    SSGE_Texture *texture = SSGE_Array_FindPop(&_textureList, _find_texture_name, (void *)name);
     if (texture == NULL) 
         SSGE_ErrorEx("Texture not found: %s", name)
     destroyTexture(texture);

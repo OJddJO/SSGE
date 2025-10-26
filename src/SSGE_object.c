@@ -2,22 +2,25 @@
 #include "SSGE/SSGE_object.h"
 #include "SSGE/SSGE_animation.h"
 
-SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, char *name, int x, int y, int width, int height, bool hitbox) {
+SSGEAPI SSGE_Object *SSGE_Object_Create(uint32_t *id, const char *name, int x, int y, int width, int height, bool hitbox) {
     SSGE_Object *object = (SSGE_Object *)malloc(sizeof(SSGE_Object));
     if (object == NULL) 
         SSGE_Error("Failed to allocate memory for object")
 
-    object->spriteType = SSGE_SPRITE_NONE;
-    object->texture.texture = NULL;
-    object->texture.renderDataIdx = 0;
-    object->x = x;
-    object->y = y;
-    object->width = width;
-    object->height = height;
-    object->hitbox = hitbox;
-    object->hidden = false;
-    object->data = NULL;
-    object->destroyData = NULL;
+    *object = (SSGE_Object) {
+        .spriteType = SSGE_SPRITE_NONE,
+        .texture = {
+            .texture = NULL,
+            .renderDataIdx = 0,
+        },
+        .x = x,
+        .y = y,
+        .width = width,
+        .height = height,
+        .hitbox = hitbox,
+        .data = NULL,
+        .destroyData = NULL,
+    };
 
     _addToList(&_objectList, object, name, id, __func__);
     return object;
@@ -34,16 +37,16 @@ SSGEAPI SSGE_Object *SSGE_Object_Instantiate(uint32_t *id, SSGE_ObjectTemplate *
 
 SSGEAPI bool SSGE_Object_Exists(uint32_t id) {
     SSGE_Object *ptr = SSGE_Array_Get(&_objectList, id);
-    return ptr == NULL ? false : true;
+    return ptr != NULL;
 }
 
 inline static bool _find_object_name(void *ptr, void *name) {
     return strcmp(((SSGE_Object *)ptr)->name, (char *)name) == 0 ;
 }
 
-SSGEAPI bool SSGE_Object_ExistsName(char *name) {
-    SSGE_Object *ptr = SSGE_Array_Find(&_objectList, _find_object_name, name);
-    return ptr == NULL ? false : true;
+SSGEAPI bool SSGE_Object_ExistsName(const char *name) {
+    SSGE_Object *ptr = SSGE_Array_Find(&_objectList, _find_object_name, (void *)name);
+    return ptr != NULL;
 }
 
 SSGEAPI void SSGE_Object_Move(SSGE_Object *object, int x, int y) {
@@ -168,7 +171,7 @@ SSGEAPI SSGE_Object *SSGE_Object_Get(uint32_t id) {
     return ptr;
 }
 
-SSGEAPI SSGE_Object *SSGE_Object_GetName(char *name) {
+SSGEAPI SSGE_Object *SSGE_Object_GetName(const char *name) {
     SSGE_Object *ptr = SSGE_Array_Find(&_objectList, _find_object_name, name);
     if (ptr == NULL) 
         SSGE_ErrorEx("Object not found: %s", name)
@@ -196,8 +199,8 @@ SSGEAPI void SSGE_Object_Destroy(uint32_t id) {
     destroyObject(object);
 }
 
-SSGEAPI void SSGE_Object_DestroyName(char *name) {
-    SSGE_Object *object = SSGE_Array_FindPop(&_objectList, _find_object_name, name);
+SSGEAPI void SSGE_Object_DestroyName(const char *name) {
+    SSGE_Object *object = SSGE_Array_FindPop(&_objectList, _find_object_name, (void *)name);
     if (object == NULL) 
         SSGE_ErrorEx("Object not found: %s", name)
     destroyObject(object);

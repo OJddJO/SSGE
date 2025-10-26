@@ -48,7 +48,7 @@ extern SSGE_Color   _bgColor;
 extern bool         _manualUpdateFrame;
 extern bool         _updateFrame;
 
-inline void _addToList(SSGE_Array *list, void *element, char *name, uint32_t *id, const char *funcname) {
+inline void _addToList(SSGE_Array *list, void *element, const char *name, uint32_t *id, const char *funcname) {
     if (name) {
         ((DummyType *)element)->name = (char *)malloc(sizeof(char) * (strlen(name) + 1));
         if (((DummyType *)element)->name == NULL) {

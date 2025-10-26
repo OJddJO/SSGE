@@ -18,7 +18,7 @@ extern "C" {
  * \param nbCols The number of columns in the tilemap
  * \return The tilemap
  */
-SSGEAPI SSGE_Tilemap *SSGE_Tilemap_Create(char *filename, uint16_t tileWidth, uint16_t tileHeight, uint16_t spacing, uint16_t nbRows, uint16_t nbCols);
+SSGEAPI SSGE_Tilemap *SSGE_Tilemap_Create(const char *filename, uint16_t tileWidth, uint16_t tileHeight, uint16_t spacing, uint16_t nbRows, uint16_t nbCols);
 
 /**
  * Get a tile from a tilemap

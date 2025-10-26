@@ -33,7 +33,7 @@ extern "C" {
  * \param fps The frames per second
  * \return The engine struct
  */
-SSGEAPI const SSGE_Engine *SSGE_Init(char *title, uint16_t width, uint16_t height, uint16_t fps);
+SSGEAPI const SSGE_Engine *SSGE_Init(const char *title, uint16_t width, uint16_t height, uint16_t fps);
 
 /**
  * Quit the engine
@@ -58,13 +58,13 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc draw, SSGE_EventHand
  * Set the window title
  * \param title The title of the window
  */
-SSGEAPI void SSGE_SetWindowTitle(char *title);
+SSGEAPI void SSGE_SetWindowTitle(const char *title);
 
 /**
  * Set the window icon
  * \param filename The path to the icon
  */
-SSGEAPI void SSGE_SetWindowIcon(char *filename);
+SSGEAPI void SSGE_SetWindowIcon(const char *filename);
 
 /**
  * Resize the window
