@@ -145,7 +145,7 @@ inline static void _updateAnimations() {
     for (uint32_t i = 0, stateDone = 0; stateDone < _playingAnim.count && i < _playingAnim.size; i++) {
         SSGE_AnimationState *state = SSGE_Array_Get(&_playingAnim, i);
         if (state == NULL || !state->isPlaying) continue;
-        if (!state->isPlaying) {puts("not playing"); continue;}
+        if (!state->isPlaying) continue;
 
         SSGE_Animation *anim = state->animation;
         switch (anim->type) {
