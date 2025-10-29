@@ -24,12 +24,11 @@ all: create_dirs setup link
 remake: clean all
 
 setup:
-	@echo "Setting up SSGE..."
-	@echo "Copying SSGE files to the project directory..."
-	@echo "This may take a while, please wait..."
+	@echo Setting up SSGE...
+	@echo Copying SSGE files to the project directory...
+	@echo This may take a while, please wait...
 ifeq ($(OS),Windows_NT)
 	@rm -f $(OSDIR)/bin/SSGE.dll
-	@cp -f ../$(OSDIR)/bin/SSGE.dll $(OSDIR)/SSGE.dll
 	@cp -f ../$(OSDIR)/bin/SSGE.dll ./$(OSDIR)/SSGE.dll
 	@cp -f ../$(OSDIR)/bin/SDL2.dll ./$(OSDIR)/SDL2.dll
 	@cp -f ../$(OSDIR)/bin/SDL2_image.dll ./$(OSDIR)/SDL2_image.dll
@@ -37,18 +36,19 @@ ifeq ($(OS),Windows_NT)
 	@cp -f ../$(OSDIR)/bin/SDL2_mixer.dll ./$(OSDIR)/SDL2_mixer.dll
 else
 	@rm -f $(OSDIR)/bin/libSSGE.so
-	@cp -f ../$(OSDIR)/bin/libSSGE.so $(OSDIR)/libSSGE.so
 	@cp -f ../$(OSDIR)/bin/libSSGE.so ./$(OSDIR)/libSSGE.so
 endif
 	@rm -rf $(OSDIR)/lib
 	@cp -rf ../$(OSDIR)/lib $(OSDIR)/lib
+	@echo Copying assets...
+	@cp -rf assets -T ./$(OSDIR)/assets
 
 clean:
-	@echo "Cleaning up..."
+	@echo Cleaning up...
 	@rm -f $(OBJ)
 
 create_dirs:
-	@echo "Creating necessary directories..."
+	@echo Creating necessary directories...
 	@mkdir -p $(OSDIR) $(OSDIR)/build
 
 $(OSDIR)/build/%.o: src/%.c

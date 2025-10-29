@@ -57,8 +57,8 @@ typedef void (*SSGE_EventHandler)(SSGE_Event, void *);
 typedef void (*SSGE_DestroyData)(void *);
 
 typedef enum _SSGE_AnimationType {
-    SSGE_ANIM_FRAMES = 0,   // Animation using frames
-    SSGE_ANIM_FUNCTION      // Animation using a function
+    SSGE_ANIM_FRAMES,   // Animation using frames
+    SSGE_ANIM_FUNCTION  // Animation using a function
 } SSGE_AnimationType;
 
 typedef enum _SSGE_SpriteType {
@@ -79,21 +79,20 @@ typedef enum _SSGE_Anchor {
     SSGE_SE
 } SSGE_Anchor;
 
-typedef struct _SSGE_Engine SSGE_Engine;
-typedef struct _SSGE_Array SSGE_Array;
-typedef struct _SSGE_Texture SSGE_Texture;
-
-typedef struct _SSGE_AnimationState SSGE_AnimationState;
-typedef struct _SSGE_Animation SSGE_Animation;
-typedef struct _SSGE_AnimationState SSGE_AnimationState;
-
-typedef struct _SSGE_Object SSGE_Object;
+typedef struct _SSGE_Engine         SSGE_Engine;
+typedef struct _SSGE_Texture        SSGE_Texture;
+typedef struct _SSGE_Object         SSGE_Object;
 typedef struct _SSGE_ObjectTemplate SSGE_ObjectTemplate;
-typedef struct _SSGE_Tilemap SSGE_Tilemap;
-typedef struct _SSGE_Tile SSGE_Tile;
 
-typedef struct _SSGE_Font SSGE_Font;
-typedef struct _SSGE_Audio SSGE_Audio;
+typedef struct _SSGE_AnimationState SSGE_AnimationState;
+typedef struct _SSGE_Animation      SSGE_Animation;
+typedef struct _SSGE_AnimationState SSGE_AnimationState;
+
+typedef struct _SSGE_Tilemap        SSGE_Tilemap;
+typedef struct _SSGE_Tile           SSGE_Tile;
+
+typedef struct _SSGE_Font           SSGE_Font;
+typedef struct _SSGE_Audio          SSGE_Audio;
 
 #ifdef __cplusplus
 }

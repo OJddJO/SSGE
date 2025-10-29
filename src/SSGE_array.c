@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 #include "SSGE_local.h"
-#include "SSGE/SSGE_error.h"
+#include "SSGE_error.h"
 
 #define _INITIAL_SIZE 256
 #define _IDX_PILE_INITIAL_SIZE 64

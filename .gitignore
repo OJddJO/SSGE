@@ -18,5 +18,6 @@ Thumbs.db
 # Ignore coverage reports
 coverage/
 
-
-test*
+# Custom
+test.*
+example/_*

@@ -1,14 +1,14 @@
 #ifndef __SSGE_LOCAL_H__
 #define __SSGE_LOCAL_H__
 
-#include <string.h>
+// #include <string.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
 #include "SSGE_typedef.h"
-#include "SSGE/SSGE_array.h"
-#include "SSGE/SSGE_error.h"
+#include "SSGE_array.h"
+#include "SSGE_error.h"
 
 #ifdef __cplusplus
 extern "C" {

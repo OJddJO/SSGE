@@ -1,7 +1,4 @@
 // Internal array struct
-// Defines a dynamic array specifically made for SSGE usage
-// It is not recommanded to use this array as it may
-//  not be optimized for general usage.
 
 #ifndef __SSGE_ARRAY_H__
 #define __SSGE_ARRAY_H__
@@ -10,6 +7,7 @@
 #include <stdbool.h>
 
 #include "SSGE/SSGE_config.h"
+#include "SSGE_typedef.h"
 
 #ifdef __cplusplus
 extern "C" {

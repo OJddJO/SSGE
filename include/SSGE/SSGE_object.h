@@ -211,6 +211,28 @@ SSGEAPI SSGE_Object *SSGE_Object_GetHovered();
  */
 SSGEAPI uint32_t SSGE_Objects_GetHoveredList(SSGE_Object *objects[], uint32_t size);
 
+/**
+ * Get the object size
+ * \param object The object to get the size of
+ * \param width Where to store the width
+ * \param height Where to store the height
+ */
+SSGEAPI void SSGE_Object_GetSize(SSGE_Object *object, uint16_t *width, uint16_t *height);
+
+/**
+ * Get the object position
+ * \param object The object to get the position of
+ * \param x Where to store the x coordinate
+ * \param y Where to store the y coordinate
+ */
+SSGEAPI void SSGE_Object_GetPosition(SSGE_Object *object, int *x, int *y);
+
+/**
+ * Get if the object is hidden
+ * \param object The object to check
+ */
+SSGEAPI bool SSGE_Object_IsHidden(SSGE_Object *object);
+
 #ifdef __cplusplus
 }
 #endif

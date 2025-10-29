@@ -114,14 +114,6 @@ SSGEAPI void SSGE_SetManualUpdate(bool manualUpdate);
  */
 SSGEAPI void SSGE_ManualUpdate();
 
-// Utility functions
-
-/**
- * Change the drawing color
- * \param color The color to set
- */
-SSGEAPI void SSGE_SetColor(SSGE_Color color);
-
 /**
  * Change the background color
  * \param color The color to set
@@ -135,6 +127,49 @@ SSGEAPI void SSGE_SetBackgroundColor(SSGE_Color color);
  * \note To get the mouse position in the event handler, please use the coordinates in the `SSGE_Event` struct
  */
 SSGEAPI void SSGE_GetMousePosition(int *x, int *y);
+
+/**
+ * Get the window size
+ * \param width The variable to store the width of the window
+ * \param height The variable to store the height of the window
+ */
+SSGEAPI void SSGE_GetWindowSize(uint16_t *width, uint16_t *height);
+
+/**
+ * Get if the window is resizable
+ * \return True if the window is resizable, false otherwise
+ */
+SSGEAPI bool SSGE_GetWindowResizable();
+
+/**
+ * Get if the window is borderless
+ * \return True if the window is borderless, false otherwise
+ */
+SSGEAPI bool SSGE_GetWindowBorderless();
+
+/**
+ * Get the window fullscreen mode
+ * \return The fullscreen mode of the window
+ */
+SSGEAPI SSGE_WindowMode SSGE_GetWindowFullscreen();
+
+/**
+ * Get the window FPS
+ * \return The FPS of the window
+ */
+SSGEAPI uint16_t SSGE_GetWindowFPS();
+
+/**
+ * Get the max frameskip
+ * \return The max frameskip
+ */
+SSGEAPI uint8_t SSGE_GetMaxFrameskip();
+
+/**
+ * Get if VSync is enabled
+ * \return True if VSync is enabled, false otherwise
+ */
+SSGEAPI bool SSGE_GetVSync();
 
 #ifdef __cplusplus
 }

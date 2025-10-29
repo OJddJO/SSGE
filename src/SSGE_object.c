@@ -270,3 +270,17 @@ SSGEAPI uint32_t SSGE_Objects_GetHoveredList(SSGE_Object *objects[], uint32_t si
     }
     return count;
 }
+
+SSGEAPI void SSGE_Object_GetSize(SSGE_Object *object, uint16_t *width, uint16_t *height) {
+    *width = object->width;
+    *height = object->height;
+}
+
+SSGEAPI void SSGE_Object_GetPosition(SSGE_Object *object, int *x, int *y) {
+    *x = object->x;
+    *y = object->y;
+}
+
+SSGEAPI bool SSGE_Object_IsHidden(SSGE_Object *object) {
+    return object->hidden;
+}

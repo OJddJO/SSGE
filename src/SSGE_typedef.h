@@ -5,7 +5,6 @@
 #include <stdint.h>
 
 #include "SSGE/SSGE_config.h"
-#include "SSGE/SSGE_events.h"
 #include "SSGE/SSGE_types.h"
 
 #ifdef __cplusplus
@@ -20,12 +19,12 @@ typedef struct _SSGE_Engine {
     struct SDL_Surface  *icon;          // The icon of the window
     uint16_t            width;          // The width of the window
     uint16_t            height;         // The height of the window
-    bool                resizable;      // If the window is resizable
-    SSGE_WindowMode     fullscreen;     // If the window is in fullscreen
     uint16_t            fps;            // The frames per second
     uint8_t             maxFrameskip;   // Max frameskip, default to 3
     bool                vsync;          // If VSync is enabled
-    uint16_t            vsyncRate;      // VSync rate
+    SSGE_WindowMode     fullscreen;     // If the window is in fullscreen
+    bool                borderless;     // If the window is borderless
+    bool                resizable;      // If the window is resizable
     bool                isRunning;      // The running state of the engine
     bool                initialized;    // If the `SSGE_Engine` has been initialized
 } SSGE_Engine;
@@ -100,6 +99,8 @@ typedef struct _SSGE_Object {
     bool            hitbox;     // If the object has a hitbox
     bool            hidden;     // If the object is hidden
     SSGE_SpriteType spriteType; // If the sprite is animated or static
+    void            *data;      // The data of the object
+    void            (*destroyData)(void *); // The function to be called to destroy the data
     union {
         struct {
             SSGE_Texture    *texture;       // The texture of the object
@@ -107,8 +108,6 @@ typedef struct _SSGE_Object {
         } texture;
         uint32_t    animation;  // The id of the animation state
     };
-    void            *data;      // The data of the object
-    void            (*destroyData)(void *); // The function to be called to destroy the data
 } SSGE_Object;
 
 // Object template struct

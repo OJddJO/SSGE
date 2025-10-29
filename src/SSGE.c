@@ -75,7 +75,6 @@ SSGEAPI const SSGE_Engine *SSGE_Init(const char *title, uint16_t width, uint16_t
     _engine.fps = fps;
     _engine.maxFrameskip = _MAX_FRAMESKIP;
     _engine.vsync = false;
-    _engine.vsyncRate = 0;
     _engine.isRunning = false;
     _engine.initialized = true;
     _engine.fullscreen = false;
@@ -246,10 +245,12 @@ SSGEAPI void SSGE_Run(SSGE_UpdateFunc update, SSGE_DrawFunc background, SSGE_Dra
         }
 
         if (!_engine.vsync) {
-            double targetFrameTime = 1000.0 / (double)(_engine.fps);
-            uint64_t frameTime = SDL_GetTicks64() - frameStart;
-            if ((double)frameTime < targetFrameTime)
-                SDL_Delay((uint32_t)(targetFrameTime - (double)frameTime));
+            for (; updateLoops > 0; updateLoops--) {
+                targetFrameTime = 1000.0 / (double)(_engine.fps);
+                uint64_t frameTime = SDL_GetTicks64() - frameStart;
+                if ((double)frameTime < targetFrameTime)
+                    SDL_Delay((uint32_t)(targetFrameTime - (double)frameTime));
+            }
         }
     }
 }
@@ -287,6 +288,11 @@ SSGEAPI void SSGE_WindowFullscreen(SSGE_WindowMode fullscreen) {
     SDL_SetWindowFullscreen(_engine.window, fullscreen);
 }
 
+SSGEAPI void SSGE_WindowBorderless(bool borderless) {
+    _engine.borderless = borderless;
+    SDL_SetWindowBordered(_engine.window, (SDL_bool)borderless);
+}
+
 SSGEAPI void SSGE_SetFrameskipMax(uint8_t max) {
     _engine.maxFrameskip = max;
 }
@@ -294,17 +300,7 @@ SSGEAPI void SSGE_SetFrameskipMax(uint8_t max) {
 SSGEAPI void SSGE_SetVSync(bool vsync) {
     if (SDL_RenderSetVSync(_engine.renderer, (_engine.vsync = vsync)) != 0) {
         _engine.vsync = false;
-        SSGE_WarningEx("Failed to enable VSync, fallback to %d fps", _engine.fps);
-    }
-    if (vsync) {
-        SDL_DisplayMode mode;
-        int displayIndex = SDL_GetWindowDisplayIndex(_engine.window);
-        if (SDL_GetCurrentDisplayMode(displayIndex, &mode) == 0) {
-            _engine.vsyncRate = (uint16_t)mode.refresh_rate;
-        } else {
-            SSGE_WarningEx("Failed to get VSync rate: %s", SDL_GetError());
-            _engine.vsyncRate = _engine.fps; // fallback to fps
-        }
+        SSGE_WarningEx2("Failed to set VSync mode to %d, fallback to %d fps", vsync, _engine.fps);
     }
 }
 
@@ -316,15 +312,39 @@ SSGEAPI void SSGE_ManualUpdate() {
     _updateFrame = true;
 }
 
-SSGEAPI void SSGE_SetColor(SSGE_Color color) {
-    _color = color;
-    SDL_SetRenderDrawColor(_engine.renderer, color.r, color.g, color.b, color.a);
-}
-
 SSGEAPI void SSGE_SetBackgroundColor(SSGE_Color color) {
     _bgColor = color;
 }
 
 SSGEAPI void SSGE_GetMousePosition(int *x, int *y) {
     SDL_GetMouseState(x, y);
+}
+
+SSGEAPI void SSGE_GetWindowSize(uint16_t *width, uint16_t *height) {
+    *width = _engine.width;
+    *height = _engine.height;
+}
+
+SSGEAPI bool SSGE_GetWindowResizable() {
+    return _engine.resizable;
+}
+
+SSGEAPI bool SSGE_GetWindowBorderless() {
+    return _engine.borderless;
+}
+
+SSGEAPI SSGE_WindowMode SSGE_GetWindowFullscreen() {
+    return _engine.fullscreen;
+}
+
+SSGEAPI uint16_t SSGE_GetWindowFPS() {
+    return _engine.fps;
+}
+
+SSGEAPI uint8_t SSGE_GetMaxFrameskip() {
+    return _engine.maxFrameskip;
+}
+
+SSGEAPI bool SSGE_GetVSync() {
+    return _engine.vsync;
 }

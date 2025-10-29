@@ -16,7 +16,7 @@ OBJ_STATIC		= $(subst src,$(OSDIR)/build_static,$(patsubst %.c, %.o, $(SRC)))
 
 INCLUDE			= -I include
 LIB				= -L $(OSDIR)/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-EXTRA			= -Werror -Wall -flto=auto -DSSGE_BUILD
+EXTRA			= -Werror -Wall -flto=auto -DSSGE_BUILD -std=c17
 OFLAG			?= -O3
 
 # Build mode: release, cpuSpecific

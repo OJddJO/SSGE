@@ -27,10 +27,10 @@ int main(int argc, char *argv[]) {
     // Load audio files
     uint32_t audios[4] = {0};
     // Get the pointer of start for later use (line 42)
-    SSGE_Audio *start = SSGE_Audio_Create(&audios[A_START], "start", "audio/start.ogg");
-    SSGE_Audio_Create(&audios[A_CLICK], "click", "audio/click.ogg");
-    SSGE_Audio_Create(&audios[A_TIE], "tie", "audio/tie.ogg");
-    SSGE_Audio_Create(&audios[A_WIN], "win", "audio/win.ogg");
+    SSGE_Audio *start = SSGE_Audio_Create(&audios[A_START], "start", "assets/start.ogg");
+    SSGE_Audio_Create(&audios[A_CLICK], "click", "assets/click.ogg");
+    SSGE_Audio_Create(&audios[A_TIE], "tie", "assets/tie.ogg");
+    SSGE_Audio_Create(&audios[A_WIN], "win", "assets/win.ogg");
 
     // Create the game structure
     Game game;
