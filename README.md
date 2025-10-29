@@ -30,6 +30,7 @@ I will make a proper documentation later :/
 ## Todo
 - ⬛ Z-Axis Map
 - ✅ Animation System
+- ⬛ 9-slice
 - ⬛ (maybe) Switch to SDL3
 - ⬛ (maybe) Make a GUI (game engine)
 
