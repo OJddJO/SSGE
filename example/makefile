@@ -4,7 +4,7 @@ else
 OSDIR		= _linux
 endif
 
-EXE			= $(OSDIR)/tictactoe
+EXE			= $(OSDIR)/bin/tictactoe
 SRC			= $(wildcard src/*.c)
 OBJ			= $(subst src, $(OSDIR)/build, $(patsubst %.c, %.o, $(SRC)))
 
@@ -27,21 +27,12 @@ setup:
 	@echo Setting up SSGE...
 	@echo Copying SSGE files to the project directory...
 	@echo This may take a while, please wait...
-ifeq ($(OS),Windows_NT)
-	@rm -f $(OSDIR)/bin/SSGE.dll
-	@cp -f ../$(OSDIR)/bin/SSGE.dll ./$(OSDIR)/SSGE.dll
-	@cp -f ../$(OSDIR)/bin/SDL2.dll ./$(OSDIR)/SDL2.dll
-	@cp -f ../$(OSDIR)/bin/SDL2_image.dll ./$(OSDIR)/SDL2_image.dll
-	@cp -f ../$(OSDIR)/bin/SDL2_ttf.dll ./$(OSDIR)/SDL2_ttf.dll
-	@cp -f ../$(OSDIR)/bin/SDL2_mixer.dll ./$(OSDIR)/SDL2_mixer.dll
-else
-	@rm -f $(OSDIR)/bin/libSSGE.so
-	@cp -f ../$(OSDIR)/bin/libSSGE.so ./$(OSDIR)/libSSGE.so
-endif
+	@rm -rf $(OSDIR)/bin
+	@cp -rf ../$(OSDIR)/bin -T ./$(OSDIR)/bin
 	@rm -rf $(OSDIR)/lib
-	@cp -rf ../$(OSDIR)/lib $(OSDIR)/lib
+	@cp -rf ../$(OSDIR)/lib -T $(OSDIR)/lib
 	@echo Copying assets...
-	@cp -rf assets -T ./$(OSDIR)/assets
+	@cp -rf assets -T ./$(OSDIR)/bin/assets
 
 clean:
 	@echo Cleaning up...
