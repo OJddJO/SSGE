@@ -30,9 +30,8 @@ extern "C" {
  * \param width The window width
  * \param height The window height
  * \param fps The frames per second
- * \return The engine struct
  */
-SSGEAPI const SSGE_Engine *SSGE_Init(const char *title, uint16_t width, uint16_t height, uint16_t fps);
+SSGEAPI void SSGE_Init(const char *title, uint16_t width, uint16_t height, uint16_t fps);
 
 /**
  * Quit the engine
@@ -170,6 +169,13 @@ SSGEAPI uint8_t SSGE_GetMaxFrameskip();
  * \return True if VSync is enabled, false otherwise
  */
 SSGEAPI bool SSGE_GetVSync();
+
+// For advanced usage
+/**
+ * Get the SDL_Renderer used by the engine
+ * \return The SDL_Renderer pointer
+ */
+SSGEAPI struct SDL_Renderer *SSGE_getRenderer();
 
 #ifdef __cplusplus
 }

@@ -24,7 +24,7 @@ static int _eventFilter(void *userdata, SDL_Event *event) {
     }
 }
 
-SSGEAPI const SSGE_Engine *SSGE_Init(const char *title, uint16_t width, uint16_t height, uint16_t fps) {
+SSGEAPI void SSGE_Init(const char *title, uint16_t width, uint16_t height, uint16_t fps) {
     if (_engine.initialized == true)
         SSGE_Error("Engine already initialized")
 
@@ -79,8 +79,6 @@ SSGEAPI const SSGE_Engine *SSGE_Init(const char *title, uint16_t width, uint16_t
     _engine.initialized = true;
     _engine.fullscreen = false;
     _engine.resizable = false;
-
-    return &_engine;
 }
 
 SSGEAPI void SSGE_Quit() {
@@ -347,4 +345,8 @@ SSGEAPI uint8_t SSGE_GetMaxFrameskip() {
 
 SSGEAPI bool SSGE_GetVSync() {
     return _engine.vsync;
+}
+
+SSGEAPI struct SDL_Renderer *SSGE_getRenderer() {
+    return _engine.renderer;
 }
