@@ -1,5 +1,7 @@
 # SSGE - Simple SDL2 Game Engine
 
+[![Release new version](https://github.com/OJddJO/SSGE/actions/workflows/release.yml/badge.svg)](https://github.com/OJddJO/SSGE/actions/workflows/release.yml)
+
 ## Description
 `SSGE` is a simple game engine written in C. It is made on top of the [`SDL2`](https://github.com/libsdl-org/SDL/tree/SDL2) library. The engine is designed to be simple, lightweight and easy to use. It is not a full game engine, but rather a simple framework to build a game on top of.
 
