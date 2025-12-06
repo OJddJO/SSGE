@@ -16,14 +16,35 @@
 - and more ...
 
 ## Usage
-To use the engine, download the release and copy the files into your project. You will need to link against `SDL2` and `SSGE` libraries.
+To use the engine, download the release and copy the files into your project. You will need to link against `SSGE` libraries.
 See [`example/makefile`](./example/makefile)
 
 The Linux version is built on `Ubuntu 24.04`. If you are using a different OS, you may need to rebuild the engine on your system. Ensure that you have installed the `SDL2` library, along with `SDL2_image`, `SDL2_mixer` and `SDL2_ttf`, on your system.
 
+### NixOS
+You can use the [`shell.nix`](shell.nix) file.
+
+### Ubuntu / Debian
+Install the required libraries with:
+```bash
+sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
+```
+
+### Arch Linux
+Install the required libraries with:
+```bash
+sudo pacman -Sq --noconfirm sdl2 sdl2_image sdl2_ttf sdl2_mixer
+```
+
+### Windows (MSYS2)
+Install the required libraries with:
+```bash
+pacman -Sq --noconfirm mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf
+```
+
 ## Example
 See [`example/src/tictactoe.c`](./example/src/tictactoe.c) for an example of how to use the engine.
-You can also see the [Minesweeper repo](https://github.com/OJddJO/Minesweeper) I made with this engine. (WARNING: `SSGE` version may be different)
+You can also see the [Minesweeper repo](https://github.com/OJddJO/Minesweeper) I made with this engine. (**WARNING**: `SSGE` version may be different)
 
 ## Documentation
 Each functions and structures are documented in the source code. See the header files for more information.

@@ -14,9 +14,9 @@ else
 LIB			= -lm # other libraries
 endif
 
-SSGE_LIB	= -L $(OSDIR)/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -lSSGE # must include when using SSGE
+SSGE_LIB	= -L $(OSDIR)/lib -lSSGE # must include when using SSGE
 INCLUDE		= -I include -I ../include # *.h files in include
-EXTRA		= -Werror -Wall -O3 #-mwindows
+EXTRA		= -Werror -Wall -O2 #-mwindows
 
 all: create_dirs setup link
 	@echo Done

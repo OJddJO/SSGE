@@ -4,6 +4,12 @@
 #ifndef __SSGE_CONFIG_H__
 #define __SSGE_CONFIG_H__
 
+#if defined(__WIN32__) || defined(__WINRT__) || defined(__CYGWIN__) || defined(__GDK__)
+    #ifndef _WIN32
+        #define _WIN32
+    #endif
+#endif
+
 #ifdef _WIN32
     #ifndef SSGE_STATIC
         #define SSGEDECL __declspec(dllexport)

@@ -148,8 +148,12 @@ jobs:
           update: true
           install: >
             mingw-w64-x86_64-toolchain
-            make
             mingw-w64-x86_64-7zip
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_image
+            mingw-w64-x86_64-SDL2_mixer
+            mingw-w64-x86_64-SDL2_ttf
+            make
 
       - name: Build
         run: make
@@ -157,10 +161,12 @@ jobs:
 
       - name: Package assets
         run: |
-          mkdir -p release
-          rm -rf _windows/build/ _windows/build_static/
-          (cd _windows && 7z a -tzip "../release/SSGE-${VERSION}-windows.zip" ./*)
-          7z a -tzip "release/SSGE-${VERSION}-windows.zip" include README.md LICENSE
+          mkdir -p release tmp_release
+          rm -rf tmp_release/* _windows/build/ _windows/build_static/
+          cp -a _windows/. tmp_release/
+          cp -a include/ README.md LICENSE tmp_release/
+          cd tmp_release && 7z a -tzip "../release/SSGE-${VERSION}-windows.zip" .
+          rm -rf tmp_release
         shell: bash
 
       - name: Upload release assets

@@ -80,7 +80,7 @@ typedef struct _SSGE_AnimationState {
     SSGE_Animation  *animation;     // The animation to track the animation state
     int             x;              // The x coordinate at which the animation is played
     int             y;              // The y coordinate at which the animation is played
-    uint32_t        loop;           // Number of loops (0 means play once, -1 means indefinitly)
+    uint32_t        loop;           // Number of loops (0 means play once, -1 means indefinitely)
     uint32_t        currentFrame;   // The index of the current frame
     uint8_t         currentFrameTime; // Elapsed time spent on the current frame (in frames)
     bool            reversed;       // If the animation is reversed or not
@@ -144,7 +144,7 @@ typedef struct _SSGE_Tile {
 // Font struct
 typedef struct _SSGE_Font {
     char                *name; // The name of the font
-    struct _TTF_Font    *font; // The TTF_Font
+    struct TTF_Font     *font; // The TTF_Font
 } SSGE_Font;
 
 // Audio struct

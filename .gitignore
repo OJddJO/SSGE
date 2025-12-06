@@ -21,3 +21,5 @@ coverage/
 # Custom
 test.*
 example/_*
+_windows/
+_linux/

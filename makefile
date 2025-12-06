@@ -16,8 +16,8 @@ OBJ_STATIC		= $(subst src,$(OSDIR)/build_static,$(patsubst %.c, %.o, $(SRC)))
 
 INCLUDE			= -I include
 LIB				= -L $(OSDIR)/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer
-EXTRA			= -Werror -Wall -flto=auto -DSSGE_BUILD -std=c17
-OFLAG			?= -O3
+EXTRA			= -Werror -Wall -DSSGE_BUILD -std=c17 -flto=auto
+OFLAG			?= -O2
 
 # Build mode: release, cpuSpecific
 BUILD_MODE		?= release
@@ -64,14 +64,19 @@ else
 	@cp $(DLL_BUILD) $(IMPLIB_BUILD)
 endif
 
-ubuntu-installsdl2:
-	@echo Installing SDL2 (Ubuntu)...
+ubuntu-setup:
+	@echo Installing dependencies (Ubuntu)...
 	@sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-mixer-dev -yq
 	@echo Done
 
-arch-installsdl2:
-	@echo Installing SDL2 (Arch)...
+arch-setup:
+	@echo Installing dependencies (Arch)...
 	@sudo pacman -Sq --noconfirm sdl2 sdl2_image sdl2_ttf sdl2_mixer
 	@echo Done
+
+msys2-setup:
+	@echo Installing dependencies (Windows/msys2)...
+	@pacman -Sq --noconfirm mingw-w64-x86_64-SDL2 mingw-w64-x86_64-SDL2_image mingw-w64-x86_64-SDL2_mixer mingw-w64-x86_64-SDL2_ttf
+	@echo Done
 	
-.PHONY: all remake clean create_dirs static dll
+.PHONY: all remake clean create_dirs static dll ubuntu-setup arch-setup msys2-setup

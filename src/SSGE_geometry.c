@@ -1,4 +1,4 @@
-#include "SDL2/SDL2_gfxPrimitives.h"
+#include "SDL2_gfxPrimitives.h"
 
 #include "SSGE_local.h"
 #include "SSGE/SSGE_geometry.h"

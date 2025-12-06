@@ -12,12 +12,12 @@
 #define WIN_H MAP_H * TILE_SIZE
 
 typedef struct _Game {
-    uint32_t            hitboxes[3][3]; // Hitboxes' ids
-    int                 board[3][3];    // The board (0 is empty, 1 and 2 is player)
-    uint8_t             current_player; // The current player (1 or 2)
-    uint8_t             winner;         // The id of the winner
-    uint8_t             turn;           // Current turn count
-    bool                ended;          // If the game has ended and is waiting for a click
+    uint32_t    hitboxes[3][3]; // Hitboxes' ids
+    int         board[3][3];    // The board (0 is empty, 1 and 2 is player)
+    uint8_t     current_player; // The current player (1 or 2)
+    uint8_t     winner;         // The id of the winner
+    uint8_t     turn;           // Current turn count
+    bool        ended;          // If the game has ended and is waiting for a click
 } Game;
 
 enum _audios {
