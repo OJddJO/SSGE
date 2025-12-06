@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "SSGE_local.h"
 #include "SSGE/SSGE_config.h"
 #include "SSGE/SSGE_types.h"
 
@@ -13,20 +14,20 @@ extern "C" {
 
 // Engine struct
 typedef struct _SSGE_Engine {
-    struct SDL_Window   *window;        // The window
-    struct SDL_Renderer *renderer;      // The renderer
-    char                *title;         // The title of the window
-    struct SDL_Surface  *icon;          // The icon of the window
-    uint16_t            width;          // The width of the window
-    uint16_t            height;         // The height of the window
-    uint16_t            fps;            // The frames per second
-    uint8_t             maxFrameskip;   // Max frameskip, default to 3
-    bool                vsync;          // If VSync is enabled
-    SSGE_WindowMode     fullscreen;     // If the window is in fullscreen
-    bool                borderless;     // If the window is borderless
-    bool                resizable;      // If the window is resizable
-    bool                isRunning;      // The running state of the engine
-    bool                initialized;    // If the `SSGE_Engine` has been initialized
+    SDL_Window      *window;        // The window
+    SDL_Renderer    *renderer;      // The renderer
+    char            *title;         // The title of the window
+    SDL_Surface     *icon;          // The icon of the window
+    uint16_t        width;          // The width of the window
+    uint16_t        height;         // The height of the window
+    uint16_t        fps;            // The frames per second
+    uint8_t         maxFrameskip;   // Max frameskip, default to 3
+    bool            vsync;          // If VSync is enabled
+    SSGE_WindowMode fullscreen;     // If the window is in fullscreen
+    bool            borderless;     // If the window is borderless
+    bool            resizable;      // If the window is resizable
+    bool            isRunning;      // The running state of the engine
+    bool            initialized;    // If the `SSGE_Engine` has been initialized
 } SSGE_Engine;
 
 // Array struct
@@ -41,12 +42,12 @@ typedef struct _SSGE_Array {
 
 // Texture struct
 typedef struct _SSGE_Texture {
-    char                *name;      // The name of the texture
-    uint32_t            id;         // The id of the texture
-    struct SDL_Texture  *texture;   // The SDL_Texture
-    int                 anchorX;    // Anchor x coordinate (relative to the texture)
-    int                 anchorY;    // Anchor y coordinate (relative to the texture)
-    SSGE_Array          queue;      // Queue of every render call for this texture
+    char        *name;      // The name of the texture
+    uint32_t    id;         // The id of the texture
+    SDL_Texture *texture;   // The SDL_Texture
+    int         anchorX;    // Anchor x coordinate (relative to the texture)
+    int         anchorY;    // Anchor y coordinate (relative to the texture)
+    SSGE_Array  queue;      // Queue of every render call for this texture
 } SSGE_Texture;
 
 // Animation struct
@@ -57,14 +58,14 @@ typedef struct _SSGE_Animation {
     SSGE_AnimationType  type;   // The animation type
     union {
         struct _SSGE_AnimationData {
-            struct SDL_Texture  **frames;       // An array of the animation frames
-            uint8_t             *frametimes;    // Frametime corresponding to each frames
-            uint32_t            frameCount;     // The number of animation frames
-            uint32_t            currentCount;   // The number of frames the animation currently have
-            uint16_t            width;          // The width of the frames
-            uint16_t            height;         // The height of the frames
-            int                 anchorX;        // Anchor x coordinate (relative to the frame)
-            int                 anchorY;        // Anchor y coordinate (relative to the frame)
+            SDL_Texture **frames;       // An array of the animation frames
+            uint8_t     *frametimes;    // Frametime corresponding to each frames
+            uint32_t    frameCount;     // The number of animation frames
+            uint32_t    currentCount;   // The number of frames the animation currently have
+            uint16_t    width;          // The width of the frames
+            uint16_t    height;         // The height of the frames
+            int         anchorX;        // Anchor x coordinate (relative to the frame)
+            int         anchorY;        // Anchor y coordinate (relative to the frame)
         } data;
 
         /**
@@ -126,12 +127,12 @@ typedef struct _SSGE_ObjectTemplate {
 
 // Tilemap struct
 typedef struct _SSGE_Tilemap {
-    struct SDL_Texture  *texture;   // The texture of the tilemap
-    uint16_t            tileWidth;  // The width of the tiles
-    uint16_t            tileHeight; // The height of the tiles
-    uint16_t            spacing;    // The spacing between the tiles
-    uint16_t            nbRows;     // The number of rows in the tilemap
-    uint16_t            nbCols;     // The number of columns in the tilemap
+    SDL_Texture *texture;   // The texture of the tilemap
+    uint16_t    tileWidth;  // The width of the tiles
+    uint16_t    tileHeight; // The height of the tiles
+    uint16_t    spacing;    // The spacing between the tiles
+    uint16_t    nbRows;     // The number of rows in the tilemap
+    uint16_t    nbCols;     // The number of columns in the tilemap
 } SSGE_Tilemap;
 
 // Tile struct
@@ -143,15 +144,15 @@ typedef struct _SSGE_Tile {
 
 // Font struct
 typedef struct _SSGE_Font {
-    char                *name; // The name of the font
-    struct TTF_Font     *font; // The TTF_Font
+    char        *name; // The name of the font
+    TTF_Font    *font; // The TTF_Font
 } SSGE_Font;
 
 // Audio struct
 typedef struct _SSGE_Audio {
-    char                *name;  // The name of the audio
-    uint32_t            id;     // The id of the audio
-    struct Mix_Chunk    *audio; // The Mix_Chunk
+    char        *name;  // The name of the audio
+    uint32_t    id;     // The id of the audio
+    Mix_Chunk   *audio; // The Mix_Chunk
 } SSGE_Audio;
 
 #ifdef __cplusplus
