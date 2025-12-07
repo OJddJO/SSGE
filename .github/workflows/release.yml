@@ -157,7 +157,7 @@ jobs:
 
       - name: Build
         run: make
-        shell: bash
+        shell: msys {0}
 
       - name: Package assets
         run: |
@@ -167,7 +167,7 @@ jobs:
           cp -a include/ README.md LICENSE tmp_release/
           cd tmp_release && 7z a -tzip "../release/SSGE-${VERSION}-windows.zip" .
           rm -rf tmp_release
-        shell: bash
+        shell: msys {0}
 
       - name: Upload release assets
         uses: softprops/action-gh-release@v2
