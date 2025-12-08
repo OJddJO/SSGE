@@ -35,6 +35,9 @@ SSGEAPI SSGE_Tile *SSGE_Tilemap_GetTile(SSGE_Tilemap *tilemap, uint16_t row, uin
 }
 
 SSGEAPI SSGE_Texture *SSGE_Tilemap_GetTileAsTexture(SSGE_Tilemap *tilemap, uint16_t row, uint16_t col, uint32_t *id, char *name) {
+    if (row >= tilemap->nbRows || col >= tilemap->nbCols) 
+        SSGE_ErrorEx2("Tile out of bounds (row: %u col: %u)", row, col)
+
     SSGE_Texture *texture = (SSGE_Texture *)malloc(sizeof(SSGE_Texture));
     if (texture == NULL) 
         SSGE_Error("Failed to allocate memory for texture")
